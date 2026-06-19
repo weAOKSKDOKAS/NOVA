@@ -1,0 +1,7 @@
+# SiteClaim backend dependencies (Phase 0 scaffold)
+fastapi
+uvicorn
+pydantic>=2
+anthropic
+python-multipart
+pytest
