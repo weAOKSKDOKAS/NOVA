@@ -183,6 +183,13 @@ PERMITTED_SERVICE_METHODS: Final[tuple[str, ...]] = (
     "contractual_method",  # UNVERIFIED — confirm with Cap.652 text/QS
 )
 
+# ===========================================================================
+# OPERATIONAL (non-statutory) — engineering thresholds, NOT law.
+# ===========================================================================
+# Below this LLM self-reported confidence, an extracted field is flagged for
+# human review in Stage 02. Tunable product knob, not a legal value.
+CONFIDENCE_REVIEW_THRESHOLD: Final[float] = 0.6  # operational, non-statutory
+
 
 __all__ = [
     "CONFIG_VERSION",
@@ -216,4 +223,5 @@ __all__ = [
     "DETERMINATION_EXTENSION_WORKING_DAYS",
     "DEEMED_SERVICE_DAYS_BY_POST",
     "PERMITTED_SERVICE_METHODS",
+    "CONFIDENCE_REVIEW_THRESHOLD",
 ]

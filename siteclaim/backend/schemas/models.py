@@ -119,6 +119,7 @@ class SourceMaterial(BaseModel):
 
     docs: ShipmentDocs = Field(default_factory=ShipmentDocs)
     description: str = ""  # free-text narrative supplied by the user
+    case_id: Optional[str] = None  # optional submission identifier (also locates DEMO_MODE fixtures)
     submitted_by: Optional[str] = None
     submitted_at: Optional[datetime] = None
 
@@ -334,6 +335,48 @@ class AuditReport(BaseModel):
         return not any(f.severity is Severity.FATAL for f in self.findings)
 
 
+# ---------------------------------------------------------------------------
+# Stage 02 (companion) — extraction self-verification (LLM-as-judge, Layer 2)
+# ---------------------------------------------------------------------------
+class FieldAssessment(BaseModel):
+    """The judge's verdict on one extracted field."""
+
+    field: str  # dotted path into ExtractedFacts, e.g. 'claimed_amount' or 'service.method'
+    supported: bool  # is this value actually supported by the source material?
+    adjusted_confidence: float = Field(ge=0.0, le=1.0)
+    note: str = ""  # why the judge lowered/kept the confidence
+
+
+class JudgeVerdict(BaseModel):
+    """Raw output of the Stage 02 LLM-as-judge pass (what the model returns)."""
+
+    summary: str = ""
+    assessments: list[FieldAssessment] = Field(default_factory=list)
+
+
+class ReviewFlag(BaseModel):
+    """A field flagged for human review because its confidence is below threshold."""
+
+    field: str  # dotted path
+    confidence: float
+    value_repr: Optional[str] = None  # stringified value, for display
+    reason: str = ""
+
+
+class JudgeReview(BaseModel):
+    """Processed judge result: confidence-adjusted facts + disputes + review flags.
+
+    ``verify_extraction`` applies a :class:`JudgeVerdict` to the extracted facts,
+    lowering confidence where the source does not support a value, and surfaces
+    every field that falls below ``sopo_config.CONFIDENCE_REVIEW_THRESHOLD``.
+    """
+
+    facts: ExtractedFacts
+    disputed_fields: list[FieldAssessment] = Field(default_factory=list)
+    review_flags: list[ReviewFlag] = Field(default_factory=list)
+    summary: str = ""
+
+
 __all__ = [
     # enums
     "ContractType",
@@ -364,6 +407,11 @@ __all__ = [
     # stage 04 out
     "Finding",
     "AuditReport",
+    # stage 02 judge (extraction self-verification)
+    "FieldAssessment",
+    "JudgeVerdict",
+    "ReviewFlag",
+    "JudgeReview",
 ]
 
 # Resolve the forward reference ValidityReport.deadlines -> DeadlineSet now that
