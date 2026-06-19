@@ -35,8 +35,22 @@ def test_the_payment_response_window_is_30_calendar_days_after_service(compliant
 
 def test_deadlines_fall_back_to_the_reference_date_without_a_service_date(compliant_facts, today):
     compliant_facts.claim_served_date = ff(None)
+    compliant_facts.service.date_served = ff(None)  # no service date recorded at all
     ds = compute_deadlines(compliant_facts, today)
     assert ds.computed_from == date(2026, 2, 28)
+
+
+def test_an_early_served_claim_clocks_from_the_deemed_reference_date(compliant_facts, today):
+    # Served BEFORE the reference date: under SOPO (CIC Q23) the claim is deemed
+    # served on the reference date, so the clock runs from there — NOT the early date.
+    reference = date(2026, 2, 28)
+    compliant_facts.service.date_served = ff(date(2026, 2, 20))  # 8 days early
+    compliant_facts.claim_served_date = ff(date(2026, 2, 20))
+    ds = compute_deadlines(compliant_facts, today)
+    assert ds.computed_from == reference  # deemed date, not the early service date
+    d = by_name(ds.deadlines, "payment_response_due")
+    assert d.due_date == date(2026, 3, 30)  # 2026-02-28 + 30 calendar days (deemed)
+    assert d.due_date != date(2026, 3, 22)  # NOT 2026-02-20 + 30 (the raw early date)
 
 
 def test_the_clock_reports_the_nearest_upcoming_deadline(compliant_facts, today):
@@ -47,7 +61,11 @@ def test_the_clock_reports_the_nearest_upcoming_deadline(compliant_facts, today)
 
 def test_a_breached_response_window_is_detected(compliant_facts):
     today = date(2026, 3, 2)
-    compliant_facts.claim_served_date = ff(date(2026, 1, 1))  # served long ago
+    # Reference + service both long ago (served on/after reference, so no deeming):
+    # the 30-day response window has closed.
+    compliant_facts.reference_date = ff(date(2026, 1, 1))
+    compliant_facts.service.date_served = ff(date(2026, 1, 1))
+    compliant_facts.claim_served_date = ff(date(2026, 1, 1))
     ds = compute_deadlines(compliant_facts, today)
     d = by_name(ds.deadlines, "payment_response_due")
     assert d.due_date < today and d.business_days_remaining < 0

@@ -20,12 +20,14 @@ def test_service_on_the_wrong_party_is_fatal(compliant_facts):
     assert c.severity is Severity.FATAL and not c.passed
 
 
-def test_serving_the_claim_before_its_reference_date_is_fatal(compliant_facts):
-    # reference date is 2026-02-28; serving the day before is premature.
+def test_serving_the_claim_before_its_reference_date_is_deemed_not_fatal(compliant_facts):
+    # reference date is 2026-02-28; serving the day before is NOT void. Under SOPO
+    # (CIC Q23) it is deemed served on the reference date — cured, not fatal.
     compliant_facts.service.date_served = ff(date(2026, 2, 27))
     compliant_facts.claim_served_date = ff(date(2026, 2, 27))
     c = by_name(check_notice_validity(compliant_facts), "notice.timing")
-    assert c.severity is Severity.FATAL and not c.passed
+    assert c.severity is Severity.INFO and c.passed
+    assert "deemed" in c.explanation.lower()
 
 
 def test_an_unknown_service_method_is_a_warning_not_fatal(compliant_facts):

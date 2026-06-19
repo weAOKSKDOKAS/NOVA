@@ -281,7 +281,7 @@ class DeadlineSet(BaseModel):
     """Stage 02 companion output: every live SOPO deadline for this claim."""
 
     deadlines: list[Deadline] = Field(default_factory=list)
-    computed_from: Optional[date] = None  # the reference date used for the maths
+    computed_from: Optional[date] = None  # the effective (deemed) service date the clock ran from
     computed_at: datetime = Field(default_factory=_utcnow)
 
 

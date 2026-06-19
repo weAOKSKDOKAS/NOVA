@@ -16,6 +16,7 @@ from typing import Optional
 from schemas.models import Deadline, DeadlineSet, ExtractedFacts
 
 from . import business_days, sopo_config
+from .notice_validity import effective_service_date
 
 
 def hk_public_holidays() -> set[date]:
@@ -48,10 +49,12 @@ def _deadline(name: str, due: date, today: date, sopo_reference: str) -> Deadlin
 def compute_deadlines(facts: ExtractedFacts, today: date) -> DeadlineSet:
     """Compute every live statutory deadline for the claim, relative to ``today``.
 
-    Anchored on the claim's service date (falling back to the reference date).
-    Returns an empty set if neither is known.
+    Anchored on the EFFECTIVE (deemed) service date: a claim served before its
+    reference date is deemed served on the reference date (CIC Q23), so the clock
+    runs from there — not the early date. Falls back to the reference date when no
+    service date is recorded; returns an empty set if neither is known.
     """
-    served = facts.claim_served_date.value or facts.reference_date.value
+    served = effective_service_date(facts)
     if served is None:
         return DeadlineSet(deadlines=[], computed_from=None)
 

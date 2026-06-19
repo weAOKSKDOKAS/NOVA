@@ -6,10 +6,15 @@ timing, and with proof? A void notice sinks an otherwise good claim.
 
 Where the underlying rule is UNVERIFIED in ``sopo_config`` (permitted service
 methods, deemed receipt), the check is graded ``WARNING`` rather than ``FATAL`` —
-we flag the risk without asserting a rule we have not confirmed. The two places
-the defect is unambiguous (wrong party; serving before the reference date) are
-``FATAL``.
+we flag the risk without asserting a rule we have not confirmed. The one place
+the defect is unambiguous — service on the wrong party — is ``FATAL``. Serving
+*before* the reference date is NOT fatal: under SOPO (CIC Q23) such a claim is
+deemed served on the reference date (cured), so it is graded ``INFO`` and the
+deemed date anchors the deadline clock (see :func:`effective_service_date`).
 """
+
+from datetime import date
+from typing import Optional
 
 from schemas.models import Check, ExtractedFacts, Severity
 
@@ -99,8 +104,30 @@ def _check_method(facts: ExtractedFacts) -> Check:
     )
 
 
+def _raw_service_date(facts: ExtractedFacts) -> Optional[date]:
+    """The recorded date of service: the explicit service record, else the top-level field."""
+    return facts.service.date_served.value or facts.claim_served_date.value
+
+
+def effective_service_date(facts: ExtractedFacts) -> Optional[date]:
+    """The date service legally takes effect — the DEEMED service date.
+
+    Under SOPO (CIC Q23) a claim served *before* its reference date is deemed
+    served on the reference date; it is not void. Every downstream deadline runs
+    from this effective date, never the raw early date. Falls back to the
+    reference date when no service date is recorded; ``None`` when neither is known.
+    """
+    served = _raw_service_date(facts)
+    reference = facts.reference_date.value
+    if served is None:
+        return reference
+    if reference is not None and served < reference:
+        return reference  # deemed served on the reference date (CIC Q23)
+    return served
+
+
 def _check_timing(facts: ExtractedFacts) -> Check:
-    served = facts.service.date_served.value or facts.claim_served_date.value
+    served = _raw_service_date(facts)
     reference = facts.reference_date.value
     if served is None:
         return check(
@@ -111,12 +138,18 @@ def _check_timing(facts: ExtractedFacts) -> Check:
             explanation="Date of service unknown; timing cannot be checked. The service date anchors every downstream deadline — confirm it.",
         )
     if reference is not None and served < reference:
+        # CIC Q23: a claim served before its reference date is DEEMED served on the
+        # reference date — cured, not void. Layer 1 records this; it does not block.
         return check(
             name="notice.timing",
-            passed=False,
-            severity=Severity.FATAL,
+            passed=True,
+            severity=Severity.INFO,
             sopo_reference=_TIMING_REF,
-            explanation=f"Claim served on {served}, BEFORE its reference date {reference}. A claim cannot be validly served before the reference date it relates to.",
+            explanation=(
+                f"Claim served early on {served}; under SOPO it is deemed served on the "
+                f"reference date {reference}, so it is not invalid — but every downstream "
+                f"deadline runs from {reference}, not {served}."
+            ),
         )
     tail = f", on/after the reference date {reference}." if reference is not None else "; reference date unknown, so only basic timing is checked."
     return check(
