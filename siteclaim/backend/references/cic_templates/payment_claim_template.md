@@ -1,9 +1,11 @@
 # Payment Claim — compliant skeleton (Layer 3 template)
 
-> ⚠️ **UNVERIFIED template.** Generic skeleton of a CISOP payment claim with the
-> mandatory particulars as placeholders. It is **not legal advice** and not an
-> official CIC form. Confirm required wording and layout against the enacted
-> Ordinance and current CIC guidance before use. Placeholders are written as
+> ⚠️ **UNVERIFIED template.** Generic skeleton of a SOPO payment claim with the
+> mandatory particulars as placeholders. The exact **s.18 content requirements**
+> are still **TODO** (to be confirmed from the Cap.652 text), so the placeholder
+> set below is provisional. It is **not legal advice** and not an official CIC
+> form. Confirm required wording and layout against the enacted Ordinance and
+> current CIC guidance before use. Placeholders are written as
 > `{{double_braces}}` and map to fields on `schemas.models.ClaimDraft` /
 > `ExtractedFacts`.
 
@@ -11,7 +13,7 @@
 
 ## PAYMENT CLAIM
 
-**Made under the Construction Industry Security of Payment Ordinance** # UNVERIFIED — confirm exact statutory wording
+**Made under the Construction Industry Security of Payment Ordinance (Cap. 652)** # UNVERIFIED — confirm exact statutory wording
 
 **Claim reference:** `{{claim_reference}}`
 **Date of this claim:** `{{claim_served_date}}`

@@ -41,11 +41,11 @@ def _utcnow() -> datetime:
 # Enumerations
 # ---------------------------------------------------------------------------
 class ContractType(str, Enum):
-    """Coarse contract classification that drives CISOP applicability.
+    """Coarse contract classification that drives SOPO applicability.
 
     The distinction matters because the monetary threshold for the Ordinance to
     apply differs between construction work and the mere supply of goods or
-    services (see ``rules_engine.cisop_config``). UNVERIFIED — confirm the exact
+    services (see ``rules_engine.sopo_config``). UNVERIFIED — confirm the exact
     statutory categories against the enacted text.
     """
 
@@ -203,7 +203,7 @@ class Check(BaseModel):
     name: str
     passed: bool
     severity: Severity
-    cisop_reference: str  # e.g. 'CISOP s.13(2)' — UNVERIFIED until lawyer-checked
+    sopo_reference: str  # e.g. 'SOPO s.20' — see rules_engine.sopo_config for tier (SOURCED/UNVERIFIED)
     explanation: str
 
 
@@ -212,7 +212,7 @@ class ValidityReport(BaseModel):
 
     This is where legal correctness lives. The LLM does not produce this — the
     Rules Engine does, deterministically, from :class:`ExtractedFacts` and the
-    constants in ``rules_engine.cisop_config``.
+    constants in ``rules_engine.sopo_config``.
     """
 
     checks: list[Check] = Field(default_factory=list)
@@ -235,11 +235,11 @@ class Deadline(BaseModel):
     name: str
     due_date: date
     business_days_remaining: int
-    cisop_reference: str  # UNVERIFIED until lawyer-checked
+    sopo_reference: str  # e.g. 'SOPO s.42(5)' — see rules_engine.sopo_config for tier (SOURCED/UNVERIFIED)
 
 
 class DeadlineSet(BaseModel):
-    """Stage 02 companion output: every live CISOP deadline for this claim."""
+    """Stage 02 companion output: every live SOPO deadline for this claim."""
 
     deadlines: list[Deadline] = Field(default_factory=list)
     computed_from: Optional[date] = None  # the reference date used for the maths
@@ -266,7 +266,7 @@ class ClaimDraft(BaseModel):
     currency: str = "HKD"
     line_items: list[LineItem] = Field(default_factory=list)
     basis_of_calculation: Optional[str] = None
-    statutory_statement: Optional[str] = None  # the 'made under CISOP' wording
+    statutory_statement: Optional[str] = None  # the 'made under SOPO' wording
     supporting_doc_refs: list[str] = Field(default_factory=list)
     rendered_markdown: str = ""
     generated_at: datetime = Field(default_factory=_utcnow)

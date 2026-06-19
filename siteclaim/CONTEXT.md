@@ -3,8 +3,8 @@
 SiteClaim runs as five numbered stages under `backend/pipeline/`. Each stage
 reads and writes the typed models in `backend/schemas/models.py` —
 **plain-data handoff, no shared state**. Shared **Layer 3 references** live in
-`backend/references/` (CISOP overview, CIC templates) and are read-only.
-**Layer 1 statutory constants** live in `backend/rules_engine/cisop_config.py`.
+`backend/references/` (SOPO overview, CIC templates) and are read-only.
+**Layer 1 statutory constants** live in `backend/rules_engine/sopo_config.py`.
 
 | # | Stage | Consumes | Produces | Layer |
 | --- | --- | --- | --- | --- |

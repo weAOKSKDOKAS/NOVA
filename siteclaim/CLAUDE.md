@@ -5,9 +5,9 @@
 
 ## What SiteClaim is
 
-SiteClaim is a **CISOP-compliant payment-claim drafting copilot** for Hong Kong
-construction subcontractors. CISOP = the **Construction Industry Security of
-Payment Ordinance**. A subcontractor uploads messy evidence (invoices, site
+SiteClaim is a **SOPO-compliant payment-claim drafting copilot** for Hong Kong
+construction subcontractors. SOPO = the **Construction Industry Security of
+Payment Ordinance (Cap. 652)**. A subcontractor uploads messy evidence (invoices, site
 records, emails, the contract) and SiteClaim helps them produce a payment claim
 that is valid under the Ordinance, and tells them the statutory deadlines that
 follow from serving it.
@@ -29,10 +29,10 @@ stop — that belongs in Layer 1.
 
 - **Layer 1 — Rules Engine** (`backend/rules_engine/`): pure Python,
   deterministic. **Legal correctness lives here.** Every statutory number is in
-  `cisop_config.py`. No ML.
+  `sopo_config.py`; CALENDAR-vs-WORKING day arithmetic is in `business_days.py`. No ML.
 - **Layer 2 — Claude (LLM)**: reads messy input, extracts facts, drafts prose.
   Used in stages 01 and 03 (and an optional self-review in 04).
-- **Layer 3 — RAG grounding** over a curated CISOP + CIC corpus in
+- **Layer 3 — RAG grounding** over a curated SOPO + CIC corpus in
   `backend/references/`. Stable across runs.
 - **Layer 4 — Human-in-the-loop** approval gate (stage 05). Nothing is served on
   a respondent without explicit human sign-off.
@@ -60,7 +60,8 @@ without human sign-off.
 | Path | What it is |
 | --- | --- |
 | `backend/schemas/models.py` | The typed contracts every stage passes. Read this to know the data. |
-| `backend/rules_engine/cisop_config.py` | **ALL** statutory parameters, each tagged with a CISOP reference and `# UNVERIFIED` where uncertain. |
+| `backend/rules_engine/sopo_config.py` | **ALL** statutory parameters, each tagged with a SOPO reference and a SOURCED or `# UNVERIFIED` tier. |
+| `backend/rules_engine/business_days.py` | CALENDAR-vs-WORKING day arithmetic for deadlines (the distinction is load-bearing). |
 | `backend/rules_engine/tests/` | Smoke tests for Layer 1. |
 | `backend/pipeline/stage_NN_*/CONTEXT.md` | Per-stage contract. |
 | `backend/references/` | Layer 3 corpus (ordinance overview, CIC templates). |
@@ -71,10 +72,11 @@ without human sign-off.
 
 ## ⚠️ Legal-safety note
 
-Statutory values in `cisop_config.py` are **best-effort placeholders from
-secondary research**. They must be validated by a quantity surveyor or
-construction lawyer before any output is relied upon. SiteClaim assists drafting;
-it does not give legal advice.
+Statutory values in `sopo_config.py` are tagged in two tiers: **SOURCED** (from a
+secondary law-firm summary, still to be cross-checked against the e-legislation
+Cap.652 text) and **`# UNVERIFIED`** (unconfirmed placeholders). All of them must
+be validated by a quantity surveyor or construction lawyer before any output is
+relied upon. SiteClaim assists drafting; it does not give legal advice.
 
 ## Status
 

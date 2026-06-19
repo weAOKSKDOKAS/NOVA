@@ -14,7 +14,7 @@ stage is implemented.
 
 from fastapi import FastAPI, HTTPException, status
 
-from rules_engine import cisop_config
+from rules_engine import sopo_config
 from schemas.models import (
     AuditReport,
     ClaimDraft,
@@ -27,7 +27,7 @@ from schemas.models import (
 app = FastAPI(
     title="SiteClaim API",
     version="0.0.0",
-    description="CISOP-compliant payment-claim drafting copilot (scaffold).",
+    description="SOPO-compliant payment-claim drafting copilot (scaffold).",
 )
 
 
@@ -42,13 +42,13 @@ def _not_implemented(stage: str) -> None:
 @app.get("/health")
 def health() -> dict[str, str]:
     """Liveness probe with the active statutory-config version."""
-    return {"status": "ok", "config_version": cisop_config.CONFIG_VERSION}
+    return {"status": "ok", "config_version": sopo_config.CONFIG_VERSION}
 
 
 @app.get("/legal-notice")
 def legal_notice() -> dict[str, str]:
     """Surface the statutory warning so no client can hide it from the user."""
-    return {"warning": cisop_config.STATUTORY_WARNING, "source": cisop_config.STATUTORY_SOURCE}
+    return {"warning": sopo_config.STATUTORY_WARNING, "source": sopo_config.STATUTORY_SOURCE}
 
 
 # --- Pipeline endpoints (one per numbered stage; NOT YET IMPLEMENTED) -------
@@ -68,7 +68,7 @@ def validate(facts: ExtractedFacts) -> ValidityReport:  # noqa: ARG001
 
 @app.post("/claims/deadlines", response_model=DeadlineSet)
 def deadlines(facts: ExtractedFacts) -> DeadlineSet:  # noqa: ARG001
-    """Stage 02 (Layer 1) — compute the CISOP deadline set for the claim."""
+    """Stage 02 (Layer 1) — compute the SOPO deadline set for the claim."""
     _not_implemented("stage_02_validate")
     raise AssertionError("unreachable")  # pragma: no cover
 

@@ -3,17 +3,18 @@
 ## Inputs
 
 - `ExtractedFacts` (`schemas.models`) — the output of Stage 01.
-- `rules_engine.cisop_config` — all statutory constants.
-- Layer 3 reference (read-only): `references/cisop_ordinance/overview.md`.
+- `rules_engine.sopo_config` — all statutory constants (and `rules_engine.business_days` for day arithmetic).
+- Layer 3 reference (read-only): `references/sopo_ordinance/overview.md`.
 
 ## Process
 
 The deterministic Rules Engine (pure Python, no ML) runs every statutory check
-against the facts — mandatory particulars (CISOP s.13), threshold applicability
-for the contract type, and reference-date sanity — grading each as fatal,
-warning, or info. It then computes every live deadline (payment response,
-payment due, adjudication windows) in business days from the reference date.
-**This is where legal correctness lives.**
+against the facts — mandatory particulars (SOPO s.18 — TODO, awaiting
+confirmation of the exact fields), threshold applicability for the contract
+type, and reference-date sanity — grading each as fatal, warning, or info. It
+then computes every live deadline (payment response, payment due, adjudication
+windows), counting in CALENDAR or WORKING days as each section requires (via
+`business_days`). **This is where legal correctness lives.**
 
 ## Outputs
 

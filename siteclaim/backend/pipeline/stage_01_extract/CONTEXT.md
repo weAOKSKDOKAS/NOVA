@@ -4,7 +4,7 @@
 
 - `SourceMaterial` (`schemas.models`) — the raw uploads (`ShipmentDocs`) plus the
   user's free-text description.
-- Layer 3 reference (read-only): `references/cisop_ordinance/overview.md`, to know
+- Layer 3 reference (read-only): `references/sopo_ordinance/overview.md`, to know
   which facts a valid claim needs.
 
 ## Process
