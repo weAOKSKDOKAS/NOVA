@@ -1,4 +1,4 @@
-"""Run Stage 01 -> 02 -> 03 on the demo fixtures and pretty-print the results.
+"""Run Stage 01 -> 02 -> 03 -> 04 on the demo fixtures and pretty-print the results.
 
 Offline by default: this script forces DEMO_MODE on, so the pipeline reads canned
 fixtures and makes ZERO network calls. Run from the ``backend/`` directory:
@@ -19,11 +19,19 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from rules_engine.deadlines import clock  # noqa: E402
 from rules_engine.engine import run_validation  # noqa: E402
-from schemas.models import ClaimDraft, ExtractedFacts, JudgeReview, SourceMaterial, ValidityReport  # noqa: E402
+from schemas.models import (  # noqa: E402
+    AuditReport,
+    ClaimDraft,
+    ExtractedFacts,
+    JudgeReview,
+    SourceMaterial,
+    ValidityReport,
+)
 
 from pipeline.stage_01_extract.extract import extract_facts  # noqa: E402
 from pipeline.stage_02_validate.verify import iter_fact_fields, verify_extraction  # noqa: E402
 from pipeline.stage_03_draft.draft import draft_claim  # noqa: E402
+from pipeline.stage_04_audit.audit import audit_claim  # noqa: E402
 
 DEMO_TODAY = date(2026, 3, 2)
 CASES = ("clean", "messy", "gotcha")
@@ -90,7 +98,27 @@ def _print_draft(draft: ClaimDraft) -> None:
     print("  " + _rule("·"))
 
 
-def run_case(case_id: str) -> JudgeReview:
+_VERDICT_MARK = {
+    "fileable": "✅ FILEABLE",
+    "fileable_with_fixes": "⚠️ FILEABLE_WITH_FIXES",
+    "not_fileable": "⛔ NOT_FILEABLE",
+}
+
+
+def _print_audit(audit: AuditReport) -> None:
+    print(f"  Stage 04 — forensic audit: {_VERDICT_MARK[audit.verdict.value]}")
+    if not audit.findings:
+        print("    findings: none (clean cross-check)")
+        return
+    print(f"    findings ({len(audit.findings)}, fatal → warning → info):")
+    for f in audit.findings:
+        cite = f" <{f.sopo_reference}>" if f.sopo_reference else ""
+        print(f"    [{f.severity.value:<7}] {f.location}{cite}")
+        print(f"              issue: {f.issue}")
+        print(f"              fix:   {f.suggested_fix}")
+
+
+def run_case(case_id: str) -> tuple[JudgeReview, AuditReport]:
     source = SourceMaterial.model_validate_json(
         (_FIXTURES / case_id / "source.json").read_text(encoding="utf-8")
     )
@@ -115,20 +143,29 @@ def run_case(case_id: str) -> JudgeReview:
     draft = draft_claim(review.facts, report)  # Stage 03 — drafting
     _print_draft(draft)
     print()
-    return review
+
+    audit = audit_claim(review.facts, report, draft, DEMO_TODAY)  # Stage 04 — forensic audit
+    _print_audit(audit)
+    print()
+    return review, audit
 
 
 def main() -> None:
     print(f"SiteClaim pipeline demo (DEMO_MODE={os.environ['DEMO_MODE']}, offline) — today={DEMO_TODAY}\n")
     triggered: list[str] = []
+    verdicts: dict[str, str] = {}
     for case_id in CASES:
-        review = run_case(case_id)
+        review, audit = run_case(case_id)
         if review.review_flags:
             triggered.append(case_id)
+        verdicts[case_id] = _VERDICT_MARK[audit.verdict.value]
     print(_rule("═"))
     print("SUMMARY")
     print(_rule())
     print(f"  Fixtures that triggered low-confidence review: {triggered or 'none'}")
+    print("  Stage 04 audit verdicts:")
+    for case_id in CASES:
+        print(f"    {case_id:<8} {verdicts[case_id]}")
 
 
 if __name__ == "__main__":
