@@ -75,9 +75,48 @@ STATUTORY_WARNING: Final[str] = (
 # business_days mode='part4' (Saturdays count there).
 WEEKEND_DAYS: Final[tuple[int, ...]] = (5, 6)  # SOURCED (CIC FAQ Q36) — adjudication working days exclude Saturdays, general holidays (incl. Sundays), and black rainstorm/gale days
 
-# Hong Kong general/public holidays must be loaded from a maintained source
-# (Layer 3) before any WORKING-day arithmetic can be trusted. Empty on purpose.
-PUBLIC_HOLIDAYS: Final[tuple[str, ...]] = ()  # UNVERIFIED — load official gazette holidays (ISO date strings)
+# Hong Kong general holidays, best-effort 2025–2026 (ISO date strings), consumed
+# by deadlines.business_days_between for working-day arithmetic.
+# ⚠️ UNVERIFIED — confirm EVERY date against the official Government Gazette / GLD
+# list before relying on a computed deadline. Lunar-calendar-derived and
+# "observed/shifted" dates (marked CONFIRM) are especially error-prone.
+PUBLIC_HOLIDAYS: Final[tuple[str, ...]] = (
+    # --- 2025 ---
+    "2025-01-01",  # The first day of January
+    "2025-01-29",  # Lunar New Year's Day
+    "2025-01-30",  # Second day of Lunar New Year
+    "2025-01-31",  # Third day of Lunar New Year
+    "2025-04-04",  # Ching Ming Festival
+    "2025-04-18",  # Good Friday
+    "2025-04-19",  # Day following Good Friday
+    "2025-04-21",  # Easter Monday
+    "2025-05-01",  # Labour Day
+    "2025-05-05",  # Birthday of the Buddha
+    "2025-05-31",  # Tuen Ng (Dragon Boat) Festival
+    "2025-07-01",  # HKSAR Establishment Day
+    "2025-10-01",  # National Day
+    "2025-10-07",  # Day following the Chinese Mid-Autumn Festival
+    "2025-10-29",  # Chung Yeung Festival
+    "2025-12-25",  # Christmas Day
+    "2025-12-26",  # First weekday after Christmas Day
+    # --- 2026 (provisional — CONFIRM gazetted dates, esp. observed shifts) ---
+    "2026-01-01",  # The first day of January
+    "2026-02-17",  # Lunar New Year's Day — CONFIRM
+    "2026-02-18",  # Second day of Lunar New Year — CONFIRM
+    "2026-02-19",  # Third day of Lunar New Year — CONFIRM
+    "2026-04-03",  # Good Friday
+    "2026-04-04",  # Day following Good Friday
+    "2026-04-06",  # Easter Monday (Ching Ming 5 Apr falls on a Sunday) — CONFIRM observed shift
+    "2026-05-01",  # Labour Day
+    "2026-05-24",  # Birthday of the Buddha — CONFIRM
+    "2026-06-19",  # Tuen Ng (Dragon Boat) Festival — CONFIRM
+    "2026-07-01",  # HKSAR Establishment Day
+    "2026-09-26",  # Day following the Chinese Mid-Autumn Festival — CONFIRM
+    "2026-10-01",  # National Day
+    "2026-10-18",  # Chung Yeung Festival — CONFIRM
+    "2026-12-25",  # Christmas Day
+    "2026-12-26",  # Boxing Day
+)  # UNVERIFIED — confirm against the official HK Government Gazette
 
 # ---------------------------------------------------------------------------
 # SOURCED time bars — payment mechanism (CALENDAR days)
@@ -150,7 +189,6 @@ MANDATORY_CLAIM_PARTICULARS: Final[tuple[tuple[str, str], ...]] = (
 # ===========================================================================
 MIN_DAYS_BETWEEN_CLAIMS: Final[int] = 30  # (calendar days) — UNVERIFIED — confirm with Cap.652 text/QS
 DEFAULT_REFERENCE_DATE_INTERVAL_DAYS: Final[int] = 30  # (calendar days) — UNVERIFIED — confirm with Cap.652 text/QS
-CLAIM_LONGSTOP_AFTER_COMPLETION_DAYS: Final[int] = 540  # UNVERIFIED — no statutory basis found (CIC Q29 implies claims continue through defect-liability period); verify or remove
 DETERMINATION_EXTENSION_WORKING_DAYS: Final[int] = 10  # extra time by agreement — UNVERIFIED — confirm with Cap.652 text/QS
 DEEMED_SERVICE_DAYS_BY_POST: Final[int] = 2  # (calendar days) added on postal service — UNVERIFIED — confirm with Cap.652 text/QS
 PERMITTED_SERVICE_METHODS: Final[tuple[str, ...]] = (
@@ -190,7 +228,6 @@ __all__ = [
     "MANDATORY_CLAIM_PARTICULARS",
     "MIN_DAYS_BETWEEN_CLAIMS",
     "DEFAULT_REFERENCE_DATE_INTERVAL_DAYS",
-    "CLAIM_LONGSTOP_AFTER_COMPLETION_DAYS",
     "DETERMINATION_EXTENSION_WORKING_DAYS",
     "DEEMED_SERVICE_DAYS_BY_POST",
     "PERMITTED_SERVICE_METHODS",
