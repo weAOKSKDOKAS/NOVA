@@ -85,8 +85,18 @@ def _system_prompt() -> str:
     return _SYSTEM_TEMPLATE.format(grounding=_grounding(), schema=schema)
 
 
-def _user_prompt(source: SourceMaterial) -> str:
+def _user_prompt(source: SourceMaterial, has_images: bool = False) -> str:
     files = "\n".join(f"- {f.filename} ({f.content_type})" for f in source.docs.files)
+    if has_images:
+        return (
+            "SOURCE MATERIAL\n"
+            "The attached image(s) are the uploaded document(s) (e.g. an invoice or the "
+            "contract). READ THEM and extract the facts from what you actually see.\n"
+            f"User's note (context only):\n{source.description or '(none provided)'}\n\n"
+            "For every value, set `source_span` to the literal text you read on the document "
+            '(e.g. "Total Due: HK$1,250,000"). Leave a fact null if the document does not show it.\n\n'
+            "Extract the ExtractedFacts JSON now."
+        )
     return (
         "SOURCE MATERIAL\n"
         f"Free-text description:\n{source.description or '(none provided)'}\n\n"
@@ -95,12 +105,18 @@ def _user_prompt(source: SourceMaterial) -> str:
     )
 
 
-def extract_facts(source: SourceMaterial) -> ExtractedFacts:
-    """Extract typed, provenance-tagged facts from raw source material (Layer 2)."""
+def extract_facts(source: SourceMaterial, images: list[str] | None = None) -> ExtractedFacts:
+    """Extract typed, provenance-tagged facts from raw source material (Layer 2).
+
+    When ``images`` (base64 PNGs from :mod:`pipeline.documents`) are supplied and we
+    are not in DEMO_MODE, extraction is multimodal — the vision model reads the
+    document directly. DEMO_MODE still loads the canned fixture by ``case_id``.
+    """
     demo_fixture = f"cases/{source.case_id}/extracted.json" if source.case_id else None
     return _client.complete_json(
         system=_system_prompt(),
-        user=_user_prompt(source),
+        user=_user_prompt(source, has_images=bool(images)),
         target_model=ExtractedFacts,
         demo_fixture=demo_fixture,
+        images=images,
     )

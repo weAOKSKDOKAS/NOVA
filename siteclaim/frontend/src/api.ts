@@ -50,6 +50,14 @@ export const api = {
   demoCases: () => get<DemoCase[]>("/demo/cases"),
   demoCase: (id: string) => get<SourceMaterial>(`/demo/${id}`),
   extract: (source: SourceMaterial) => post<ExtractedFacts>("/extract", source),
+  // Live multimodal extraction: POST the raw files as multipart/form-data.
+  extractUpload: (files: File[], description: string, caseId: string | null) => {
+    const fd = new FormData();
+    for (const f of files) fd.append("files", f);
+    fd.append("description", description);
+    if (caseId) fd.append("case_id", caseId);
+    return fetch(BASE + "/extract-upload", { method: "POST", body: fd }).then((r) => handle<ExtractedFacts>(r));
+  },
   verify: (req: VerifyRequest) => post<VerifyResponse>("/verify", req),
   draft: (req: { facts: ExtractedFacts; validity: ValidityReport }) => post<ClaimDraft>("/draft", req),
   audit: (req: { facts: ExtractedFacts; validity: ValidityReport; draft: ClaimDraft }) =>

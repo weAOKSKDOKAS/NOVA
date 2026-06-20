@@ -48,6 +48,21 @@ def test_unknown_demo_case_is_404():
     assert client.get("/demo/does-not-exist").status_code == 404
 
 
+def test_extract_upload_in_demo_replays_the_fixture():
+    # DEMO_MODE: the uploaded bytes are ignored (no vision call); the case_id
+    # fixture is replayed, so this stays offline and needs no PDF tooling.
+    files = {"files": ("invoice.pdf", b"%PDF-1.4 not really a pdf", "application/pdf")}
+    res = client.post("/extract-upload", files=files, data={"case_id": "clean", "description": "x"})
+    assert res.status_code == 200
+    assert res.json()["claimed_amount"]["value"] == "1250000.00"
+
+
+def test_extract_upload_in_demo_without_case_id_is_400():
+    files = {"files": ("invoice.pdf", b"%PDF-1.4 not really a pdf", "application/pdf")}
+    res = client.post("/extract-upload", files=files)
+    assert res.status_code == 400
+
+
 def test_clean_flow_is_fileable():
     out = _run("clean")
     assert _fatal_checks(out["verify"]["validity"]) == []

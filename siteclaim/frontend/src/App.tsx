@@ -10,7 +10,6 @@ import type {
   ExtractedFacts,
   ReviewFlag,
   Snapshot,
-  UploadedFile,
   ValidityReport,
 } from "./types";
 import { ErrorBanner, InfoNotice } from "./ui";
@@ -37,7 +36,7 @@ export default function App() {
   // Pipeline state
   const [caseId, setCaseId] = useState<string | null>(null);
   const [description, setDescription] = useState("");
-  const [files, setFiles] = useState<UploadedFile[]>([]);
+  const [files, setFiles] = useState<File[]>([]); // raw uploads (live vision path)
   const [facts, setFacts] = useState<ExtractedFacts | null>(null);
   const [validity, setValidity] = useState<ValidityReport | null>(null);
   const [reviewFlags, setReviewFlags] = useState<ReviewFlag[]>([]);
@@ -103,10 +102,10 @@ export default function App() {
     setDegraded(null);
     await run(async () => {
       setCaseId(id);
+      setFiles([]); // demo cases replay from fixtures, not real uploads
       try {
         const source = await api.demoCase(id);
         setDescription(source.description);
-        setFiles(source.docs?.files ?? []);
       } catch {
         // Even the source fetch failed — start from the bundled snapshot.
         setDescription(`Demo case: ${id}`);
@@ -120,8 +119,24 @@ export default function App() {
 
   const goExtract = () =>
     run(async () => {
-      const source = { docs: { files }, description, case_id: caseId };
-      const f = await withFallback(() => api.extract(source), (s) => s.facts);
+      let f: ExtractedFacts;
+      if (!demoMode && files.length > 0) {
+        // Live multimodal extraction: the vision model reads the uploaded documents.
+        f = await withFallback(() => api.extractUpload(files, description, caseId), (s) => s.facts);
+      } else {
+        const source = {
+          docs: {
+            files: files.map((file) => ({
+              filename: file.name,
+              content_type: file.type || "application/octet-stream",
+              size_bytes: file.size,
+            })),
+          },
+          description,
+          case_id: caseId,
+        };
+        f = await withFallback(() => api.extract(source), (s) => s.facts);
+      }
       setFacts(f);
       invalidateAfter(2);
       advance(2);

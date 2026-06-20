@@ -1,18 +1,28 @@
-"""Thin Anthropic SDK wrapper for the SiteClaim pipeline (Layer 2 plumbing).
+"""LLM plumbing for the SiteClaim pipeline (Layer 2) — provider-swappable.
 
 Responsibilities:
 
-* **DEMO_MODE** (env flag): when on, return canned fixtures from ``backend/fixtures/``
-  instead of calling the API. The ``anthropic`` SDK is imported **lazily**, only on
-  the live path, so DEMO_MODE never imports it and never opens a socket — the
-  offline demo is safe even without the package installed or a key set.
-* **Retry on transient errors** (rate limit / 5xx / connection / timeout) with
-  exponential backoff, on top of the SDK's own retries.
-* **Strict-JSON parsing** into a target Pydantic model: strip ``` fences and parse,
-  with one corrective retry ("your previous output was invalid JSON") on failure.
+* **DEMO_MODE** (env flag): when on, ``complete_json`` returns canned fixtures from
+  ``backend/fixtures/`` and short-circuits BEFORE any provider code runs. No SDK is
+  imported and no socket is opened — the offline demo is safe even with
+  ``openai`` / ``anthropic`` / ``pymupdf`` all uninstalled.
+* **Provider abstraction** (env ``EXTRACTION_PROVIDER``, default ``deepseek``):
+    - ``deepseek`` — the OpenAI-compatible API at ``https://api.deepseek.com`` via the
+      ``openai`` SDK; model from ``DEEPSEEK_MODEL`` (default ``deepseek-v4-pro``).
+    - ``anthropic`` — the existing Claude path (the swap target); Claude takes
+      image/PDF blocks natively.
+  Both SDKs are imported **lazily**, only on the live path.
+* **Multimodal**: ``complete_json(images=[...base64 PNG...])`` attaches the document
+  images to the message (OpenAI ``image_url`` blocks / Anthropic ``image`` blocks).
+* **Strict-JSON parsing** into a Pydantic model (strip ``` fences → parse, one
+  corrective retry) and retry-on-transient — for both providers.
 
-Model: ``claude-sonnet-4-6`` (per the Phase 2 spec), for both extraction and the judge.
-Key: read from env ``ANTHROPIC_API_KEY`` (handled by the SDK's default client).
+NOTE on DeepSeek vision: the official docs (api-docs.deepseek.com) confirm the
+base URL, OpenAI compatibility, and the V4 model names, but do not publish a vision
+message format. We therefore build images as the **OpenAI-standard ``image_url``
+content block** (what an OpenAI-compatible endpoint expects). If DeepSeek's format
+differs, only ``build_openai_messages`` below needs changing — the Anthropic
+provider remains a working, natively-multimodal swap target.
 """
 
 import os
@@ -23,10 +33,15 @@ from typing import Optional, TypeVar
 
 from pydantic import BaseModel, ValidationError
 
-MODEL = "claude-sonnet-4-6"
+ANTHROPIC_MODEL = "claude-sonnet-4-6"
+DEEPSEEK_BASE_URL = "https://api.deepseek.com"
+DEFAULT_DEEPSEEK_MODEL = "deepseek-v4-pro"
 DEFAULT_MAX_TOKENS = 8000
 _MAX_RETRIES = 4
 _FIXTURES_DIR = Path(__file__).resolve().parent.parent / "fixtures"
+
+# Back-compat alias (older imports referenced MODEL).
+MODEL = ANTHROPIC_MODEL
 
 T = TypeVar("T", bound=BaseModel)
 
@@ -36,6 +51,11 @@ _TRUTHY = {"1", "true", "yes", "on"}
 def demo_mode() -> bool:
     """True when ``DEMO_MODE`` is set — read dynamically so tests can toggle it."""
     return os.getenv("DEMO_MODE", "").strip().lower() in _TRUTHY
+
+
+def extraction_provider() -> str:
+    """The configured extraction provider ('deepseek' default, or 'anthropic')."""
+    return os.getenv("EXTRACTION_PROVIDER", "deepseek").strip().lower()
 
 
 _FENCE_RE = re.compile(r"^```[A-Za-z0-9_-]*\s*\n(.*?)\n```$", re.DOTALL)
@@ -49,7 +69,6 @@ def strip_code_fences(text: str) -> str:
     match = _FENCE_RE.match(stripped)
     if match:
         return match.group(1).strip()
-    # Fallback: drop the first fence line and a trailing fence line.
     lines = stripped.splitlines()
     if lines and lines[0].startswith("```"):
         lines = lines[1:]
@@ -58,17 +77,50 @@ def strip_code_fences(text: str) -> str:
     return "\n".join(lines).strip()
 
 
-def _text_of(response) -> str:
-    """Concatenate the text blocks of an Anthropic Messages response."""
-    return "".join(b.text for b in response.content if getattr(b, "type", None) == "text")
+# ---------------------------------------------------------------------------
+# Message builders — pure, no SDK import, so they are unit-testable offline.
+# `images` is a list of base64-encoded PNG strings (see pipeline.documents).
+# ---------------------------------------------------------------------------
+def build_openai_messages(system: str, user: str, images: Optional[list[str]] = None) -> list[dict]:
+    """OpenAI/DeepSeek chat messages; images become image_url base64 data URLs."""
+    if images:
+        content: object = [
+            {"type": "text", "text": user},
+            *(
+                {"type": "image_url", "image_url": {"url": f"data:image/png;base64,{b64}"}}
+                for b64 in images
+            ),
+        ]
+    else:
+        content = user
+    return [{"role": "system", "content": system}, {"role": "user", "content": content}]
+
+
+def build_anthropic_content(user: str, images: Optional[list[str]] = None) -> object:
+    """Anthropic user content; images become base64 image blocks (text last)."""
+    if not images:
+        return user
+    return [
+        *(
+            {"type": "image", "source": {"type": "base64", "media_type": "image/png", "data": b64}}
+            for b64 in images
+        ),
+        {"type": "text", "text": user},
+    ]
 
 
 class LLMClient:
-    """Wrapper around ``anthropic.Anthropic`` with DEMO_MODE + strict-JSON parsing."""
+    """Provider-swappable LLM client with DEMO_MODE + strict-JSON parsing."""
 
-    def __init__(self, model: str = MODEL) -> None:
-        self.model = model
+    def __init__(self, provider: Optional[str] = None, model: Optional[str] = None) -> None:
+        self.provider = (provider or extraction_provider()).lower()
+        self.model = model or self._default_model()
         self._client = None  # lazily constructed on first live call
+
+    def _default_model(self) -> str:
+        if self.provider == "anthropic":
+            return ANTHROPIC_MODEL
+        return os.getenv("DEEPSEEK_MODEL", DEFAULT_DEEPSEEK_MODEL)
 
     # -- public API ---------------------------------------------------------
     def complete_json(
@@ -78,74 +130,18 @@ class LLMClient:
         user: str,
         target_model: type[T],
         demo_fixture: Optional[str] = None,
+        images: Optional[list[str]] = None,
         max_tokens: int = DEFAULT_MAX_TOKENS,
     ) -> T:
-        """Return an instance of ``target_model`` from the model's JSON output.
+        """Return ``target_model`` parsed from the model's JSON output.
 
-        In DEMO_MODE this loads ``demo_fixture`` (a path under ``backend/fixtures/``)
-        and never touches the network. Otherwise it calls the API, strips fences,
-        and parses — retrying once with a corrective instruction on a parse failure.
+        DEMO_MODE loads ``demo_fixture`` and never touches the network (no SDK
+        import). Otherwise it calls the configured provider — attaching ``images``
+        if given — strips fences, and parses, with one corrective JSON retry.
         """
         if demo_mode():
             return self._load_fixture(demo_fixture, target_model)
-        return self._live_complete_json(
-            system=system, user=user, target_model=target_model, max_tokens=max_tokens
-        )
-
-    # -- DEMO_MODE ----------------------------------------------------------
-    def _load_fixture(self, demo_fixture: Optional[str], target_model: type[T]) -> T:
-        if not demo_fixture:
-            raise RuntimeError(
-                "DEMO_MODE is on but no demo_fixture was provided for this call."
-            )
-        path = _FIXTURES_DIR / demo_fixture
-        if not path.is_file():
-            raise FileNotFoundError(f"DEMO_MODE fixture not found: {path}")
-        return target_model.model_validate_json(path.read_text(encoding="utf-8"))
-
-    # -- live path (lazy import; never reached in DEMO_MODE) ----------------
-    def _anthropic(self):
-        if self._client is None:
-            import anthropic  # lazy: importing this module must not require the SDK
-
-            self._client = anthropic.Anthropic()  # reads ANTHROPIC_API_KEY
-        return self._client
-
-    def _complete_text_with_retry(self, *, system: str, user: str, max_tokens: int) -> str:
-        import anthropic  # lazy
-
-        client = self._anthropic()
-        transient = (
-            anthropic.RateLimitError,
-            anthropic.APIConnectionError,
-            anthropic.APITimeoutError,
-            anthropic.InternalServerError,
-        )
-        last_exc: Optional[Exception] = None
-        for attempt in range(_MAX_RETRIES):
-            try:
-                response = client.messages.create(
-                    model=self.model,
-                    max_tokens=max_tokens,
-                    system=system,
-                    messages=[{"role": "user", "content": user}],
-                )
-                return _text_of(response)
-            except transient as exc:
-                last_exc = exc
-            except anthropic.APIStatusError as exc:
-                if exc.status_code >= 500:
-                    last_exc = exc
-                else:
-                    raise
-            time.sleep(min(2**attempt, 16))
-        assert last_exc is not None
-        raise last_exc
-
-    def _live_complete_json(
-        self, *, system: str, user: str, target_model: type[T], max_tokens: int
-    ) -> T:
-        raw = self._complete_text_with_retry(system=system, user=user, max_tokens=max_tokens)
+        raw = self._complete_text(system=system, user=user, images=images, max_tokens=max_tokens)
         try:
             return target_model.model_validate_json(strip_code_fences(raw))
         except (ValidationError, ValueError):
@@ -155,7 +151,85 @@ class LLMClient:
                 "Return ONLY a single valid JSON object that matches the schema — "
                 "no prose, no explanation, no code fences."
             )
-            raw2 = self._complete_text_with_retry(
-                system=system, user=corrective, max_tokens=max_tokens
-            )
+            raw2 = self._complete_text(system=system, user=corrective, images=images, max_tokens=max_tokens)
             return target_model.model_validate_json(strip_code_fences(raw2))
+
+    # -- DEMO_MODE ----------------------------------------------------------
+    def _load_fixture(self, demo_fixture: Optional[str], target_model: type[T]) -> T:
+        if not demo_fixture:
+            raise RuntimeError("DEMO_MODE is on but no demo_fixture was provided for this call.")
+        path = _FIXTURES_DIR / demo_fixture
+        if not path.is_file():
+            raise FileNotFoundError(f"DEMO_MODE fixture not found: {path}")
+        return target_model.model_validate_json(path.read_text(encoding="utf-8"))
+
+    # -- live path (lazy imports; never reached in DEMO_MODE) ---------------
+    def _complete_text(self, *, system: str, user: str, images: Optional[list[str]], max_tokens: int) -> str:
+        if self.provider == "anthropic":
+            return self._anthropic_complete(system, user, images, max_tokens)
+        if self.provider == "deepseek":
+            return self._deepseek_complete(system, user, images, max_tokens)
+        raise ValueError(f"unknown EXTRACTION_PROVIDER {self.provider!r} (use 'deepseek' or 'anthropic')")
+
+    def _retry(self, call, transient: tuple):
+        """Run ``call`` with exponential backoff on transient/5xx errors."""
+        last_exc: Optional[Exception] = None
+        for attempt in range(_MAX_RETRIES):
+            try:
+                return call()
+            except transient as exc:  # provider-specific transient classes
+                last_exc = exc
+            except Exception as exc:  # noqa: BLE001 — retry only on 5xx, else re-raise
+                code = getattr(exc, "status_code", None)
+                if isinstance(code, int) and code >= 500:
+                    last_exc = exc
+                else:
+                    raise
+            time.sleep(min(2**attempt, 16))
+        assert last_exc is not None
+        raise last_exc
+
+    def _deepseek_complete(self, system: str, user: str, images: Optional[list[str]], max_tokens: int) -> str:
+        import openai  # lazy: importing this module must not require the SDK
+
+        if self._client is None:
+            self._client = openai.OpenAI(base_url=DEEPSEEK_BASE_URL, api_key=os.getenv("DEEPSEEK_API_KEY"))
+        transient = (
+            openai.RateLimitError,
+            openai.APIConnectionError,
+            openai.APITimeoutError,
+            openai.InternalServerError,
+        )
+        messages = build_openai_messages(system, user, images)
+
+        def call() -> str:
+            resp = self._client.chat.completions.create(
+                model=self.model, messages=messages, max_tokens=max_tokens
+            )
+            return resp.choices[0].message.content or ""
+
+        return self._retry(call, transient)
+
+    def _anthropic_complete(self, system: str, user: str, images: Optional[list[str]], max_tokens: int) -> str:
+        import anthropic  # lazy
+
+        if self._client is None:
+            self._client = anthropic.Anthropic()  # reads ANTHROPIC_API_KEY
+        transient = (
+            anthropic.RateLimitError,
+            anthropic.APIConnectionError,
+            anthropic.APITimeoutError,
+            anthropic.InternalServerError,
+        )
+        content = build_anthropic_content(user, images)
+
+        def call() -> str:
+            resp = self._client.messages.create(
+                model=self.model,
+                max_tokens=max_tokens,
+                system=system,
+                messages=[{"role": "user", "content": content}],
+            )
+            return "".join(b.text for b in resp.content if getattr(b, "type", None) == "text")
+
+        return self._retry(call, transient)

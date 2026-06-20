@@ -42,6 +42,42 @@ cd frontend && npm install && npm run dev
 Other shortcuts: `make test` (backend suite), `make build-frontend`,
 `make snapshots` (regenerate the frontend's offline fixtures from the pipeline).
 
+## Live document upload (real invoices)
+
+Outside DEMO_MODE, a subcontractor can upload a **real invoice (PDF or image)** and
+SiteClaim extracts the facts from the **document content** via a vision model.
+PDFs are rasterised to images (PyMuPDF); the model reads them directly (no OCR).
+The provider is swappable — default **DeepSeek V4** (OpenAI-compatible), with the
+Claude path as the native-multimodal fallback. Configure with env vars:
+
+| Var | Default | Notes |
+| --- | --- | --- |
+| `EXTRACTION_PROVIDER` | `deepseek` | `deepseek` or `anthropic` |
+| `DEEPSEEK_API_KEY` | — | required for DeepSeek |
+| `DEEPSEEK_MODEL` | `deepseek-v4-pro` | or `deepseek-v4-flash` |
+| `ANTHROPIC_API_KEY` | — | required if `EXTRACTION_PROVIDER=anthropic` |
+
+`openai` and `pymupdf` are imported **lazily** (only on the live upload path), so
+DEMO_MODE stays zero-network and zero-dependency. The API endpoint is
+`POST /extract-upload` (multipart); the JSON `POST /extract` remains for
+fixtures/typed input.
+
+**Capture a fixture (the offline safety net).** Run a real upload through the live
+provider once, lock the result, and replay it byte-for-byte in DEMO_MODE:
+
+```bash
+EXTRACTION_PROVIDER=deepseek DEEPSEEK_API_KEY=… \
+  python scripts/capture_fixture.py <case_id> invoice.pdf [more…]
+```
+
+It writes `backend/fixtures/cases/<case_id>/` (source, extracted, judge verdict,
+rasterised images) and re-runs the case offline to confirm the replay.
+
+> DeepSeek's official docs confirm the base URL, OpenAI compatibility, and the V4
+> model names but do not publish a vision message format; we send the
+> OpenAI-standard `image_url` block. If that ever differs, only one function
+> (`build_openai_messages`) changes — the Anthropic path is the working swap target.
+
 ## Architecture
 
 SiteClaim is an **ICM (Interpretable Context Methodology) workspace**: the folder

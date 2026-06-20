@@ -19,7 +19,7 @@ from datetime import date
 from pathlib import Path
 from typing import Optional
 
-from fastapi import FastAPI, HTTPException, status
+from fastapi import FastAPI, File, Form, HTTPException, UploadFile, status
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 
@@ -30,10 +30,13 @@ from schemas.models import (
     ClaimDraft,
     ExtractedFacts,
     ReviewFlag,
+    ShipmentDocs,
     SourceMaterial,
+    UploadedFile,
     ValidityReport,
 )
 
+from pipeline.documents import to_images
 from pipeline.llm_client import demo_mode
 from pipeline.stage_01_extract.extract import extract_facts
 from pipeline.stage_02_validate.verify import verify_extraction
@@ -154,8 +157,44 @@ def demo_case(case_id: str) -> SourceMaterial:
 # ---------------------------------------------------------------------------
 @app.post("/extract", response_model=ExtractedFacts)
 def extract(source: SourceMaterial) -> ExtractedFacts:
-    """Stage 01 (Layer 2) — read raw source material into typed ExtractedFacts."""
+    """Stage 01 (Layer 2) — read typed source material into ExtractedFacts (JSON path)."""
     return extract_facts(source)
+
+
+@app.post("/extract-upload", response_model=ExtractedFacts)
+async def extract_upload(
+    files: list[UploadFile] = File(...),
+    description: str = Form(""),
+    case_id: Optional[str] = Form(None),
+) -> ExtractedFacts:
+    """Stage 01 (Layer 2, multimodal) — extract facts from uploaded document(s).
+
+    PDFs/images are rasterised (``documents.to_images``) and read by the vision
+    model. DEMO_MODE ignores the live path and replays the fixture by ``case_id``.
+    """
+    docs = ShipmentDocs(
+        files=[UploadedFile(filename=f.filename or "upload", content_type=f.content_type or "") for f in files]
+    )
+    source = SourceMaterial(case_id=case_id, description=description, docs=docs)
+
+    if demo_mode():
+        if not case_id:
+            raise HTTPException(
+                status.HTTP_400_BAD_REQUEST,
+                detail="Demo mode is offline — live upload extraction is disabled. Load a demo case instead.",
+            )
+        return extract_facts(source)  # replay the canned fixture
+
+    images: list[str] = []
+    for upload in files:
+        data = await upload.read()
+        try:
+            images.extend(to_images(data, upload.content_type))
+        except ValueError as exc:
+            raise HTTPException(status.HTTP_400_BAD_REQUEST, detail=str(exc)) from exc
+    if not images:
+        raise HTTPException(status.HTTP_400_BAD_REQUEST, detail="No readable documents were uploaded.")
+    return extract_facts(source, images=images)
 
 
 @app.post("/verify", response_model=VerifyResponse)

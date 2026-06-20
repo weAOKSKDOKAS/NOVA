@@ -1,5 +1,5 @@
 import type { ChangeEvent } from "react";
-import type { DemoCase, UploadedFile } from "../types";
+import type { DemoCase } from "../types";
 import { Button, Card, cx } from "../ui";
 
 export function StepInput({
@@ -19,23 +19,21 @@ export function StepInput({
   demoCases: DemoCase[];
   caseId: string | null;
   description: string;
-  files: UploadedFile[];
+  files: File[];
   onPickDemo: (caseId: string) => void;
   onChangeDescription: (v: string) => void;
-  onAddFiles: (files: UploadedFile[]) => void;
+  onAddFiles: (files: File[]) => void;
   onRemoveFile: (i: number) => void;
   onNext: () => void;
   loading: boolean;
 }) {
   function onFileInput(e: ChangeEvent<HTMLInputElement>) {
-    const picked = Array.from(e.target.files ?? []).map((f) => ({
-      filename: f.name,
-      content_type: f.type || "application/octet-stream",
-      size_bytes: f.size,
-    }));
+    const picked = Array.from(e.target.files ?? []);
     if (picked.length) onAddFiles(picked);
     e.target.value = "";
   }
+
+  const liveUpload = !demoMode && files.length > 0;
 
   const blockedInDemo = demoMode && !caseId;
   const canAdvance = !blockedInDemo && (!!caseId || description.trim().length > 0 || files.length > 0);
@@ -92,17 +90,17 @@ export function StepInput({
             Attach documents <span className="font-normal text-ink-faint">(optional)</span>
           </span>
           <label className="flex cursor-pointer items-center justify-center rounded-lg border border-dashed border-line bg-paper/50 px-4 py-5 text-sm text-ink-soft hover:border-brand hover:text-brand">
-            <input type="file" multiple className="sr-only" onChange={onFileInput} />
-            Choose files — contract, invoices, progress records
+            <input type="file" multiple accept="application/pdf,image/*" className="sr-only" onChange={onFileInput} />
+            Choose files — invoice or contract (PDF, JPEG, PNG)
           </label>
           {files.length > 0 && (
             <ul className="mt-3 space-y-1.5">
               {files.map((f, i) => (
                 <li
-                  key={`${f.filename}-${i}`}
+                  key={`${f.name}-${i}`}
                   className="flex items-center justify-between rounded-md border border-line-soft bg-paper/50 px-3 py-1.5 text-sm"
                 >
-                  <span className="truncate text-ink">{f.filename}</span>
+                  <span className="truncate text-ink">{f.name}</span>
                   <button
                     type="button"
                     onClick={() => onRemoveFile(i)}
@@ -113,6 +111,11 @@ export function StepInput({
                 </li>
               ))}
             </ul>
+          )}
+          {liveUpload && (
+            <p className="mt-2 text-xs text-brand">
+              These will be read directly by the live AI (DeepSeek vision) — the facts come from the document itself.
+            </p>
           )}
         </div>
       </Card>
