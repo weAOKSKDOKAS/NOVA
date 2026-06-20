@@ -27,7 +27,7 @@ from decimal import Decimal
 from enum import Enum
 from typing import Generic, Optional, TypeVar
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, model_validator
 
 T = TypeVar("T")
 
@@ -70,6 +70,14 @@ class Severity(str, Enum):
     FATAL = "fatal"  # blocks a compliant claim; must be fixed before service
     WARNING = "warning"  # likely problem; the human reviewer should confirm
     INFO = "info"  # advisory / informational only
+
+
+class AuditVerdict(str, Enum):
+    """Stage 04 top-level verdict, derived deterministically from the findings."""
+
+    FILEABLE = "fileable"  # no findings worse than INFO
+    FILEABLE_WITH_FIXES = "fileable_with_fixes"  # warnings present, no fatal
+    NOT_FILEABLE = "not_fileable"  # at least one FATAL finding — do not serve
 
 
 # ---------------------------------------------------------------------------
@@ -281,7 +289,7 @@ class DeadlineSet(BaseModel):
     """Stage 02 companion output: every live SOPO deadline for this claim."""
 
     deadlines: list[Deadline] = Field(default_factory=list)
-    computed_from: Optional[date] = None  # the reference date used for the maths
+    computed_from: Optional[date] = None  # the effective (deemed) service date the clock ran from
     computed_at: datetime = Field(default_factory=_utcnow)
 
 
@@ -321,18 +329,46 @@ class Finding(BaseModel):
     location: str  # where in the draft, e.g. 'line_items[2]' or 'claimed_amount'
     severity: Severity
     suggested_fix: str
+    sopo_reference: Optional[str] = None  # statutory citation, where the finding is a legal one
 
 
 class AuditReport(BaseModel):
-    """Stage 04 output: cross-check of the draft against facts + statute."""
+    """Stage 04 output: cross-check of the draft against facts + statute.
+
+    ``verdict`` is derived deterministically from the worst-severity finding (a
+    ``model_validator`` recomputes it on construction), so it always agrees with
+    the findings — no caller can set an inconsistent verdict.
+    """
 
     findings: list[Finding] = Field(default_factory=list)
+    verdict: AuditVerdict = AuditVerdict.FILEABLE
     generated_at: datetime = Field(default_factory=_utcnow)
+
+    @model_validator(mode="after")
+    def _derive_verdict(self) -> "AuditReport":
+        if any(f.severity is Severity.FATAL for f in self.findings):
+            self.verdict = AuditVerdict.NOT_FILEABLE
+        elif any(f.severity is Severity.WARNING for f in self.findings):
+            self.verdict = AuditVerdict.FILEABLE_WITH_FIXES
+        else:
+            self.verdict = AuditVerdict.FILEABLE
+        return self
 
     @property
     def passed(self) -> bool:
-        """True if the audit found no FATAL-severity issues."""
-        return not any(f.severity is Severity.FATAL for f in self.findings)
+        """True if the audit found no FATAL-severity issues (verdict is fileable)."""
+        return self.verdict is not AuditVerdict.NOT_FILEABLE
+
+
+class AuditLLMFindings(BaseModel):
+    """Raw output of the Stage 04 LLM consistency pass — structured findings only.
+
+    The thin Layer-2 pass reads the rendered draft for internal contradictions or
+    particulars that reference facts not in :class:`ExtractedFacts`. It returns
+    findings only; the verdict stays deterministic (Layer 1).
+    """
+
+    findings: list[Finding] = Field(default_factory=list)
 
 
 # ---------------------------------------------------------------------------
@@ -382,6 +418,7 @@ __all__ = [
     "ContractType",
     "Sector",
     "Severity",
+    "AuditVerdict",
     # provenance
     "FactField",
     # stage 01 in
@@ -407,6 +444,7 @@ __all__ = [
     # stage 04 out
     "Finding",
     "AuditReport",
+    "AuditLLMFindings",
     # stage 02 judge (extraction self-verification)
     "FieldAssessment",
     "JudgeVerdict",

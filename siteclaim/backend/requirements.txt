@@ -1,7 +1,8 @@
-# SiteClaim backend dependencies (Phase 0 scaffold)
+# SiteClaim backend dependencies
 fastapi
 uvicorn
 pydantic>=2
 anthropic
 python-multipart
 pytest
+httpx  # FastAPI TestClient (test_api.py)

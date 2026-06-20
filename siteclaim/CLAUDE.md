@@ -66,8 +66,8 @@ without human sign-off.
 | `backend/pipeline/stage_NN_*/CONTEXT.md` | Per-stage contract. |
 | `backend/references/` | Layer 3 corpus (ordinance overview, CIC templates). |
 | `backend/fixtures/` | Serialised stage objects for tests/dev. |
-| `backend/api.py` | Thin FastAPI entry point (scaffold). |
-| `frontend/` | Empty until Phase 5. |
+| `backend/api.py` | FastAPI app — one POST per stage (`/extract`, `/verify`, `/draft`, `/audit`) + `/health` + demo loaders. |
+| `frontend/` | React + TypeScript + Vite + Tailwind 5-step review-gate wizard. |
 | `CONTEXT.md` (root) | Pipeline routing in brief. |
 
 ## ⚠️ Legal-safety note
@@ -80,5 +80,23 @@ relied upon. SiteClaim assists drafting; it does not give legal advice.
 
 ## Status
 
-**Phase 0: scaffolding, schemas, config, and reference stubs only. No stage
-logic yet.**
+**Layer 1 (Rules Engine) and pipeline stages 01–04 are built and tested; they
+run offline end-to-end (`backend/pipeline/run_pipeline.py`). The API and a React
+review-gate wizard are wired on top.**
+
+- **stage_01_extract** — `SourceMaterial` → `ExtractedFacts` (Layer 2).
+- **stage_02_validate** — LLM-as-judge confidence review + deterministic
+  `ValidityReport` + `DeadlineSet` (Layer 1).
+- **stage_03_draft** — facts + reports → `ClaimDraft` (structured +
+  `rendered_markdown`); missing/low-confidence fields become flagged
+  placeholders, a fatal check prints a "NOT FILEABLE" banner citing Layer 1.
+- **stage_04_audit** — forensic cross-check → `AuditReport` with a deterministic
+  verdict (`FILEABLE` / `FILEABLE_WITH_FIXES` / `NOT_FILEABLE`).
+- **API** (`backend/api.py`) — one POST per stage; each consumes the prior
+  (human-editable) output. DEMO_MODE keeps it offline.
+- **Frontend** (`frontend/`) — a 5-step wizard mirroring the pipeline, with an
+  edit gate between every stage.
+
+Stage 05 (a formal human-review/approval record) is the remaining stage — for now
+the wizard's final gate plus a person's sign-off stands in. Statutory values in
+`sopo_config.py` remain SOURCED/UNVERIFIED pending QS/lawyer sign-off.

@@ -33,6 +33,9 @@ def test_findings_are_sorted_fatal_then_warning_then_info(compliant_facts, today
 
 def test_a_breached_deadline_surfaces_in_the_attached_deadline_set(compliant_facts):
     today = date(2026, 3, 2)
+    # Served on/after an old reference date (no deeming): the window has closed.
+    compliant_facts.reference_date = ff(date(2026, 1, 1))
+    compliant_facts.service.date_served = ff(date(2026, 1, 1))
     compliant_facts.claim_served_date = ff(date(2026, 1, 1))
     report = run_validation(compliant_facts, today)
     assert clock(report.deadlines, today).any_breached

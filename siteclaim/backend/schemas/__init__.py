@@ -5,7 +5,9 @@ Re-exports every model from :mod:`schemas.models` so callers can write
 """
 
 from .models import (
+    AuditLLMFindings,
     AuditReport,
+    AuditVerdict,
     CertifiedAmount,
     Check,
     ClaimDraft,
@@ -34,7 +36,9 @@ from .models import (
 )
 
 __all__ = [
+    "AuditLLMFindings",
     "AuditReport",
+    "AuditVerdict",
     "CertifiedAmount",
     "Check",
     "ClaimDraft",

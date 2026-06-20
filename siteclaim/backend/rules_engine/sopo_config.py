@@ -190,6 +190,10 @@ PERMITTED_SERVICE_METHODS: Final[tuple[str, ...]] = (
 # human review in Stage 02. Tunable product knob, not a legal value.
 CONFIDENCE_REVIEW_THRESHOLD: Final[float] = 0.6  # operational, non-statutory
 
+# A live statutory deadline within this many working days of "today" is flagged
+# as "dangerously close" by the Stage 04 audit. Tunable product knob, not law.
+DEADLINE_DANGER_WINDOW_WORKING_DAYS: Final[int] = 5  # operational, non-statutory
+
 
 __all__ = [
     "CONFIG_VERSION",
@@ -224,4 +228,5 @@ __all__ = [
     "DEEMED_SERVICE_DAYS_BY_POST",
     "PERMITTED_SERVICE_METHODS",
     "CONFIDENCE_REVIEW_THRESHOLD",
+    "DEADLINE_DANGER_WINDOW_WORKING_DAYS",
 ]
