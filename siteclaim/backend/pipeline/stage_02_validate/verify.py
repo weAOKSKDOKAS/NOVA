@@ -133,21 +133,31 @@ def _judge_user_prompt(source: SourceMaterial, facts: ExtractedFacts) -> str:
     )
 
 
-def verify_extraction(source: SourceMaterial, facts: ExtractedFacts) -> JudgeReview:
-    """LLM-as-judge: adjust per-field confidence, collect disputes + review flags.
+def judge_extraction(
+    source: SourceMaterial, facts: ExtractedFacts, images: list[str] | None = None
+) -> JudgeVerdict:
+    """The LLM-as-judge call (Layer 2): the raw per-field verdict.
 
-    Returns a :class:`JudgeReview` (the confidence-adjusted facts plus the disputed
-    fields and the below-threshold review flags). A superset of the bare adjusted
-    ExtractedFacts so the disputed-field list the spec asks for is not lost.
+    When ``images`` are supplied (and not DEMO_MODE) the judge sees the same
+    document the extractor saw, so it verifies facts against the actual invoice —
+    not just the typed description. DEMO_MODE loads the canned ``verdict.json``.
     """
     demo_fixture = f"cases/{source.case_id}/verdict.json" if source.case_id else None
-    verdict: JudgeVerdict = _client.complete_json(
+    return _client.complete_json(
         system=_judge_system_prompt(),
         user=_judge_user_prompt(source, facts),
         target_model=JudgeVerdict,
         demo_fixture=demo_fixture,
+        images=images,
     )
 
+
+def apply_verdict(facts: ExtractedFacts, verdict: JudgeVerdict) -> JudgeReview:
+    """Deterministically fold a :class:`JudgeVerdict` into the facts (no LLM).
+
+    Lowers per-field confidence where the judge adjusted it, collects disputes,
+    and flags every below-threshold field for human review. Never mutates ``facts``.
+    """
     adjusted = facts.model_copy(deep=True)
     disputed: list[FieldAssessment] = []
     for assessment in verdict.assessments:
@@ -156,7 +166,6 @@ def verify_extraction(source: SourceMaterial, facts: ExtractedFacts) -> JudgeRev
             field.confidence = assessment.adjusted_confidence
         if not assessment.supported:
             disputed.append(assessment)
-
     return JudgeReview(
         facts=adjusted,
         disputed_fields=disputed,
@@ -165,17 +174,24 @@ def verify_extraction(source: SourceMaterial, facts: ExtractedFacts) -> JudgeRev
     )
 
 
+def verify_extraction(
+    source: SourceMaterial, facts: ExtractedFacts, images: list[str] | None = None
+) -> JudgeReview:
+    """LLM-as-judge, then fold the verdict into the facts → :class:`JudgeReview`."""
+    return apply_verdict(facts, judge_extraction(source, facts, images))
+
+
 # ---------------------------------------------------------------------------
 # (b) Orchestration: judge, then the deterministic engine
 # ---------------------------------------------------------------------------
 def run_stage_02(
-    source: SourceMaterial, facts: ExtractedFacts, today: date
+    source: SourceMaterial, facts: ExtractedFacts, today: date, images: list[str] | None = None
 ) -> tuple[ExtractedFacts, ValidityReport]:
     """Run the judge, then the deterministic Phase 1 engine; return both outputs.
 
     The returned facts are confidence-adjusted by the judge; the ValidityReport
     (with its attached DeadlineSet) is produced purely by Layer 1.
     """
-    review = verify_extraction(source, facts)
+    review = verify_extraction(source, facts, images)
     report = run_validation(review.facts, today)
     return review.facts, report

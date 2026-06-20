@@ -6,3 +6,7 @@ anthropic
 python-multipart
 pytest
 httpx  # FastAPI TestClient (test_api.py)
+# Live document-upload extraction (Phase 7) — imported LAZILY (only on the live
+# upload path), so DEMO_MODE stays zero-dependency and zero-network.
+openai    # DeepSeek is OpenAI-compatible (base_url=https://api.deepseek.com)
+pymupdf   # PyMuPDF / fitz — rasterise PDF pages to images (pure-pip, no system deps)

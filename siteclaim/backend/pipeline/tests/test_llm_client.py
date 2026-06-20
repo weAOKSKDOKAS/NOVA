@@ -31,9 +31,8 @@ def test_demo_mode_reads_env_dynamically(monkeypatch):
 
 def test_demo_mode_loads_fixture_without_any_live_call(monkeypatch):
     client = LLMClient()
-    # If DEMO_MODE leaks to the network/SDK path, these blow up:
-    monkeypatch.setattr(client, "_live_complete_json", _boom)
-    monkeypatch.setattr(client, "_anthropic", _boom)
+    # If DEMO_MODE leaks to the network/SDK path, this blows up:
+    monkeypatch.setattr(client, "_complete_text", _boom)
     facts = client.complete_json(
         system="ignored",
         user="ignored",

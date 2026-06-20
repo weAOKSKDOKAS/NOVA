@@ -1,0 +1,66 @@
+"""Spec for pipeline.documents.to_images (PDF→PNG, image normalise, bad type).
+
+Skips when PyMuPDF is not installed — to_images imports fitz lazily, so the rest of
+the suite (and DEMO_MODE) never needs the dependency.
+"""
+
+import base64
+
+import pytest
+
+fitz = pytest.importorskip("fitz")  # PyMuPDF
+
+from pipeline.documents import to_images  # noqa: E402
+
+_PNG_MAGIC = b"\x89PNG\r\n\x1a\n"
+
+
+def _make_pdf(pages: int = 1) -> bytes:
+    doc = fitz.open()
+    for _ in range(pages):
+        page = doc.new_page()
+        page.insert_text((72, 72), "Total Due: HK$1,250,000")
+    data = doc.tobytes()
+    doc.close()
+    return data
+
+
+def _make_png() -> bytes:
+    doc = fitz.open()
+    page = doc.new_page()
+    page.insert_text((72, 72), "INVOICE")
+    data = page.get_pixmap().tobytes("png")
+    doc.close()
+    return data
+
+
+def test_pdf_rasterises_each_page_to_png():
+    imgs = to_images(_make_pdf(2), "application/pdf")
+    assert len(imgs) == 2
+    assert base64.b64decode(imgs[0])[:8] == _PNG_MAGIC
+
+
+def test_pdf_pages_are_capped():
+    imgs = to_images(_make_pdf(8), "application/pdf", max_pages=5)
+    assert len(imgs) == 5
+
+
+def test_image_is_normalised_to_png():
+    imgs = to_images(_make_png(), "image/png")
+    assert len(imgs) == 1
+    assert base64.b64decode(imgs[0])[:8] == _PNG_MAGIC
+
+
+def test_content_type_with_parameters_is_handled():
+    imgs = to_images(_make_pdf(1), "application/pdf; charset=binary")
+    assert len(imgs) == 1
+
+
+def test_unsupported_type_raises():
+    with pytest.raises(ValueError):
+        to_images(b"hello", "text/plain")
+
+
+def test_empty_file_raises():
+    with pytest.raises(ValueError):
+        to_images(b"", "application/pdf")
