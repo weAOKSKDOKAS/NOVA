@@ -112,3 +112,24 @@ export function ErrorBanner({ message }: { message: string }) {
     </div>
   );
 }
+
+export function InfoNotice({ children }: { children: ReactNode }) {
+  return (
+    <div className="rounded-lg border border-warn/30 bg-warn-bg px-4 py-2.5 text-sm text-ink">{children}</div>
+  );
+}
+
+// A hover/focus "ⓘ" carrying an assumption basis as its tooltip. Keyboard-focusable.
+export function InfoDot({ title }: { title: string }) {
+  return (
+    <span
+      tabIndex={0}
+      role="note"
+      aria-label={title}
+      title={title}
+      className="ml-1 inline-flex h-4 w-4 cursor-help items-center justify-center rounded-full border border-line text-[10px] font-bold text-ink-faint align-middle focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-bright"
+    >
+      i
+    </span>
+  );
+}

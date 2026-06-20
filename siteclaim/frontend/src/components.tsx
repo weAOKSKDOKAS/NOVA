@@ -2,6 +2,7 @@ import { cx } from "./ui";
 
 export const STEPS = ["Input", "Facts", "Validity", "Draft", "Audit"] as const;
 export type StepIndex = 1 | 2 | 3 | 4 | 5;
+export type View = "wizard" | "savings";
 
 const GATE_HINT: Record<number, string> = {
   1: "Describe the work",
@@ -11,28 +12,65 @@ const GATE_HINT: Record<number, string> = {
   5: "Final verdict",
 };
 
-export function Header({ demoMode, notice }: { demoMode: boolean; notice: string }) {
+export function Header({
+  demoMode,
+  notice,
+  view,
+  onNavigate,
+}: {
+  demoMode: boolean;
+  notice: string;
+  view: View;
+  onNavigate: (v: View) => void;
+}) {
   return (
     <header className="border-b border-line bg-card">
       <div className="mx-auto flex max-w-6xl flex-wrap items-center gap-x-4 gap-y-2 px-5 py-3">
-        <div className="flex items-baseline gap-2.5">
+        <div className="flex items-center gap-2.5">
           <span className="text-lg font-bold tracking-tight text-ink">
             Site<span className="text-brand">Claim</span>
           </span>
-          <span className="hidden text-sm text-ink-soft sm:inline">
-            SOPO payment-claim copilot · Cap. 652
-          </span>
+          {demoMode && (
+            <span
+              className="inline-flex items-center gap-1.5 rounded-full bg-ink px-2.5 py-1 text-xs font-bold uppercase tracking-wider text-white"
+              title="Running offline against pre-recorded fixtures — zero network calls."
+            >
+              <span className="h-1.5 w-1.5 rounded-full bg-ok" />
+              Demo mode
+            </span>
+          )}
         </div>
-        {demoMode && (
-          <span className="tabular rounded-full bg-brand-bg px-2.5 py-0.5 text-xs font-medium text-brand">
-            demo mode · offline
-          </span>
-        )}
-        <p className="w-full text-xs text-ink-faint sm:ml-auto sm:w-auto sm:max-w-md sm:text-right">
+
+        <nav className="flex gap-1 sm:ml-2">
+          <NavTab active={view === "wizard"} onClick={() => onNavigate("wizard")}>
+            Wizard
+          </NavTab>
+          <NavTab active={view === "savings"} onClick={() => onNavigate("savings")}>
+            Savings
+          </NavTab>
+        </nav>
+
+        <p className="w-full text-xs text-ink-faint sm:ml-auto sm:w-auto sm:max-w-sm sm:text-right">
           {notice}
         </p>
       </div>
     </header>
+  );
+}
+
+function NavTab({ active, onClick, children }: { active: boolean; onClick: () => void; children: string }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      aria-current={active ? "page" : undefined}
+      className={cx(
+        "rounded-lg px-3 py-1.5 text-sm font-semibold transition-colors",
+        active ? "bg-brand-bg text-brand" : "text-ink-soft hover:bg-line-soft hover:text-ink",
+      )}
+    >
+      {children}
+    </button>
   );
 }
 
