@@ -12,17 +12,17 @@ Scoring: verdict (1) + defect (1) + deadline (1, where applicable) per case.
 
 | Category | What it tests | Engine (pass/scoreable) | NM dims | Chatbot |
 |---|---|---|---|---|
-| A (4) | s.18 basics, formatting | **8/9** | 0 | _tbd_ |
+| A (4) | s.18 basics, formatting | **9/9** | 0 | _tbd_ |
 | B (4) | service / party | **8/8** | 0 | _tbd_ |
 | C (6) | date & working-day math, deeming | **7/7** | 10 | _tbd_ |
 | D (5) | eligibility edges | **8/8** | 2 | _tbd_ |
-| **Total** | | **31/32** | 12 | _tbd_ |
+| **Total** | | **32/32** | 12 | _tbd_ |
 
 ## Per-case detail
 
 | Case | GT verdict | Engine verdict | V | D | L | GT date | Engine date |
 |---|---|---|---|---|---|---|---|
-| A1 | FILEABLE | FILEABLE | ✓ | ✓ | ✗ | 2026-03-30 | 2026-04-01 |
+| A1 | FILEABLE | FILEABLE | ✓ | ✓ | ✓ | 2026-04-01 | 2026-04-01 |
 | A2 | NOT_FILEABLE | NOT_FILEABLE | ✓ | ✓ | · | — | — |
 | A3 | NOT_FILEABLE | NOT_FILEABLE | ✓ | ✓ | · | — | — |
 | A4 | NOT_FILEABLE | NOT_FILEABLE | ✓ | ✓ | · | — | — |
@@ -52,4 +52,4 @@ Scoring: verdict (1) + defect (1) + deadline (1, where applicable) per case.
 
 ## Discrepancies (engine ≠ ground truth on a modelled dimension)
 
-- **A1** [deadline] Engine 2026-04-01 vs GT 2026-03-30. GT deadline 30 Mar is 28 Feb + 30 (from the reference date); the engine runs s.20 from the SERVICE date (2 Mar) -> 1 Apr. See scorecard discrepancy note.
+- none

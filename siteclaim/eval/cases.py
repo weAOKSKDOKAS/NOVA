@@ -155,9 +155,9 @@ CASES: list[Case] = [
         facts={},  # all defaults = clean valid claim
         gt_verdict="FILEABLE",
         gt_defect=None,
-        gt_deadline=date(2026, 3, 30),
+        gt_deadline=date(2026, 4, 1),
         deadline_kind="payment_response",
-        notes="GT deadline 30 Mar is 28 Feb + 30 (from the reference date); the engine runs s.20 from the SERVICE date (2 Mar) -> 1 Apr. See scorecard discrepancy note.",
+        notes="s.20 payment response = 30 calendar days from SERVICE (2 Mar 2026) -> 1 Apr 2026.",
     ),
     Case(
         id="A2",
