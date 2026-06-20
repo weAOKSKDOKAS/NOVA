@@ -15,17 +15,24 @@ stage consumes exactly what they left.
 fixtures (by ``case_id``) and make zero network calls.
 """
 
-from datetime import date
 from pathlib import Path
-from typing import Optional
 
-from fastapi import FastAPI, File, Form, HTTPException, UploadFile, status
-from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel, Field
+from dotenv import load_dotenv
 
-from rules_engine import sopo_config
-from rules_engine.engine import run_validation
-from schemas.models import (
+# Load backend/.env (resolved relative to THIS file, so the cwd doesn't matter)
+# BEFORE anything reads env — the stage imports below build provider clients on import.
+load_dotenv(Path(__file__).resolve().parent / ".env")
+
+from datetime import date  # noqa: E402
+from typing import Optional  # noqa: E402
+
+from fastapi import FastAPI, File, Form, HTTPException, UploadFile, status  # noqa: E402
+from fastapi.middleware.cors import CORSMiddleware  # noqa: E402
+from pydantic import BaseModel, Field  # noqa: E402
+
+from rules_engine import sopo_config  # noqa: E402
+from rules_engine.engine import run_validation  # noqa: E402
+from schemas.models import (  # noqa: E402
     AuditReport,
     ClaimDraft,
     ExtractedFacts,
@@ -36,12 +43,12 @@ from schemas.models import (
     ValidityReport,
 )
 
-from pipeline.documents import to_images
-from pipeline.llm_client import demo_mode
-from pipeline.stage_01_extract.extract import extract_facts
-from pipeline.stage_02_validate.verify import verify_extraction
-from pipeline.stage_03_draft.draft import draft_claim
-from pipeline.stage_04_audit.audit import audit_claim
+from pipeline.documents import to_images  # noqa: E402
+from pipeline.llm_client import demo_mode  # noqa: E402
+from pipeline.stage_01_extract.extract import extract_facts  # noqa: E402
+from pipeline.stage_02_validate.verify import verify_extraction  # noqa: E402
+from pipeline.stage_03_draft.draft import draft_claim  # noqa: E402
+from pipeline.stage_04_audit.audit import audit_claim  # noqa: E402
 
 # In DEMO_MODE the fixtures are anchored to this date (served 2026-03-02), so the
 # deadline clock reads sensibly; live requests fall back to the real today.

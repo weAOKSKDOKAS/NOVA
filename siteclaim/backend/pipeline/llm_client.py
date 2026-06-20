@@ -6,23 +6,23 @@ Responsibilities:
   ``backend/fixtures/`` and short-circuits BEFORE any provider code runs. No SDK is
   imported and no socket is opened — the offline demo is safe even with
   ``openai`` / ``anthropic`` / ``pymupdf`` all uninstalled.
-* **Provider abstraction** (env ``EXTRACTION_PROVIDER``, default ``deepseek``):
+* **Provider abstraction** (env ``EXTRACTION_PROVIDER``, default ``anthropic``):
+    - ``anthropic`` — the **default** Claude path; reads image/PDF blocks natively.
     - ``deepseek`` — the OpenAI-compatible API at ``https://api.deepseek.com`` via the
-      ``openai`` SDK; model from ``DEEPSEEK_MODEL`` (default ``deepseek-v4-pro``).
-    - ``anthropic`` — the existing Claude path (the swap target); Claude takes
-      image/PDF blocks natively.
+      ``openai`` SDK; model from ``DEEPSEEK_MODEL``. **Text-only** — DeepSeek V4's chat
+      API rejects ``image_url`` input, so document uploads must use ``anthropic``.
   Both SDKs are imported **lazily**, only on the live path.
 * **Multimodal**: ``complete_json(images=[...base64 PNG...])`` attaches the document
   images to the message (OpenAI ``image_url`` blocks / Anthropic ``image`` blocks).
 * **Strict-JSON parsing** into a Pydantic model (strip ``` fences → parse, one
   corrective retry) and retry-on-transient — for both providers.
 
-NOTE on DeepSeek vision: the official docs (api-docs.deepseek.com) confirm the
-base URL, OpenAI compatibility, and the V4 model names, but do not publish a vision
-message format. We therefore build images as the **OpenAI-standard ``image_url``
-content block** (what an OpenAI-compatible endpoint expects). If DeepSeek's format
-differs, only ``build_openai_messages`` below needs changing — the Anthropic
-provider remains a working, natively-multimodal swap target.
+NOTE on DeepSeek vision: DeepSeek V4's chat API **rejects** ``image_url`` content
+(confirmed error: "unknown variant `image_url`, expected `text`"), so it is text-only
+here and document uploads default to ``anthropic``, which reads images/PDF natively.
+``build_openai_messages`` still emits OpenAI ``image_url`` blocks for genuinely
+vision-capable OpenAI-compatible endpoints; only that one builder would change to
+wire a different OpenAI-style vision provider.
 """
 
 import os
@@ -54,8 +54,8 @@ def demo_mode() -> bool:
 
 
 def extraction_provider() -> str:
-    """The configured extraction provider ('deepseek' default, or 'anthropic')."""
-    return os.getenv("EXTRACTION_PROVIDER", "deepseek").strip().lower()
+    """The configured extraction provider ('anthropic' default, or 'deepseek')."""
+    return os.getenv("EXTRACTION_PROVIDER", "anthropic").strip().lower()
 
 
 _FENCE_RE = re.compile(r"^```[A-Za-z0-9_-]*\s*\n(.*?)\n```$", re.DOTALL)

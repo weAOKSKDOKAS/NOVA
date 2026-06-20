@@ -11,6 +11,8 @@ venv/
 # Environment / secrets
 .env
 .env.*
+# the placeholder template (no real key) is safe to commit
+!.env.example
 
 # OS / editor
 .DS_Store
