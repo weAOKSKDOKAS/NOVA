@@ -1,16 +1,19 @@
 import { useEffect, useState } from "react";
 import { api } from "./api";
-import { Header, Stepper, type StepIndex } from "./components";
+import { Header, Stepper, type StepIndex, type View } from "./components";
+import { SNAPSHOTS } from "./demo";
+import { SavingsDashboard } from "./SavingsDashboard";
 import type {
   AuditReport,
   ClaimDraft,
   DemoCase,
   ExtractedFacts,
   ReviewFlag,
+  Snapshot,
   UploadedFile,
   ValidityReport,
 } from "./types";
-import { ErrorBanner } from "./ui";
+import { ErrorBanner, InfoNotice } from "./ui";
 import { StepInput } from "./steps/StepInput";
 import { StepFacts } from "./steps/StepFacts";
 import { StepValidity } from "./steps/StepValidity";
@@ -25,6 +28,7 @@ export default function App() {
   const [demoMode, setDemoMode] = useState(true);
   const [notice, setNotice] = useState(FALLBACK_NOTICE);
   const [demoCases, setDemoCases] = useState<DemoCase[]>([]);
+  const [view, setView] = useState<View>("wizard");
 
   // Navigation
   const [step, setStep] = useState<StepIndex>(1);
@@ -43,6 +47,7 @@ export default function App() {
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [degraded, setDegraded] = useState<string | null>(null);
 
   useEffect(() => {
     api.health().then((h) => setDemoMode(h.demo_mode)).catch(() => {});
@@ -59,6 +64,21 @@ export default function App() {
       setError(e instanceof Error ? e.message : String(e));
     } finally {
       setLoading(false);
+    }
+  }
+
+  // Graceful degradation: if a live stage call fails mid-demo, fall back to the
+  // pre-recorded snapshot for this case so the demo never hard-crashes.
+  async function withFallback<T>(call: () => Promise<T>, fromSnapshot: (s: Snapshot) => T): Promise<T> {
+    try {
+      return await call();
+    } catch (e) {
+      const snap = caseId ? SNAPSHOTS[caseId] : undefined;
+      if (snap) {
+        setDegraded(`Couldn't reach the live pipeline — showing the recorded result for the “${caseId}” case.`);
+        return fromSnapshot(snap);
+      }
+      throw e;
     }
   }
 
@@ -80,11 +100,19 @@ export default function App() {
   }
 
   async function pickDemo(id: string) {
+    setDegraded(null);
     await run(async () => {
-      const source = await api.demoCase(id);
       setCaseId(id);
-      setDescription(source.description);
-      setFiles(source.docs?.files ?? []);
+      try {
+        const source = await api.demoCase(id);
+        setDescription(source.description);
+        setFiles(source.docs?.files ?? []);
+      } catch {
+        // Even the source fetch failed — start from the bundled snapshot.
+        setDescription(`Demo case: ${id}`);
+        setFiles([]);
+        if (SNAPSHOTS[id]) setDegraded(`Couldn't reach the server — loading the “${id}” case from bundled fixtures.`);
+      }
       setFacts(null);
       invalidateAfter(1);
     });
@@ -93,7 +121,7 @@ export default function App() {
   const goExtract = () =>
     run(async () => {
       const source = { docs: { files }, description, case_id: caseId };
-      const f = await api.extract(source);
+      const f = await withFallback(() => api.extract(source), (s) => s.facts);
       setFacts(f);
       invalidateAfter(2);
       advance(2);
@@ -102,7 +130,10 @@ export default function App() {
   const goVerify = () =>
     run(async () => {
       if (!facts) return;
-      const res = await api.verify({ facts, case_id: caseId, source_description: description });
+      const res = await withFallback(
+        () => api.verify({ facts, case_id: caseId, source_description: description }),
+        (s) => ({ facts: s.facts, validity: s.validity, review_flags: s.review_flags, judge_summary: s.judge_summary }),
+      );
       setFacts(res.facts);
       setValidity(res.validity);
       setReviewFlags(res.review_flags);
@@ -113,7 +144,7 @@ export default function App() {
   const goDraft = () =>
     run(async () => {
       if (!facts || !validity) return;
-      const d = await api.draft({ facts, validity });
+      const d = await withFallback(() => api.draft({ facts, validity }), (s) => s.draft);
       setDraft(d);
       setAudit(null);
       advance(4);
@@ -122,7 +153,7 @@ export default function App() {
   const goAudit = () =>
     run(async () => {
       if (!facts || !validity || !draft) return;
-      const a = await api.audit({ facts, validity, draft });
+      const a = await withFallback(() => api.audit({ facts, validity, draft }), (s) => s.audit);
       setAudit(a);
       advance(5);
     });
@@ -140,77 +171,88 @@ export default function App() {
     setDraft(null);
     setAudit(null);
     setError(null);
+    setDegraded(null);
+    setView("wizard");
   }
 
   return (
     <div className="min-h-screen">
-      <Header demoMode={demoMode} notice={notice} />
+      <Header demoMode={demoMode} notice={notice} view={view} onNavigate={setView} />
       <main className="mx-auto max-w-6xl px-5 py-8">
-        <div className="grid gap-8 lg:grid-cols-[16rem_1fr]">
-          <Stepper current={step} maxReached={maxReached} onNavigate={setStep} />
-          <div className="min-w-0 space-y-4">
-            {error && <ErrorBanner message={error} />}
+        {view === "savings" ? (
+          <SavingsDashboard onBack={() => setView("wizard")} />
+        ) : (
+          <div className="grid gap-8 lg:grid-cols-[16rem_1fr]">
+            <Stepper current={step} maxReached={maxReached} onNavigate={setStep} />
+            <div className="min-w-0 space-y-4">
+              {error && <ErrorBanner message={error} />}
+              {degraded && <InfoNotice>{degraded}</InfoNotice>}
 
-            {step === 1 && (
-              <StepInput
-                demoMode={demoMode}
-                demoCases={demoCases}
-                caseId={caseId}
-                description={description}
-                files={files}
-                onPickDemo={pickDemo}
-                onChangeDescription={(v) => {
-                  setDescription(v);
-                }}
-                onAddFiles={(f) => setFiles((cur) => [...cur, ...f])}
-                onRemoveFile={(i) => setFiles((cur) => cur.filter((_, idx) => idx !== i))}
-                onNext={goExtract}
-                loading={loading}
-              />
-            )}
+              {step === 1 && (
+                <StepInput
+                  demoMode={demoMode}
+                  demoCases={demoCases}
+                  caseId={caseId}
+                  description={description}
+                  files={files}
+                  onPickDemo={pickDemo}
+                  onChangeDescription={setDescription}
+                  onAddFiles={(f) => setFiles((cur) => [...cur, ...f])}
+                  onRemoveFile={(i) => setFiles((cur) => cur.filter((_, idx) => idx !== i))}
+                  onNext={goExtract}
+                  loading={loading}
+                />
+              )}
 
-            {step === 2 && facts && (
-              <StepFacts
-                facts={facts}
-                onChange={(f) => {
-                  setFacts(f);
-                  invalidateAfter(2);
-                }}
-                onBack={() => setStep(1)}
-                onNext={goVerify}
-                loading={loading}
-              />
-            )}
+              {step === 2 && facts && (
+                <StepFacts
+                  facts={facts}
+                  onChange={(f) => {
+                    setFacts(f);
+                    invalidateAfter(2);
+                  }}
+                  onBack={() => setStep(1)}
+                  onNext={goVerify}
+                  loading={loading}
+                />
+              )}
 
-            {step === 3 && validity && (
-              <StepValidity
-                validity={validity}
-                reviewFlags={reviewFlags}
-                judgeSummary={judgeSummary}
-                onBack={() => setStep(2)}
-                onNext={goDraft}
-                loading={loading}
-              />
-            )}
+              {step === 3 && validity && (
+                <StepValidity
+                  validity={validity}
+                  reviewFlags={reviewFlags}
+                  judgeSummary={judgeSummary}
+                  onBack={() => setStep(2)}
+                  onNext={goDraft}
+                  loading={loading}
+                />
+              )}
 
-            {step === 4 && draft && (
-              <StepDraft
-                draft={draft}
-                onChangeMarkdown={(v) => {
-                  setDraft({ ...draft, rendered_markdown: v });
-                  invalidateAfter(4);
-                }}
-                onBack={() => setStep(3)}
-                onNext={goAudit}
-                loading={loading}
-              />
-            )}
+              {step === 4 && draft && (
+                <StepDraft
+                  draft={draft}
+                  onChangeMarkdown={(v) => {
+                    setDraft({ ...draft, rendered_markdown: v });
+                    invalidateAfter(4);
+                  }}
+                  onBack={() => setStep(3)}
+                  onNext={goAudit}
+                  loading={loading}
+                />
+              )}
 
-            {step === 5 && audit && (
-              <StepAudit audit={audit} onBack={() => setStep(4)} onReset={reset} />
-            )}
+              {step === 5 && audit && facts && (
+                <StepAudit
+                  audit={audit}
+                  facts={facts}
+                  onBack={() => setStep(4)}
+                  onReset={reset}
+                  onShowSavings={() => setView("savings")}
+                />
+              )}
+            </div>
           </div>
-        </div>
+        )}
       </main>
     </div>
   );

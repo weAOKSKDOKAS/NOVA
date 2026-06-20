@@ -168,3 +168,15 @@ export interface Health {
   config_version: string;
   demo_mode: boolean;
 }
+
+// A pre-recorded full-pipeline result for a demo case (the frontend's offline
+// fallback). Mirrors what the wizard accumulates across the four stage calls.
+export interface Snapshot {
+  case_id: string;
+  facts: ExtractedFacts;
+  validity: ValidityReport;
+  review_flags: ReviewFlag[];
+  judge_summary: string;
+  draft: ClaimDraft;
+  audit: AuditReport;
+}
