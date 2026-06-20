@@ -2,6 +2,7 @@
 fastapi
 uvicorn
 pydantic>=2
+python-dotenv  # auto-load backend/.env
 anthropic
 python-multipart
 pytest

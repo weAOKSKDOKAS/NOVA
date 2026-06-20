@@ -14,10 +14,18 @@ from schemas.models import ExtractedFacts
 _B64 = "aGVsbG8="  # not a real PNG; we only check message shaping
 
 
-def test_default_provider_is_deepseek(monkeypatch):
+def test_default_provider_is_anthropic(monkeypatch):
+    # DeepSeek V4 rejects image input, so the default is Claude (native multimodal).
     monkeypatch.delenv("EXTRACTION_PROVIDER", raising=False)
+    assert extraction_provider() == "anthropic"
+    client = LLMClient()
+    assert client.provider == "anthropic"
+    assert client.model == "claude-sonnet-4-6"
+
+
+def test_deepseek_is_selectable_as_non_default(monkeypatch):
+    monkeypatch.setenv("EXTRACTION_PROVIDER", "deepseek")
     monkeypatch.delenv("DEEPSEEK_MODEL", raising=False)
-    assert extraction_provider() == "deepseek"
     client = LLMClient()
     assert client.provider == "deepseek"
     assert client.model == "deepseek-v4-pro"
@@ -26,13 +34,6 @@ def test_default_provider_is_deepseek(monkeypatch):
 def test_deepseek_model_override(monkeypatch):
     monkeypatch.setenv("DEEPSEEK_MODEL", "deepseek-v4-flash")
     assert LLMClient(provider="deepseek").model == "deepseek-v4-flash"
-
-
-def test_anthropic_provider_selectable(monkeypatch):
-    monkeypatch.setenv("EXTRACTION_PROVIDER", "anthropic")
-    client = LLMClient()
-    assert client.provider == "anthropic"
-    assert client.model == "claude-sonnet-4-6"
 
 
 def test_openai_messages_text_only_uses_string_content():

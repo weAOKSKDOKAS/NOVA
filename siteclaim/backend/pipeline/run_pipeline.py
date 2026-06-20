@@ -8,11 +8,15 @@ fixtures and makes ZERO network calls. Run from the ``backend/`` directory:
 
 import os
 import sys
+from pathlib import Path
 
+from dotenv import load_dotenv
+
+# Load backend/.env before reading any env, then keep the offline default.
+load_dotenv(Path(__file__).resolve().parent.parent / ".env")
 os.environ.setdefault("DEMO_MODE", "true")  # force offline before importing the client
 
 from datetime import date  # noqa: E402
-from pathlib import Path  # noqa: E402
 
 # Allow `python pipeline/run_pipeline.py` from backend/ (put backend/ on sys.path).
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
