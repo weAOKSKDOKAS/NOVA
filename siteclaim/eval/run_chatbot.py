@@ -1,17 +1,22 @@
-"""Run the steelman chatbot baseline (Anthropic claude-sonnet-4-6) over the eval set
-and score it side-by-side with the engine.
+"""Run the steelman chatbot baseline over the eval set and score it side-by-side
+with the engine.
 
-The chatbot is the "well-prompted baseline" we compare against: it gets the SAME
-steelman prompt (rules preamble + scenario) as in SiteClaim_Eval_Set.md, at default
-temperature. A/B cases run once; C/D cases run 3× to check answer consistency
-(non-determinism on a legal question is itself a finding).
+Provider switch via env ``EVAL_CHATBOT_PROVIDER`` (default ``deepseek``):
+  * ``deepseek`` — openai SDK at https://api.deepseek.com, model ``deepseek-v4-pro``
+    (text); reads ``DEEPSEEK_API_KEY`` from backend/.env. The eval is all natural
+    language, so a text model is a fair "well-prompted chatbot with full context".
+  * ``anthropic`` — anthropic SDK, model ``claude-sonnet-4-6``; reads ``ANTHROPIC_API_KEY``.
 
-Reads ANTHROPIC_API_KEY from backend/.env (never hard-coded). Writes every raw
-answer to eval/chatbot_raw.md and the combined engine-vs-chatbot scorecard to
-eval/scorecard.md. Does NOT touch rules_engine.
+The chatbot gets the SAME verbatim steelman prompt (rules preamble + scenario) as
+in SiteClaim_Eval_Set.md, at default temperature. A/B cases run once; C/D cases run
+3× to check answer consistency (non-determinism on a legal question is a finding).
 
-    python eval/run_chatbot.py            # live run (needs ANTHROPIC_API_KEY)
-    python eval/run_chatbot.py --selftest # offline: exercise the parser/scorer only
+Writes every raw answer to eval/chatbot_raw.md and the combined scorecard to
+eval/scorecard.md. Keys are read from .env, never hard-coded. Does NOT touch
+rules_engine, the ground truth, or DEMO_MODE.
+
+    EVAL_CHATBOT_PROVIDER=deepseek python eval/run_chatbot.py   # live (needs DEEPSEEK_API_KEY)
+    python eval/run_chatbot.py --selftest                       # offline parser/scorer check
 """
 
 import os
@@ -35,8 +40,15 @@ from cases import CASES, Case  # noqa: E402
 from chatbot_prompts import build_prompt  # noqa: E402
 from run_engine import score_case  # noqa: E402  (engine side, read-only)
 
-MODEL = "claude-sonnet-4-6"
+ANTHROPIC_MODEL = "claude-sonnet-4-6"
+DEEPSEEK_MODEL = "deepseek-v4-pro"
+DEEPSEEK_BASE_URL = "https://api.deepseek.com"
 RUNS_MULTI = ("C", "D")  # categories run 3× for consistency
+
+
+def resolve_provider() -> str:
+    """Chatbot provider: 'deepseek' (default, text) or 'anthropic'."""
+    return os.getenv("EVAL_CHATBOT_PROVIDER", "deepseek").strip().lower()
 
 # Chatbot-output scoring config (separate from the engine ground truth in cases.py):
 # (expected verdict in the 3-value format, defect keywords or None for "no defect").
@@ -119,46 +131,84 @@ def _mark(ok) -> str:
 # ---------------------------------------------------------------------------
 # Live model call
 # ---------------------------------------------------------------------------
-def make_client():
-    if not os.getenv("ANTHROPIC_API_KEY"):
-        sys.exit(
-            "ANTHROPIC_API_KEY not found. Put it in backend/.env (gitignored) and re-run:\n"
-            "    echo 'ANTHROPIC_API_KEY=sk-ant-...' >> backend/.env\n"
-            "    python eval/run_chatbot.py\n"
-            "(Do not paste the key into chat — it belongs in .env.)"
-        )
-    import anthropic  # lazy
-
-    return anthropic.Anthropic()
+def _missing_key(var: str) -> str:
+    return (
+        f"{var} not found. Put it in backend/.env (gitignored) and re-run:\n"
+        f"    echo '{var}=...' >> backend/.env\n"
+        f"    python eval/run_chatbot.py\n"
+        "(Do not paste the key into chat — it belongs in .env.)"
+    )
 
 
-def ask(client, prompt: str, max_retries: int = 4) -> str:
-    import anthropic
+class Chatbot:
+    """Steelman chatbot baseline — DeepSeek (default, text) or Anthropic.
 
-    last = None
-    for attempt in range(max_retries):
-        try:
-            resp = client.messages.create(
-                model=MODEL,
-                max_tokens=512,  # default temperature (omitted on purpose)
-                messages=[{"role": "user", "content": prompt}],
+    The eval cases are all natural-language text, so DeepSeek's text model is a
+    fair "well-prompted chatbot with full context" baseline. Default temperature
+    on both providers (omitted on purpose). SDKs imported lazily.
+    """
+
+    def __init__(self, provider: str) -> None:
+        self.provider = provider
+        if provider == "deepseek":
+            self.model = DEEPSEEK_MODEL
+            key = os.getenv("DEEPSEEK_API_KEY") or sys.exit(_missing_key("DEEPSEEK_API_KEY"))
+            import openai  # lazy
+
+            self.client = openai.OpenAI(base_url=DEEPSEEK_BASE_URL, api_key=key)
+            self._transient = (
+                openai.RateLimitError,
+                openai.APIConnectionError,
+                openai.APITimeoutError,
+                openai.InternalServerError,
             )
-            return "".join(b.text for b in resp.content if getattr(b, "type", None) == "text").strip()
-        except (anthropic.RateLimitError, anthropic.APIConnectionError, anthropic.APITimeoutError, anthropic.InternalServerError) as exc:
-            last = exc
-            time.sleep(min(2**attempt, 16))
-    raise last  # type: ignore[misc]
+        elif provider == "anthropic":
+            self.model = ANTHROPIC_MODEL
+            key = os.getenv("ANTHROPIC_API_KEY") or sys.exit(_missing_key("ANTHROPIC_API_KEY"))
+            import anthropic  # lazy
+
+            self.client = anthropic.Anthropic(api_key=key)
+            self._transient = (
+                anthropic.RateLimitError,
+                anthropic.APIConnectionError,
+                anthropic.APITimeoutError,
+                anthropic.InternalServerError,
+            )
+        else:
+            sys.exit(f"unknown EVAL_CHATBOT_PROVIDER {provider!r} (use 'deepseek' or 'anthropic')")
+
+    @property
+    def label(self) -> str:
+        return f"{self.provider} · {self.model}"
+
+    def ask(self, prompt: str, max_retries: int = 4) -> str:
+        last: Exception | None = None
+        for attempt in range(max_retries):
+            try:
+                if self.provider == "deepseek":
+                    resp = self.client.chat.completions.create(
+                        model=self.model, max_tokens=512, messages=[{"role": "user", "content": prompt}]
+                    )
+                    return (resp.choices[0].message.content or "").strip()
+                resp = self.client.messages.create(
+                    model=self.model, max_tokens=512, messages=[{"role": "user", "content": prompt}]
+                )
+                return "".join(b.text for b in resp.content if getattr(b, "type", None) == "text").strip()
+            except self._transient as exc:
+                last = exc
+                time.sleep(min(2**attempt, 16))
+        raise last  # type: ignore[misc]
 
 
 # ---------------------------------------------------------------------------
 # Run + score
 # ---------------------------------------------------------------------------
-def run_all(client) -> list[dict]:
+def run_all(bot: Chatbot) -> list[dict]:
     results = []
     for case in CASES:
         n = 3 if case.category in RUNS_MULTI else 1
         prompt = build_prompt(case)
-        answers = [ask(client, prompt) for _ in range(n)]
+        answers = [bot.ask(prompt) for _ in range(n)]
         scores = [score_answer(case, a) for a in answers]
         # consistency: identical parsed (verdict, deadline) across the runs
         keys = {(s["verdict"], s["date"].isoformat() if s["date"] else None) for s in scores}
@@ -169,8 +219,8 @@ def run_all(client) -> list[dict]:
     return results
 
 
-def write_raw(results: list[dict]) -> Path:
-    lines = ["# Chatbot raw answers — claude-sonnet-4-6, steelman prompt, default temperature", ""]
+def write_raw(results: list[dict], label: str) -> Path:
+    lines = [f"# Chatbot raw answers — {label}, steelman prompt, default temperature", ""]
     for r in results:
         c: Case = r["case"]
         lines.append(f"## {c.id} [{c.category}]  ({len(r['answers'])} run{'s' if len(r['answers']) > 1 else ''})")
@@ -184,7 +234,7 @@ def write_raw(results: list[dict]) -> Path:
     return path
 
 
-def write_scorecard(results: list[dict]) -> Path:
+def write_scorecard(results: list[dict], label: str) -> Path:
     eng = {c.id: score_case(c) for c in CASES}
     glyph = {"PASS": "✓", "FAIL": "✗", "NM": "NM", "NA": "·"}
 
@@ -192,7 +242,7 @@ def write_scorecard(results: list[dict]) -> Path:
         "# SiteClaim eval scorecard — engine vs. chatbot",
         "",
         "Engine: `eval/run_engine.py` over `rules_engine` (deterministic). Chatbot: "
-        "`eval/run_chatbot.py` — claude-sonnet-4-6, the verbatim steelman prompt, default "
+        f"`eval/run_chatbot.py` — {label}, the verbatim steelman prompt, default "
         "temperature; A/B once, C/D 3× (raw answers in `eval/chatbot_raw.md`).",
         "",
         "Marks: ✓ correct · ✗ wrong · NM engine does not model this dimension · · not applicable.",
@@ -272,13 +322,14 @@ def main() -> None:
     if "--selftest" in sys.argv:
         _selftest()
         return
-    client = make_client()
-    print(f"Running {len([c for c in CASES])} cases vs {MODEL} (C/D ×3)…")
-    results = run_all(client)
-    raw = write_raw(results)
-    card = write_scorecard(results)
+    bot = Chatbot(resolve_provider())
+    print(f"Running {len(CASES)} cases vs {bot.label} (C/D ×3, default temperature)…")
+    results = run_all(bot)
+    raw = write_raw(results, bot.label)
+    card = write_scorecard(results, bot.label)
     print_side_by_side(results)
-    print(f"\nWrote {raw.relative_to(_EVAL.parent)} and {card.relative_to(_EVAL.parent)}")
+    print(f"\nProvider: {bot.label}")
+    print(f"Wrote {raw.relative_to(_EVAL.parent)} and {card.relative_to(_EVAL.parent)}")
 
 
 # ---------------------------------------------------------------------------
