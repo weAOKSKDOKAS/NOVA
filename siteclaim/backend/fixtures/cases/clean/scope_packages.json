@@ -1,0 +1,49 @@
+{
+  "project_name": "Kwun Tong Commercial Tower — Category-A Office Fit-out",
+  "packages": [
+    {
+      "trade": "Electrical",
+      "scope_summary": "LV main switchboard, sub-mains and final circuits, lighting installation and small power, cable containment and busbar trunking, power distribution, with testing and commissioning to the CoP.",
+      "sor_items": [
+        {"item_ref": "E-01", "description": "LV main switchboard, form 4 type 6", "unit": "no", "qty": 1.0},
+        {"item_ref": "E-02", "description": "Sub-main cabling, XLPE/SWA, 4c 95mm2", "unit": "m", "qty": 420.0},
+        {"item_ref": "E-03", "description": "Final circuits, lighting and small power", "unit": "point", "qty": 860.0},
+        {"item_ref": "E-04", "description": "Cable containment and busbar trunking", "unit": "m", "qty": 530.0},
+        {"item_ref": "E-05", "description": "Testing and commissioning", "unit": "item", "qty": 1.0}
+      ],
+      "source_refs": ["schedule_of_rates.pdf", "particular_specification.pdf"]
+    },
+    {
+      "trade": "Mechanical & Plumbing",
+      "scope_summary": "HVAC plant and ductwork, chilled-water pipework, VAV terminals, domestic water and above-ground drainage, with mechanical testing and commissioning.",
+      "sor_items": [
+        {"item_ref": "M-01", "description": "Air handling units and FCUs", "unit": "no", "qty": 24.0},
+        {"item_ref": "M-02", "description": "Galvanised ductwork", "unit": "m2", "qty": 1850.0},
+        {"item_ref": "M-03", "description": "Chilled-water pipework, insulated", "unit": "m", "qty": 640.0},
+        {"item_ref": "M-04", "description": "Above-ground drainage and domestic water", "unit": "m", "qty": 380.0}
+      ],
+      "source_refs": ["schedule_of_rates.pdf", "method_of_measurement.pdf"]
+    },
+    {
+      "trade": "Fire Services",
+      "scope_summary": "Sprinkler installation, fire detection and alarm, hydrants and hose reels, with FSD inspection and certification.",
+      "sor_items": [
+        {"item_ref": "F-01", "description": "Sprinkler heads and pipework", "unit": "no", "qty": 1240.0},
+        {"item_ref": "F-02", "description": "Fire detection and alarm devices", "unit": "no", "qty": 410.0},
+        {"item_ref": "F-03", "description": "Hydrants and hose reels", "unit": "no", "qty": 36.0}
+      ],
+      "source_refs": ["schedule_of_rates.pdf", "tender_addendum.pdf"]
+    },
+    {
+      "trade": "Joinery & Fitting-out",
+      "scope_summary": "Demountable partitions, suspended ceilings, doors and ironmongery, carpet and finishes, and bespoke joinery to reception and tea rooms.",
+      "sor_items": [
+        {"item_ref": "J-01", "description": "Demountable partitions", "unit": "m2", "qty": 920.0},
+        {"item_ref": "J-02", "description": "Suspended ceilings", "unit": "m2", "qty": 3100.0},
+        {"item_ref": "J-03", "description": "Doors and ironmongery", "unit": "no", "qty": 145.0},
+        {"item_ref": "J-04", "description": "Bespoke joinery — reception and tea rooms", "unit": "item", "qty": 1.0}
+      ],
+      "source_refs": ["schedule_of_rates.pdf", "particular_specification.pdf"]
+    }
+  ]
+}

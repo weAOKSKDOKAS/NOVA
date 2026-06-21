@@ -82,6 +82,10 @@ did: zero network, no model load. Treat any network call in DEMO_MODE as a bug.
 
 ## Status
 
-**Pivot in progress.** Phase 0 (orient/strip/reskin) and Phase 1 (schemas +
-rubrics) are landing first. The database, the stages, the API routes, and the
+**Pivot in progress.** Landed so far: Phase 0 (orient/strip/reskin), Phase 1
+(schemas + rubrics), Phase 2 (the proprietary database `backend/db/` — schema,
+store, baked-vector embeddings, the fused seed with the planted gotcha electrical
+firm, plus `rules_engine/risk_scoring.py`, `rules_engine/ranking.py`, and
+`db/cross_reference.py`), and Phase 3 (`stage_01_ingest` — tender → scope split
+with Layer-1 taxonomy validation). The remaining stages, the API routes, and the
 frontend are rebuilt phase by phase per the build framework.

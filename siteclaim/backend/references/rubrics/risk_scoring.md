@@ -17,6 +17,7 @@ cited `Evidence`. **A `fatal` flag demotes or excludes a firm regardless of pric
 | Rule (`rule_ref`) | Condition | Why |
 | --- | --- | --- |
 | `risk.safety_single` | **One** safety-prosecution conviction | Isolated but material |
+| `risk.distress_filing` | A **financial-distress filing** short of a winding-up petition | Early solvency concern |
 | `risk.closeout_delay` | A **delayed-closeout** note in project history | Programme risk |
 | `risk.grade_band` | **Registered grade is low** for the package's value band | Capacity / capability mismatch |
 

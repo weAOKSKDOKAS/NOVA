@@ -1,0 +1,41 @@
+[
+  {"trade": "electrical", "value": 8400000, "project": "Industrial fit-out", "year": 2022, "source": "Awarded subcontract", "reference": "PX:EL-2022-01"},
+  {"trade": "electrical", "value": 9800000, "project": "Retail podium", "year": 2023, "source": "Awarded subcontract", "reference": "PX:EL-2023-02"},
+  {"trade": "electrical", "value": 11200000, "project": "Institutional building", "year": 2023, "source": "Awarded subcontract", "reference": "PX:EL-2023-03"},
+  {"trade": "electrical", "value": 12500000, "project": "Office tower", "year": 2024, "source": "Awarded subcontract", "reference": "PX:EL-2024-04"},
+  {"trade": "electrical", "value": 14000000, "project": "Data hall", "year": 2024, "source": "Awarded subcontract", "reference": "PX:EL-2024-05"},
+  {"trade": "electrical", "value": 16800000, "project": "Mixed-use tower", "year": 2025, "source": "Awarded subcontract", "reference": "PX:EL-2025-06"},
+
+  {"trade": "mechanical_plumbing", "value": 6000000, "project": "Residential", "year": 2022, "source": "Awarded subcontract", "reference": "PX:MP-2022-01"},
+  {"trade": "mechanical_plumbing", "value": 7500000, "project": "Workshop", "year": 2023, "source": "Awarded subcontract", "reference": "PX:MP-2023-02"},
+  {"trade": "mechanical_plumbing", "value": 9000000, "project": "Office", "year": 2023, "source": "Awarded subcontract", "reference": "PX:MP-2023-03"},
+  {"trade": "mechanical_plumbing", "value": 11000000, "project": "Hospital", "year": 2024, "source": "Awarded subcontract", "reference": "PX:MP-2024-04"},
+  {"trade": "mechanical_plumbing", "value": 13500000, "project": "Mixed-use", "year": 2024, "source": "Awarded subcontract", "reference": "PX:MP-2024-05"},
+  {"trade": "mechanical_plumbing", "value": 15000000, "project": "Institutional", "year": 2025, "source": "Awarded subcontract", "reference": "PX:MP-2025-06"},
+
+  {"trade": "fire_services", "value": 3500000, "project": "Office", "year": 2022, "source": "Awarded subcontract", "reference": "PX:FS-2022-01"},
+  {"trade": "fire_services", "value": 4200000, "project": "Retail", "year": 2023, "source": "Awarded subcontract", "reference": "PX:FS-2023-02"},
+  {"trade": "fire_services", "value": 5000000, "project": "Residential", "year": 2023, "source": "Awarded subcontract", "reference": "PX:FS-2023-03"},
+  {"trade": "fire_services", "value": 6100000, "project": "Commercial tower", "year": 2024, "source": "Awarded subcontract", "reference": "PX:FS-2024-04"},
+  {"trade": "fire_services", "value": 7300000, "project": "Hospital", "year": 2024, "source": "Awarded subcontract", "reference": "PX:FS-2024-05"},
+  {"trade": "fire_services", "value": 8000000, "project": "Mixed-use", "year": 2025, "source": "Awarded subcontract", "reference": "PX:FS-2025-06"},
+
+  {"trade": "reinforced_concrete", "value": 22000000, "project": "Residential", "year": 2022, "source": "Awarded subcontract", "reference": "PX:RC-2022-01"},
+  {"trade": "reinforced_concrete", "value": 28000000, "project": "Commercial", "year": 2023, "source": "Awarded subcontract", "reference": "PX:RC-2023-02"},
+  {"trade": "reinforced_concrete", "value": 35000000, "project": "Institutional", "year": 2023, "source": "Awarded subcontract", "reference": "PX:RC-2023-03"},
+  {"trade": "reinforced_concrete", "value": 41000000, "project": "Superstructure", "year": 2024, "source": "Awarded subcontract", "reference": "PX:RC-2024-04"},
+  {"trade": "reinforced_concrete", "value": 50000000, "project": "Mixed-use", "year": 2024, "source": "Awarded subcontract", "reference": "PX:RC-2024-05"},
+  {"trade": "reinforced_concrete", "value": 60000000, "project": "Tower", "year": 2025, "source": "Awarded subcontract", "reference": "PX:RC-2025-06"},
+
+  {"trade": "joinery_fitting_out", "value": 5500000, "project": "Retail", "year": 2022, "source": "Awarded subcontract", "reference": "PX:JF-2022-01"},
+  {"trade": "joinery_fitting_out", "value": 7000000, "project": "Office", "year": 2023, "source": "Awarded subcontract", "reference": "PX:JF-2023-02"},
+  {"trade": "joinery_fitting_out", "value": 9500000, "project": "Hotel", "year": 2023, "source": "Awarded subcontract", "reference": "PX:JF-2023-03"},
+  {"trade": "joinery_fitting_out", "value": 12000000, "project": "Headquarters", "year": 2024, "source": "Awarded subcontract", "reference": "PX:JF-2024-04"},
+  {"trade": "joinery_fitting_out", "value": 14500000, "project": "Flagship", "year": 2024, "source": "Awarded subcontract", "reference": "PX:JF-2024-05"},
+  {"trade": "joinery_fitting_out", "value": 18000000, "project": "Mixed-use", "year": 2025, "source": "Awarded subcontract", "reference": "PX:JF-2025-06"},
+
+  {"trade": "foundation_substructure", "value": 30000000, "project": "Platform", "year": 2022, "source": "Awarded subcontract", "reference": "PX:FN-2022-01"},
+  {"trade": "foundation_substructure", "value": 45000000, "project": "Residential", "year": 2023, "source": "Awarded subcontract", "reference": "PX:FN-2023-02"},
+  {"trade": "foundation_substructure", "value": 60000000, "project": "Commercial", "year": 2024, "source": "Awarded subcontract", "reference": "PX:FN-2024-03"},
+  {"trade": "foundation_substructure", "value": 80000000, "project": "Infrastructure", "year": 2025, "source": "Awarded subcontract", "reference": "PX:FN-2025-04"}
+]

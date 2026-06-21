@@ -45,6 +45,7 @@ class SignalType(str, Enum):
     WINDING_UP = "winding_up"
     DEBARMENT = "debarment"
     ADJUDICATION = "adjudication"
+    DISTRESS_FILING = "distress_filing"  # financial-distress filing short of winding-up
     CLOSEOUT_PERFORMANCE = "closeout_performance"
     PRICING = "pricing"
 
