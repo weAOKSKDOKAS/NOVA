@@ -1,5 +1,5 @@
 import { useState } from "react";
-import type { Candidate, ShortlistSet } from "../types";
+import type { Candidate, Coverage, ShortlistSet } from "../types";
 import { Pill, RiskFlagList, StepHeading, StepNav } from "../components";
 import { Card, MatchChip, cx } from "../ui";
 import { tradeLabel } from "../format";
@@ -7,12 +7,14 @@ import { tradeLabel } from "../format";
 export function StepShortlist({
   shortlist,
   heroTrade,
+  coverage,
   onBack,
   onNext,
   loading,
 }: {
   shortlist: ShortlistSet;
   heroTrade: string;
+  coverage: Coverage | null;
   onBack: () => void;
   onNext: () => void;
   loading: boolean;
@@ -29,6 +31,15 @@ export function StepShortlist({
         title="Shortlist per trade"
         lead="For each trade the database returns firms scored by how well their closeout history matches the scope, each with cited evidence and risk flags. The ranking is deterministic — a firm with a fatal flag is demoted below every clean firm regardless of price or match. This is data a generic chatbot cannot reach."
       />
+
+      {coverage && (
+        <div className="rounded-lg border border-brand/20 bg-brand-bg/50 px-4 py-2.5 text-sm text-ink">
+          Screening against <span className="tabular font-semibold">{coverage.total_firms.toLocaleString("en-HK")}</span> firms
+          sourced from official Hong Kong registers —{" "}
+          <span className="tabular font-semibold">{coverage.flagged_firms.toLocaleString("en-HK")}</span> carry verified
+          public risk flags, each linked to its government source. Only firms with an assessable closeout record are shortlisted below.
+        </div>
+      )}
 
       {trades.map((trade) => {
         const candidates = shortlist.per_trade[trade];

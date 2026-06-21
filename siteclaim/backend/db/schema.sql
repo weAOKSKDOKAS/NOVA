@@ -25,7 +25,8 @@ CREATE TABLE firms (
     value_band       TEXT,
     registers        TEXT,   -- JSON array of registration schemes (lossless for the scrape)
     trades           TEXT,   -- JSON array of canonical taxonomy keys
-    closeout_summary TEXT
+    closeout_summary TEXT,
+    provenance       TEXT NOT NULL DEFAULT 'illustrative'  -- 'public_register' (real scrape) | 'illustrative' (demo stub)
 );
 
 -- Public-record signals (winding-up, safety prosecutions, debarment, adjudication,

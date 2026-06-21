@@ -46,6 +46,17 @@ def test_historical_pricing_band(conn):
     assert 0 < low <= median <= high
 
 
+def test_coverage_counts_only_real_provenance(conn):
+    cov = store.coverage(conn)
+    assert cov["provenance"] == "public_register"
+    # the 16 illustrative demo firms are excluded from the public-register claim
+    assert cov["total_firms"] == 134
+    assert cov["flagged_firms"] == 46
+    # demo-only signal types (illustrative references) never appear in the claim
+    assert "adjudication" not in cov["flags_by_type"]
+    assert "distress_filing" not in cov["flags_by_type"]
+
+
 def test_semantic_matches_are_electrical_and_in_range(conn):
     matches = store.semantic_closeout_matches(conn, ELECTRICAL_SCOPE_QUERY, "electrical", k=4)
     assert matches

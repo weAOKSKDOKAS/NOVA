@@ -26,6 +26,7 @@ from pipeline.stage_03_dispatch.dispatch import build_dispatch  # noqa: E402
 from pipeline.stage_04_level.export_xlsx import OUT_PATH, export_leveling_xlsx  # noqa: E402
 from pipeline.stage_04_level.level import level_bids, load_demo_replies  # noqa: E402
 from pipeline.stage_05_recommend.recommend import recommend  # noqa: E402
+from db import store  # noqa: E402
 from db.outbox import send_mock  # noqa: E402
 from schemas.models import (  # noqa: E402
     BidReply,
@@ -67,6 +68,18 @@ app.add_middleware(
 def health() -> dict[str, object]:
     """Liveness probe; reports whether the server is offline (DEMO_MODE)."""
     return {"status": "ok", "demo_mode": demo_mode()}
+
+
+@app.get("/coverage")
+def coverage() -> dict:
+    """Database-coverage figures (read live from the DB) for the screening line:
+    total firms, firms carrying public flags, flags by type, distinct trades, and
+    how many carry an assessable closeout record."""
+    conn = store.get_connection()
+    try:
+        return store.coverage(conn)
+    finally:
+        conn.close()
 
 
 # ---------------------------------------------------------------------------

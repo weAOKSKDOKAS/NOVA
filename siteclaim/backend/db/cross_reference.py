@@ -49,12 +49,16 @@ def cross_reference(
 ) -> list[Candidate]:
     """Return ranked candidates for ``trade`` against ``scope_query``.
 
-    Every firm that does the trade becomes a candidate (none is silently dropped);
-    its ``match_score`` is the semantic relevance of its closeout history to the
-    scope, its ``risk_flags`` are the deterministic adjudication of its signals, and
-    the list is ordered clean-first by ranking. ``k`` optionally caps the result.
+    Only firms with an **assessable EOS closeout record** are shortlisted — the
+    wider public-record pool is the discovery/coverage layer, screened and counted
+    but not auto-shortlisted (a firm with no closeout history would otherwise enter
+    at match 0 and bury the genuinely assessed firms). Among the assessable firms,
+    none is silently dropped: ``match_score`` is the semantic relevance of its
+    closeout history to the scope, ``risk_flags`` are the deterministic adjudication
+    of its signals, and the list is ordered clean-first by ranking. ``k`` optionally
+    caps the result.
     """
-    firms = store.firms_for_trade(conn, trade)
+    firms = store.shortlistable_firms_for_trade(conn, trade)
     scores = dict(store.semantic_closeout_matches(conn, scope_query, trade, k=len(firms) or 1))
 
     candidates = [

@@ -100,3 +100,15 @@ def test_scenarios_are_deterministic_on_repeat():
         second = _run_scenario(case_id)
         assert first["recommended_firm_id"] == second["recommended_firm_id"]
         assert [r["firm_id"] for r in first["ranked"]] == [r["firm_id"] for r in second["ranked"]]
+
+
+def test_coverage_counts_only_real_provenance_firms():
+    cov = client.get("/coverage").json()
+    # the claim counts ONLY the real registry scrape, not the 16 illustrative firms
+    assert cov["provenance"] == "public_register"
+    assert cov["total_firms"] == 134
+    assert cov["flagged_firms"] == 46
+    # only the real flag types appear — the demo-only adjudication / distress filing
+    # (whose references are illustrative placeholders) are excluded from the claim
+    assert set(cov["flags_by_type"]) == {"debarment", "safety_prosecution", "winding_up"}
+    assert "electrical" in cov["trades"]

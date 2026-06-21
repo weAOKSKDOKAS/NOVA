@@ -3,6 +3,7 @@ import { api } from "./api";
 import { Header, Stepper, type StepIndex } from "./components";
 import type {
   BidReply,
+  Coverage,
   DemoCaseSummary,
   DispatchSet,
   LevelledBid,
@@ -22,6 +23,7 @@ export default function App() {
   // Meta
   const [demoMode, setDemoMode] = useState(true);
   const [demoCases, setDemoCases] = useState<DemoCaseSummary[]>([]);
+  const [coverage, setCoverage] = useState<Coverage | null>(null);
 
   // Navigation
   const [step, setStep] = useState<StepIndex>(1);
@@ -51,6 +53,7 @@ export default function App() {
   useEffect(() => {
     api.health().then((h) => setDemoMode(h.demo_mode)).catch(() => {});
     api.demoCases().then(setDemoCases).catch(() => {});
+    api.coverage().then(setCoverage).catch(() => {});
   }, []);
 
   async function run(fn: () => Promise<void>) {
@@ -242,6 +245,7 @@ export default function App() {
               <StepShortlist
                 shortlist={shortlist}
                 heroTrade={heroTrade}
+                coverage={coverage}
                 onBack={() => setStep(1)}
                 onNext={goDispatchStep}
                 loading={loading}
