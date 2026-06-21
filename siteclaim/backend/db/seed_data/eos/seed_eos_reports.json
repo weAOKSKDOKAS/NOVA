@@ -1,0 +1,181 @@
+[
+  {
+    "firm_id": "F-EL-01",
+    "closeout_summary": "Electrical sub-contractor on a commercial fit-out: LV final circuits, lighting and cable containment delivered, but closeout slipped on outstanding testing and commissioning records.",
+    "report_text": [
+      "Scope covered LV sub-mains, final circuits, lighting installation and cable containment on a commercial fit-out package.",
+      "Workmanship on power distribution and busbar trunking was acceptable, with re-work required on containment routing.",
+      "Closeout was delayed: testing and commissioning certificates and as-fitted records were outstanding well past practical completion."
+    ],
+    "projects": [
+      {"project": "Cheung Sha Wan commercial fit-out — electrical", "client": "Private developer", "year": 2024, "delayed": 1, "note": "Closeout delayed ~10 weeks; T&C and as-fitted records outstanding past PC.", "source": "End-of-Site closeout report", "reference": "EOS:F-EL-01:2024"}
+    ]
+  },
+  {
+    "firm_id": "F-EL-02",
+    "closeout_summary": "Strong electrical contractor: LV main switchboard, sub-mains, final circuits, lighting installation, cable containment and busbar trunking delivered on programme with clean testing and commissioning.",
+    "report_text": [
+      "Delivered the LV main switchboard, sub-mains and final circuits with lighting installation and small power across the floors.",
+      "Cable containment, busbar trunking and power distribution were installed to a high standard with full testing and commissioning to the CoP.",
+      "Closeout was on time: as-fitted drawings, T&C records and O&M manuals submitted at practical completion with no outstanding items."
+    ],
+    "projects": [
+      {"project": "Tseung Kwan O office tower — LV distribution and lighting", "client": "Grade-A landlord", "year": 2024, "delayed": 0, "note": "On-time closeout; commended for quality of testing and commissioning records.", "source": "End-of-Site closeout report", "reference": "EOS:F-EL-02:2024"},
+      {"project": "Kowloon East data hall — power distribution", "client": "Telecom operator", "year": 2022, "delayed": 0, "note": "Clean handover of power distribution and containment.", "source": "End-of-Site closeout report", "reference": "EOS:F-EL-02:2022"}
+    ]
+  },
+  {
+    "firm_id": "F-EL-03",
+    "closeout_summary": "Reliable mid-size electrical contractor: lighting, small power and containment on retail and podium works, handed over without major snags.",
+    "report_text": [
+      "Lighting installation, small power and cable containment delivered on a retail podium package.",
+      "Final circuits and distribution boards completed; minor snagging on lighting controls closed before handover."
+    ],
+    "projects": [
+      {"project": "Sha Tin retail podium — lighting and small power", "client": "Mall operator", "year": 2023, "delayed": 0, "note": "On-time closeout.", "source": "End-of-Site closeout report", "reference": "EOS:F-EL-03:2023"}
+    ]
+  },
+  {
+    "firm_id": "F-EL-04",
+    "closeout_summary": "Capable electrical contractor on institutional works: containment and final circuits delivered; one historical safety matter on record.",
+    "report_text": [
+      "Cable containment and final circuits installed on an institutional building, with distribution and lighting to the specified scope.",
+      "Testing and commissioning completed; closeout records submitted at practical completion."
+    ],
+    "projects": [
+      {"project": "Hung Hom institutional building — containment and final circuits", "client": "Subvented body", "year": 2022, "delayed": 0, "note": "On-time closeout.", "source": "End-of-Site closeout report", "reference": "EOS:F-EL-04:2022"}
+    ]
+  },
+  {
+    "firm_id": "F-MP-01",
+    "closeout_summary": "Mechanical and plumbing contractor: HVAC, ductwork and pipework on a hospital package, delivered to programme.",
+    "report_text": [
+      "HVAC plant, ductwork, chilled-water pipework and drainage installed on a healthcare package.",
+      "Commissioning of air handling and pump sets completed; closeout on time."
+    ],
+    "projects": [
+      {"project": "Kai Tak community hospital — HVAC and pipework", "client": "Public body", "year": 2024, "delayed": 0, "note": "On-time closeout.", "source": "End-of-Site closeout report", "reference": "EOS:F-MP-01:2024"}
+    ]
+  },
+  {
+    "firm_id": "F-MP-02",
+    "closeout_summary": "Plumbing and drainage specialist: domestic water, drainage and sanitary fit-out on residential works.",
+    "report_text": [
+      "Domestic cold and hot water, above-ground drainage and sanitary installation across residential floors.",
+      "Pressure testing and commissioning completed; clean handover."
+    ],
+    "projects": [
+      {"project": "Yuen Long residential — plumbing and drainage", "client": "Private developer", "year": 2023, "delayed": 0, "note": "On-time closeout.", "source": "End-of-Site closeout report", "reference": "EOS:F-MP-02:2023"}
+    ]
+  },
+  {
+    "firm_id": "F-MP-03",
+    "closeout_summary": "Mechanical contractor: ductwork and ventilation on industrial works; a payment dispute remains on record from a separate project.",
+    "report_text": [
+      "Ventilation ductwork and mechanical services installed on an industrial workshop.",
+      "Mechanical commissioning completed; closeout records submitted."
+    ],
+    "projects": [
+      {"project": "Tuen Mun workshop — ductwork", "client": "Private developer", "year": 2022, "delayed": 0, "note": "On-time closeout on this package.", "source": "End-of-Site closeout report", "reference": "EOS:F-MP-03:2022"}
+    ]
+  },
+  {
+    "firm_id": "F-FS-01",
+    "closeout_summary": "Fire services contractor: sprinklers, detection and alarm on a commercial tower, FSD inspection passed first time.",
+    "report_text": [
+      "Sprinkler installation, fire detection and alarm, hydrants and hose reels across a commercial tower.",
+      "FSD inspection passed; certification and as-fitted records handed over at completion."
+    ],
+    "projects": [
+      {"project": "Central commercial tower — sprinklers and detection", "client": "Grade-A landlord", "year": 2024, "delayed": 0, "note": "On-time closeout; FSD pass first time.", "source": "End-of-Site closeout report", "reference": "EOS:F-FS-01:2024"}
+    ]
+  },
+  {
+    "firm_id": "F-FS-02",
+    "closeout_summary": "Fire services contractor: hydrants, hose reels and alarm on an office building, handed over cleanly.",
+    "report_text": [
+      "Hydrants, hose reels, fire detection and alarm installed on an office building.",
+      "Commissioning with FSD completed; closeout on time."
+    ],
+    "projects": [
+      {"project": "Kwun Tong office — hydrants and alarm", "client": "Private developer", "year": 2023, "delayed": 0, "note": "On-time closeout.", "source": "End-of-Site closeout report", "reference": "EOS:F-FS-02:2023"}
+    ]
+  },
+  {
+    "firm_id": "F-FS-03",
+    "closeout_summary": "Fire services contractor: sprinklers and detection on a public building; later removed from the approved list.",
+    "report_text": [
+      "Sprinkler and detection installation on a public building package.",
+      "Closeout completed on this project before the firm's later removal from the approved list."
+    ],
+    "projects": [
+      {"project": "Sham Shui Po public building — fire services", "client": "Public body", "year": 2021, "delayed": 0, "note": "On-time closeout on this package.", "source": "End-of-Site closeout report", "reference": "EOS:F-FS-03:2021"}
+    ]
+  },
+  {
+    "firm_id": "F-RC-01",
+    "closeout_summary": "Reinforced concrete contractor: RC frame and superstructure on a large public works package, delivered to programme.",
+    "report_text": [
+      "Formwork, rebar fixing and concreting for an RC superstructure frame on a large public works package.",
+      "Concrete cube results within tolerance; closeout on time despite a tight programme."
+    ],
+    "projects": [
+      {"project": "West Kowloon superstructure — RC frame", "client": "Public body", "year": 2023, "delayed": 0, "note": "On-time closeout.", "source": "End-of-Site closeout report", "reference": "EOS:F-RC-01:2023"}
+    ]
+  },
+  {
+    "firm_id": "F-RC-02",
+    "closeout_summary": "Formwork and concrete contractor on residential works: structure delivered, but closeout slipped on outstanding cube records and making good.",
+    "report_text": [
+      "Formwork, rebar fixing and concreting across residential floors.",
+      "Closeout was delayed: outstanding concrete cube records and making-good items carried past practical completion."
+    ],
+    "projects": [
+      {"project": "Tsuen Wan residential — formwork and concreting", "client": "Private developer", "year": 2022, "delayed": 1, "note": "Closeout delayed ~8 weeks; cube records and making good outstanding.", "source": "End-of-Site closeout report", "reference": "EOS:F-RC-02:2022"}
+    ]
+  },
+  {
+    "firm_id": "F-RC-03",
+    "closeout_summary": "Foundation and concrete contractor: piling, pile caps and ground beams on a platform package, handed over cleanly.",
+    "report_text": [
+      "Piling, pile caps, ground beams and substructure concreting on a platform formation package.",
+      "Integrity tests passed; closeout on time."
+    ],
+    "projects": [
+      {"project": "Hung Shui Kiu platform — piling and pile caps", "client": "Public body", "year": 2024, "delayed": 0, "note": "On-time closeout.", "source": "End-of-Site closeout report", "reference": "EOS:F-RC-03:2024"}
+    ]
+  },
+  {
+    "firm_id": "F-JF-01",
+    "closeout_summary": "Fit-out and joinery contractor: partitions, ceilings, doors and bespoke joinery on a flagship retail unit.",
+    "report_text": [
+      "Partitions, suspended ceilings, doors, finishes and bespoke joinery on a flagship retail fit-out.",
+      "Snagging closed before opening; clean handover."
+    ],
+    "projects": [
+      {"project": "Causeway Bay flagship — fit-out and joinery", "client": "Retail brand", "year": 2024, "delayed": 0, "note": "On-time closeout.", "source": "End-of-Site closeout report", "reference": "EOS:F-JF-01:2024"}
+    ]
+  },
+  {
+    "firm_id": "F-JF-02",
+    "closeout_summary": "Fitting-out contractor: partitions and ceilings on a large headquarters fit-out, delivered to programme.",
+    "report_text": [
+      "Partitions, ceilings, doors and finishes across a large corporate headquarters fit-out.",
+      "Closeout on time with full O&M and as-fitted records."
+    ],
+    "projects": [
+      {"project": "Admiralty headquarters — partitions and ceilings", "client": "Corporate occupier", "year": 2023, "delayed": 0, "note": "On-time closeout.", "source": "End-of-Site closeout report", "reference": "EOS:F-JF-02:2023"}
+    ]
+  },
+  {
+    "firm_id": "F-JF-03",
+    "closeout_summary": "Joinery contractor: bespoke joinery and finishes on a boutique hotel, handed over cleanly.",
+    "report_text": [
+      "Bespoke joinery, timber finishes and doors on a boutique hotel fit-out.",
+      "Snagging closed; clean handover at practical completion."
+    ],
+    "projects": [
+      {"project": "Wan Chai hotel — bespoke joinery", "client": "Hospitality group", "year": 2022, "delayed": 0, "note": "On-time closeout.", "source": "End-of-Site closeout report", "reference": "EOS:F-JF-03:2022"}
+    ]
+  }
+]

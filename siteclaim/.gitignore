@@ -23,3 +23,6 @@ venv/
 node_modules/
 dist/
 build/
+
+# Generated demo artifacts (mock outbox, Excel exports)
+backend/fixtures/out/

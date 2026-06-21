@@ -1,0 +1,40 @@
+{
+  "bundles": [
+    {
+      "firm_id": "F-EL-02",
+      "firm_name": "Vantage E&M Engineering Ltd",
+      "trade": "electrical",
+      "bundle_doc_refs": ["electrical — scope & SoR package", "SoR E-01", "SoR E-02", "SoR E-03", "SoR E-04", "SoR E-05"],
+      "email_subject": "RFQ — Electrical package — Kwun Tong Commercial Tower (Cat-A Office Fit-out)",
+      "email_body": "Dear Vantage E&M Engineering Ltd,\n\nWe are inviting selected registered electrical contractors to price the Electrical package for the Kwun Tong Commercial Tower Category-A office fit-out. Enclosed is the electrical scope summary and your trade's Schedule of Rates only: LV main switchboard, sub-mains and final circuits, lighting and small power, cable containment and busbar trunking, and testing and commissioning to the CoP.\n\nPlease return your priced Schedule of Rates, with any qualifications or exclusions clearly stated, by the tender date. Do let us know if any provisional sums need clarification.\n\nKind regards,\nBuying Team",
+      "status": "approved"
+    },
+    {
+      "firm_id": "F-MP-01",
+      "firm_name": "Summit MEP Contracting Ltd",
+      "trade": "mechanical_plumbing",
+      "bundle_doc_refs": ["mechanical_plumbing — scope & SoR package", "SoR M-01", "SoR M-02", "SoR M-03", "SoR M-04"],
+      "email_subject": "RFQ — Mechanical & Plumbing package — Kwun Tong Commercial Tower",
+      "email_body": "Dear Summit MEP Contracting Ltd,\n\nWe invite you to price the Mechanical & Plumbing package for the Kwun Tong Commercial Tower fit-out. Enclosed is your trade scope and Schedule of Rates only: HVAC plant and ductwork, chilled-water pipework, VAV terminals, and domestic water and above-ground drainage, including mechanical testing and commissioning.\n\nPlease return your priced Schedule of Rates with exclusions clearly stated by the tender date.\n\nKind regards,\nBuying Team",
+      "status": "approved"
+    },
+    {
+      "firm_id": "F-FS-01",
+      "firm_name": "Guardian Fire Engineering Ltd",
+      "trade": "fire_services",
+      "bundle_doc_refs": ["fire_services — scope & SoR package", "SoR F-01", "SoR F-02", "SoR F-03"],
+      "email_subject": "RFQ — Fire Services package — Kwun Tong Commercial Tower",
+      "email_body": "Dear Guardian Fire Engineering Ltd,\n\nWe invite you to price the Fire Services package for the Kwun Tong Commercial Tower fit-out. Enclosed is your trade scope and Schedule of Rates only: sprinkler installation, fire detection and alarm, and hydrants and hose reels, including FSD inspection and certification.\n\nPlease return your priced Schedule of Rates with exclusions clearly stated by the tender date.\n\nKind regards,\nBuying Team",
+      "status": "approved"
+    },
+    {
+      "firm_id": "F-JF-01",
+      "firm_name": "Artisan Interior Contracts Ltd",
+      "trade": "joinery_fitting_out",
+      "bundle_doc_refs": ["joinery_fitting_out — scope & SoR package", "SoR J-01", "SoR J-02", "SoR J-03", "SoR J-04"],
+      "email_subject": "RFQ — Joinery & Fitting-out package — Kwun Tong Commercial Tower",
+      "email_body": "Dear Artisan Interior Contracts Ltd,\n\nWe invite you to price the Joinery & Fitting-out package for the Kwun Tong Commercial Tower fit-out. Enclosed is your trade scope and Schedule of Rates only: demountable partitions, suspended ceilings, doors and ironmongery, finishes, and bespoke joinery to reception and tea rooms.\n\nPlease return your priced Schedule of Rates with exclusions clearly stated by the tender date.\n\nKind regards,\nBuying Team",
+      "status": "approved"
+    }
+  ]
+}

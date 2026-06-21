@@ -1,175 +1,133 @@
-"""Run Stage 01 -> 02 -> 03 -> 04 on the demo fixtures and pretty-print the results.
+"""Offline end-to-end pipeline runner — forced DEMO_MODE, readable trace.
 
-Offline by default: this script forces DEMO_MODE on, so the pipeline reads canned
-fixtures and makes ZERO network calls. Run from the ``backend/`` directory:
+Runs the whole SiteSource pipeline on the demo fixtures with no network and no
+model load: ingest -> shortlist -> dispatch (auto-approving the clean top firm per
+trade) -> level -> recommend. It ends on the hero catch: for the electrical trade
+the cheapest bidder is recommended against for an active winding-up petition and two
+safety prosecutions, and the clean runner-up is recommended.
 
-    python pipeline/run_pipeline.py
+Run it:  ``cd backend && python pipeline/run_pipeline.py``
 """
+
+from __future__ import annotations
 
 import os
 import sys
 from pathlib import Path
 
-from dotenv import load_dotenv
+# Make the top-level packages (db, schemas, pipeline, rules_engine) importable when
+# this is run directly as `python pipeline/run_pipeline.py` from backend/.
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-# Load backend/.env before reading any env, then keep the offline default.
-load_dotenv(Path(__file__).resolve().parent.parent / ".env")
-os.environ.setdefault("DEMO_MODE", "true")  # force offline before importing the client
+os.environ["DEMO_MODE"] = "true"  # force the offline path before any stage runs
 
-from datetime import date  # noqa: E402
+from db import store  # noqa: E402
+from db.outbox import send_mock  # noqa: E402
+from pipeline.stage_01_ingest.ingest import ingest_tender  # noqa: E402
+from pipeline.stage_02_shortlist.shortlist import shortlist  # noqa: E402
+from pipeline.stage_03_dispatch.dispatch import build_dispatch  # noqa: E402
+from pipeline.stage_04_level.export_xlsx import OUT_PATH, export_leveling_xlsx  # noqa: E402
+from pipeline.stage_04_level.level import level_bids, load_demo_replies  # noqa: E402
+from pipeline.stage_05_recommend.recommend import recommend  # noqa: E402
+from schemas.models import DocType, Severity, TenderDocument, TenderPackage  # noqa: E402
 
-# Allow `python pipeline/run_pipeline.py` from backend/ (put backend/ on sys.path).
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
-
-from rules_engine.deadlines import clock  # noqa: E402
-from rules_engine.engine import run_validation  # noqa: E402
-from schemas.models import (  # noqa: E402
-    AuditReport,
-    ClaimDraft,
-    ExtractedFacts,
-    JudgeReview,
-    SourceMaterial,
-    ValidityReport,
-)
-
-from pipeline.stage_01_extract.extract import extract_facts  # noqa: E402
-from pipeline.stage_02_validate.verify import iter_fact_fields, verify_extraction  # noqa: E402
-from pipeline.stage_03_draft.draft import draft_claim  # noqa: E402
-from pipeline.stage_04_audit.audit import audit_claim  # noqa: E402
-
-DEMO_TODAY = date(2026, 3, 2)
-CASES = ("clean", "messy", "gotcha")
-_FIXTURES = Path(__file__).resolve().parent.parent / "fixtures" / "cases"
+_SCOPE_FIXTURE = "cases/clean/scope_packages.json"
+_DISPATCH_FIXTURE = "cases/clean/dispatch.json"
+_REPLIES_FIXTURE = "cases/messy/bid_replies.json"
+_RATIONALE_FIXTURE = "cases/clean/recommendation_rationale.json"
+_HERO_TRADE = "electrical"
 
 
-def _rule(char: str = "─") -> str:
-    return char * 78
+def _rule(title: str) -> None:
+    print("\n" + "═" * 78 + f"\n  {title}\n" + "═" * 78)
 
 
-def _print_facts(facts: ExtractedFacts) -> None:
-    print("  Extracted facts (value | confidence | source_span):")
-    for path, field in iter_fact_fields(facts):
-        if field.value is None:
-            continue
-        span = f' | "{field.source_span}"' if field.source_span else ""
-        print(f"    {path:<28} {str(field.value):<34} conf={field.confidence:.2f}{span}")
-    for i, item in enumerate(facts.line_items):
-        print(f"    line_items[{i}]               {item.description!r} amount={item.amount} conf={item.confidence:.2f}")
+def _money(x: float) -> str:
+    return f"HK${x:,.0f}"
 
 
-def _print_judge(review: JudgeReview) -> None:
-    print(f"  Judge: {review.summary}")
-    if review.disputed_fields:
-        print("  Judge adjustments (confidence lowered):")
-        for a in review.disputed_fields:
-            print(f"    - {a.field}: -> {a.adjusted_confidence:.2f}  ({a.note})")
-    else:
-        print("  Judge adjustments: none")
-    if review.review_flags:
-        print(f"  ⚑ FLAGGED FOR HUMAN REVIEW ({len(review.review_flags)} field(s) below threshold):")
-        for flag in review.review_flags:
-            print(f"    - {flag.field}: {flag.value_repr}  ({flag.reason})")
-    else:
-        print("  ⚑ Human review: none (all present fields above threshold)")
-
-
-def _print_report(report: ValidityReport, today: date) -> None:
-    verdict = "VALID (no fatal checks)" if report.is_valid else "INVALID (fatal check failed)"
-    print(f"  ValidityReport: {verdict} — {len(report.checks)} checks (fatal → warning → info):")
-    for c in report.checks:
-        mark = "✗" if not c.passed else "✓"
-        print(f"    [{c.severity.value:<7}] {mark} {c.name}  <{c.sopo_reference}>")
-    ds = report.deadlines
-    if ds is not None and ds.deadlines:
-        clk = clock(ds, today)
-        nearest = clk.nearest.name if clk.nearest else "—"
-        print(f"  DeadlineSet clock (today={today}): nearest={nearest}, breached={len(clk.breached)}")
-        for d in ds.deadlines:
-            state = "BREACHED" if d.due_date < today else "ok"
-            print(f"    {d.name:<24} due {d.due_date}  ({d.business_days_remaining:+d} business days, {state})  <{d.sopo_reference}>")
-
-
-def _print_draft(draft: ClaimDraft) -> None:
-    print("  Stage 03 — drafted claim:")
-    print(
-        f"    structured: claimant={draft.claimant_name!r} respondent={draft.respondent_name!r} "
-        f"amount={draft.claimed_amount} docs={len(draft.supporting_doc_refs)}"
+def _demo_tender() -> TenderPackage:
+    docs = [
+        TenderDocument(doc_type=DocType.METHOD_OF_MEASUREMENT, filename="method_of_measurement.pdf"),
+        TenderDocument(doc_type=DocType.PARTICULAR_SPECIFICATION, filename="particular_specification.pdf"),
+        TenderDocument(doc_type=DocType.TENDER_ADDENDUM, filename="tender_addendum.pdf"),
+        TenderDocument(doc_type=DocType.SCHEDULE_OF_RATES, filename="schedule_of_rates.pdf"),
+    ]
+    return TenderPackage(
+        project_name="Kwun Tong Commercial Tower — Category-A Office Fit-out",
+        description="Cat-A office fit-out across 12 floors.",
+        documents=docs,
     )
-    print("    rendered_markdown:")
-    print("  " + _rule("·"))
-    for line in draft.rendered_markdown.splitlines():
-        print(f"  │ {line}")
-    print("  " + _rule("·"))
-
-
-_VERDICT_MARK = {
-    "fileable": "✅ FILEABLE",
-    "fileable_with_fixes": "⚠️ FILEABLE_WITH_FIXES",
-    "not_fileable": "⛔ NOT_FILEABLE",
-}
-
-
-def _print_audit(audit: AuditReport) -> None:
-    print(f"  Stage 04 — forensic audit: {_VERDICT_MARK[audit.verdict.value]}")
-    if not audit.findings:
-        print("    findings: none (clean cross-check)")
-        return
-    print(f"    findings ({len(audit.findings)}, fatal → warning → info):")
-    for f in audit.findings:
-        cite = f" <{f.sopo_reference}>" if f.sopo_reference else ""
-        print(f"    [{f.severity.value:<7}] {f.location}{cite}")
-        print(f"              issue: {f.issue}")
-        print(f"              fix:   {f.suggested_fix}")
-
-
-def run_case(case_id: str) -> tuple[JudgeReview, AuditReport]:
-    source = SourceMaterial.model_validate_json(
-        (_FIXTURES / case_id / "source.json").read_text(encoding="utf-8")
-    )
-    print(_rule("═"))
-    print(f"CASE: {case_id}")
-    print(_rule())
-    print(f"  Source: {source.description[:120]}{'…' if len(source.description) > 120 else ''}")
-    print()
-
-    facts = extract_facts(source)  # Stage 01 (DEMO: canned ExtractedFacts)
-    _print_facts(facts)
-    print()
-
-    review = verify_extraction(source, facts)  # Stage 02a — LLM-as-judge
-    _print_judge(review)
-    print()
-
-    report = run_validation(review.facts, DEMO_TODAY)  # Stage 02b — deterministic engine
-    _print_report(report, DEMO_TODAY)
-    print()
-
-    draft = draft_claim(review.facts, report)  # Stage 03 — drafting
-    _print_draft(draft)
-    print()
-
-    audit = audit_claim(review.facts, report, draft, DEMO_TODAY)  # Stage 04 — forensic audit
-    _print_audit(audit)
-    print()
-    return review, audit
 
 
 def main() -> None:
-    print(f"SiteClaim pipeline demo (DEMO_MODE={os.environ['DEMO_MODE']}, offline) — today={DEMO_TODAY}\n")
-    triggered: list[str] = []
-    verdicts: dict[str, str] = {}
-    for case_id in CASES:
-        review, audit = run_case(case_id)
-        if review.review_flags:
-            triggered.append(case_id)
-        verdicts[case_id] = _VERDICT_MARK[audit.verdict.value]
-    print(_rule("═"))
-    print("SUMMARY")
-    print(_rule())
-    print(f"  Fixtures that triggered low-confidence review: {triggered or 'none'}")
-    print("  Stage 04 audit verdicts:")
-    for case_id in CASES:
-        print(f"    {case_id:<8} {verdicts[case_id]}")
+    conn = store.get_connection()
+    try:
+        # -- Stage 01: ingest ------------------------------------------------
+        _rule("STAGE 01 — INGEST  (Layer 2 splits scope, Layer 1 validates trades)")
+        scope = ingest_tender(_demo_tender(), demo_fixture=_SCOPE_FIXTURE)
+        print(f"Project: {scope.project_name}")
+        for pkg in scope.packages:
+            print(f"  • {pkg.trade:22} {len(pkg.sor_items)} SoR items — {pkg.scope_summary[:60]}…")
+
+        # -- Stage 02: shortlist --------------------------------------------
+        _rule("STAGE 02 — SHORTLIST  (pure Layer 1 cross-reference over the database)")
+        sl = shortlist(scope, conn=conn)
+        for cand in sl.per_trade[_HERO_TRADE]:
+            tag = "  ⛔ RECOMMEND AGAINST" if cand.recommended_against else ""
+            fatal = ", ".join(f.rule_ref for f in cand.risk_flags if f.severity is Severity.FATAL)
+            print(f"  {cand.firm.firm_id}  {cand.firm.name[:34]:34} match={cand.match_score:.3f}"
+                  f"  {('['+fatal+']') if fatal else ''}{tag}")
+
+        # -- Stage 03: dispatch (auto-approve the clean top firm per trade) ---
+        _rule("STAGE 03 — DISPATCH  (Layer 4 gate; trade-only bundles; mock outbox)")
+        approvals = {
+            trade: [next((c.firm.firm_id for c in cands if not c.recommended_against), cands[0].firm.firm_id)]
+            for trade, cands in sl.per_trade.items() if cands
+        }
+        dispatch = build_dispatch(sl, approvals, demo_fixture=_DISPATCH_FIXTURE, scope=scope, project_name=scope.project_name)
+        dispatch = send_mock(dispatch)
+        for bundle in dispatch.bundles:
+            print(f"  {bundle.trade:22} → {bundle.firm_id} {bundle.firm_name[:26]:26}"
+                  f"  docs:{len(bundle.bundle_doc_refs)}  status:{bundle.status.value}")
+
+        # -- Stage 04: level -------------------------------------------------
+        _rule("STAGE 04 — LEVEL  (Layer 2 parses, Layer 1 recomputes every number)")
+        replies = load_demo_replies(_REPLIES_FIXTURE)
+        levelled = level_bids(replies, scope, conn=conn)
+        claimed = {r.firm_id: r.claimed_total for r in replies}
+        print(f"  {'firm':9} {'claimed':>14} {'corrected':>14}   findings / scope gaps")
+        for bid in sorted(levelled, key=lambda b: b.corrected_total):
+            notes = []
+            if bid.arithmetic_findings:
+                notes.append(f"{len(bid.arithmetic_findings)} arithmetic correction(s)")
+            if bid.scope_gaps:
+                notes.append(f"{len(bid.scope_gaps)} scope gap(s)")
+            if bid.exclusions:
+                notes.append(f"{len(bid.exclusions)} exclusion(s)")
+            print(f"  {bid.firm_id:9} {_money(claimed[bid.firm_id]):>14} {_money(bid.corrected_total):>14}   {'; '.join(notes)}")
+        xlsx = export_leveling_xlsx(levelled, replies, item_order=["E-01", "E-02", "E-03", "E-04", "E-05", "E-06"], path=OUT_PATH)
+        print(f"  Excel comparison written: {xlsx}")
+
+        # -- Stage 05: recommend (the hero catch) ----------------------------
+        _rule("STAGE 05 — RECOMMEND  (Layer 1 risk-adjusted ranking; Layer 2 narrates)")
+        rec = recommend(levelled, _HERO_TRADE, demo_fixture=_RATIONALE_FIXTURE, conn=conn)
+        winner = next((r for r in rec.ranked if r.firm_id == rec.recommended_firm_id), None)
+        print(f"  ✅ RECOMMEND: {winner.firm_name} ({winner.firm_id}) at {_money(winner.corrected_total)}")
+        for r in rec.ranked:
+            if r.recommended_against:
+                print(f"  ⛔ AGAINST:   {r.firm_name} ({r.firm_id}) at {_money(r.corrected_total)} — cheapest, but:")
+                for flag in [f for f in r.risk_flags if f.severity is Severity.FATAL]:
+                    ev = flag.evidence[0] if flag.evidence else None
+                    cite = f" [{ev.source}: {ev.reference}]" if ev else ""
+                    print(f"        • {flag.label} ({flag.rule_ref}){cite}")
+        if rec.historical_band:
+            b = rec.historical_band
+            print(f"  Historical band: low {_money(b.low)} / median {_money(b.median)} / high {_money(b.high)}")
+        print("\n  Rationale (Layer 2):")
+        print("   ", rec.rationale)
+    finally:
+        conn.close()
 
 
 if __name__ == "__main__":

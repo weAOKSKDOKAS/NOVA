@@ -1,0 +1,6 @@
+{
+  "project_name": "Probe",
+  "packages": [
+    { "trade": "electrical", "scope_summary": "probe", "sor_items": [], "source_refs": [] }
+  ]
+}

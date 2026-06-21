@@ -1,15 +1,12 @@
-"""Shared internals for the Rules Engine modules (private — not a public API).
+"""Shared internals for the rules engine (private — not a public API).
 
-Convention for the two fields on :class:`~schemas.models.Check`:
-
-* ``severity`` drives blocking — only ``FATAL`` + ``passed is False`` makes a
-  claim invalid (see ``ValidityReport.has_fatal``).
-* ``passed`` records whether that specific condition was satisfied. A ``WARNING``
-  may be ``passed=True`` (satisfied, but with an unverified caveat) or
-  ``passed=False`` (a non-blocking concern). ``INFO`` is advisory.
+Generic primitives only. The deterministic modules added in later phases
+(risk scoring, ranking, leveling) build typed findings from ``schemas.models``
+(RiskFlag, ArithmeticFinding, …); the only thing they share here is the
+severity ordering used to sort those findings.
 """
 
-from schemas.models import Check, Severity
+from schemas.models import Severity
 
 # Lower rank sorts first: fatal -> warning -> info.
 SEVERITY_RANK: dict[Severity, int] = {
@@ -17,21 +14,3 @@ SEVERITY_RANK: dict[Severity, int] = {
     Severity.WARNING: 1,
     Severity.INFO: 2,
 }
-
-
-def check(
-    *,
-    name: str,
-    passed: bool,
-    severity: Severity,
-    sopo_reference: str,
-    explanation: str,
-) -> Check:
-    """Construct a :class:`Check` (keyword-only for readable call sites)."""
-    return Check(
-        name=name,
-        passed=passed,
-        severity=severity,
-        sopo_reference=sopo_reference,
-        explanation=explanation,
-    )
