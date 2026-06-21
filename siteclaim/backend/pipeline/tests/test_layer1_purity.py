@@ -5,13 +5,6 @@ import inspect
 
 _LAYER1_MODULES = (
     "engine",
-    "deadlines",
-    "eligibility",
-    "mandatory_fields",
-    "notice_validity",
-    "set_off",
-    "business_days",
-    "sopo_config",
     "_common",
 )
 

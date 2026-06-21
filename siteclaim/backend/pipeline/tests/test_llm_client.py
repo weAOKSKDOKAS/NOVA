@@ -3,7 +3,7 @@
 import pytest
 
 from pipeline.llm_client import LLMClient, demo_mode, strip_code_fences
-from schemas.models import ExtractedFacts
+from schemas.models import ScopePackages
 
 
 def _boom(*args, **kwargs):
@@ -33,18 +33,18 @@ def test_demo_mode_loads_fixture_without_any_live_call(monkeypatch):
     client = LLMClient()
     # If DEMO_MODE leaks to the network/SDK path, this blows up:
     monkeypatch.setattr(client, "_complete_text", _boom)
-    facts = client.complete_json(
+    scope = client.complete_json(
         system="ignored",
         user="ignored",
-        target_model=ExtractedFacts,
-        demo_fixture="cases/clean/extracted.json",
+        target_model=ScopePackages,
+        demo_fixture="_llm_probe.json",
     )
-    assert facts.claimed_amount.value is not None
+    assert scope.project_name == "Probe"
 
 
 def test_demo_mode_requires_a_fixture(monkeypatch):
     client = LLMClient()
     with pytest.raises(RuntimeError):
         client.complete_json(
-            system="s", user="u", target_model=ExtractedFacts, demo_fixture=None
+            system="s", user="u", target_model=ScopePackages, demo_fixture=None
         )

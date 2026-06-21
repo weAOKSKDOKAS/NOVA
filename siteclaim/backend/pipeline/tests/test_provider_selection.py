@@ -9,7 +9,7 @@ from pipeline.llm_client import (
     build_openai_messages,
     extraction_provider,
 )
-from schemas.models import ExtractedFacts
+from schemas.models import ScopePackages
 
 _B64 = "aGVsbG8="  # not a real PNG; we only check message shaping
 
@@ -66,7 +66,7 @@ def test_demo_mode_needs_no_provider_sdk(monkeypatch):
     for mod in ("openai", "anthropic", "fitz", "pymupdf"):
         monkeypatch.setitem(sys.modules, mod, None)
     monkeypatch.setenv("DEMO_MODE", "true")
-    facts = LLMClient().complete_json(
-        system="x", user="y", target_model=ExtractedFacts, demo_fixture="cases/clean/extracted.json"
+    scope = LLMClient().complete_json(
+        system="x", user="y", target_model=ScopePackages, demo_fixture="_llm_probe.json"
     )
-    assert facts.claimed_amount.value is not None
+    assert scope.project_name == "Probe"

@@ -1,102 +1,87 @@
-# CLAUDE.md — SiteClaim (Layer 0 orientation)
+# CLAUDE.md — SiteSource (Layer 0 orientation)
 
 > Re-read this file first to orient. It is the map; the folders are the
 > architecture. Coordination lives in the filesystem, not in a framework.
 
-## What SiteClaim is
+## What SiteSource is
 
-SiteClaim is a **SOPO-compliant payment-claim drafting copilot** for Hong Kong
-construction subcontractors. SOPO = the **Construction Industry Security of
-Payment Ordinance (Cap. 652)**. A subcontractor uploads messy evidence (invoices, site
-records, emails, the contract) and SiteClaim helps them produce a payment claim
-that is valid under the Ordinance, and tells them the statutory deadlines that
-follow from serving it.
+SiteSource is an **AI subcontractor-sourcing and bid-leveling platform** for
+established Hong Kong main contractors. It ingests a tender package, splits the
+scope by trade, shortlists subcontractors from a **proprietary fused database**
+with cited evidence, dispatches the right document bundle to each, ingests their
+priced replies, levels the quotes, and produces a **risk-adjusted recommendation**.
+The human makes the final award.
 
-It is built as an **ICM (Interpretable Context Methodology) workspace**: the
-folder structure *is* the architecture, and stages hand off **plain typed data**
-(the Pydantic models in `backend/schemas/models.py`). There is **no agent
-framework** — no LangChain, CrewAI, or AutoGen. The pipeline is a sequence of
-numbered stage folders under `backend/pipeline/`.
+The chassis is carried over from the previous product (SiteClaim): the folder
+structure *is* the architecture, stages hand off **plain typed data** (the Pydantic
+models in `backend/schemas/models.py`), and there is **no agent framework**.
 
 ## The one principle
 
-**The LLM never decides the law; it fills and drafts. The Rules Engine checks.**
+**The LLM reads, splits, composes, and explains. The deterministic rules engine
+computes and checks (arithmetic, risk flags, ranking). A proprietary fused database
+of subcontractor performance and risk signals makes the recommendation defensible.**
 
-If you are ever tempted to have Claude judge validity or compute a deadline,
-stop — that belongs in Layer 1.
+The LLM never invents a number, a risk flag, or a ranking — those come from Layer 1
+and the database. The demo shows Claude working at every stage; the moat is the
+cross-reference against data a generic chatbot cannot access.
 
 ## Four layers
 
-- **Layer 1 — Rules Engine** (`backend/rules_engine/`): pure Python,
-  deterministic. **Legal correctness lives here.** Every statutory number is in
-  `sopo_config.py`; CALENDAR-vs-WORKING day arithmetic is in `business_days.py`. No ML.
-- **Layer 2 — Claude (LLM)**: reads messy input, extracts facts, drafts prose.
-  Used in stages 01 and 03 (and an optional self-review in 04).
-- **Layer 3 — RAG grounding** over a curated SOPO + CIC corpus in
-  `backend/references/`. Stable across runs.
-- **Layer 4 — Human-in-the-loop** approval gate (stage 05). Nothing is served on
-  a respondent without explicit human sign-off.
+- **Layer 1 — Rules engine** (`backend/rules_engine/`): pure, deterministic Python.
+  Leveling arithmetic, risk scoring, candidate ranking. No ML, no LLM.
+- **Layer 2 — Claude** (`backend/pipeline/llm_client.py`): reads tender documents,
+  splits scope, runs semantic relevance over closeout text, parses replies,
+  composes emails, narrates the recommendation.
+- **Layer 3 — The proprietary database** (`backend/db/`): the fused subcontractor
+  profiles (SQLite + baked embeddings). The grounding corpus and the moat.
+- **Layer 4 — Human approval gates**: approve-before-dispatch, adjust-leveling,
+  final-award.
 
 ## Five-stage pipeline (`backend/pipeline/`)
 
-Each stage folder has a `CONTEXT.md` contract with `## Inputs`, `## Process`,
-`## Outputs`. Flow is strictly forward — a stage only reads outputs of earlier
-stages.
+Forward-only, typed handoffs. Each stage folder has a `CONTEXT.md`
+(Inputs / Process / Outputs).
 
-1. **stage_01_extract** — `SourceMaterial` → `ExtractedFacts` (Layer 2).
-2. **stage_02_validate** — `ExtractedFacts` → `ValidityReport` + `DeadlineSet`
-   (Layer 1).
-3. **stage_03_draft** — facts + reports → `ClaimDraft` (Layer 2, grounded in
-   Layer 3).
-4. **stage_04_audit** — `ClaimDraft` vs facts → `AuditReport` (Layer 1, optional
-   Layer 2 self-review).
-5. **stage_05_review** — everything → approved `ClaimDraft` (Layer 4).
-
-A **fatal** `Check` in Stage 02 blocks Stage 03. No claim leaves Stage 05
-without human sign-off.
+1. **stage_01_ingest** — `TenderPackage` (Method of Measurement, Particular
+   Specification, Tender Addendum, Schedule of Rates) → `ScopePackages`, one per
+   trade. L2 splits, L1 validates trades against the taxonomy.
+2. **stage_02_shortlist** — `ScopePackages` + database → `ShortlistSet`: ranked
+   candidates per trade with cited evidence and risk flags. **Pure Layer 1
+   cross-reference — the demo hero.**
+3. **stage_03_dispatch** — `ShortlistSet` + human approval → `DispatchSet`: a
+   per-subcontractor bundle (only that trade's documents) and a composed email,
+   written to a mock outbox. **Layer 4 gate.**
+4. **stage_04_level** — `BidReplies` → `LevelledBids`: normalized scope, corrected
+   arithmetic, flagged exclusions and scope gaps, Excel export. L2 parses, L1
+   calculates.
+5. **stage_05_recommend** — `LevelledBids` + database track record + bid
+   distribution + historical pricing → `Recommendation`. L1 risk-adjusted ranking,
+   L4 human award.
 
 ## Where everything lives
 
 | Path | What it is |
 | --- | --- |
-| `backend/schemas/models.py` | The typed contracts every stage passes. Read this to know the data. |
-| `backend/rules_engine/sopo_config.py` | **ALL** statutory parameters, each tagged with a SOPO reference and a SOURCED or `# UNVERIFIED` tier. |
-| `backend/rules_engine/business_days.py` | CALENDAR-vs-WORKING day arithmetic for deadlines (the distinction is load-bearing). |
-| `backend/rules_engine/tests/` | Smoke tests for Layer 1. |
+| `backend/schemas/models.py` | The typed contracts every stage passes. |
+| `backend/rules_engine/` | Layer 1 — deterministic risk scoring, ranking, leveling. |
+| `backend/pipeline/llm_client.py` | Layer 2 plumbing (DEMO_MODE, providers, strict-JSON, multimodal). **Chassis — kept verbatim.** |
+| `backend/pipeline/documents.py` | PDF → base64 PNG for the live vision path. **Chassis — kept.** |
 | `backend/pipeline/stage_NN_*/CONTEXT.md` | Per-stage contract. |
-| `backend/references/` | Layer 3 corpus (ordinance overview, CIC templates). |
-| `backend/fixtures/` | Serialised stage objects for tests/dev. |
-| `backend/api.py` | FastAPI app — one POST per stage (`/extract`, `/verify`, `/draft`, `/audit`) + `/health` + demo loaders. |
-| `frontend/` | React + TypeScript + Vite + Tailwind 5-step review-gate wizard. |
-| `CONTEXT.md` (root) | Pipeline routing in brief. |
+| `backend/db/` | Layer 3 — the proprietary database (SQLite + baked embeddings). |
+| `backend/references/rubrics/` | Trade taxonomy, leveling rules, risk-scoring rules. |
+| `backend/fixtures/` | Serialised stage objects for DEMO_MODE / tests. |
+| `backend/api.py` | Thin FastAPI driver (one POST per stage + Excel download). |
+| `frontend/` | React + TypeScript + Vite + Tailwind five-step wizard. |
+| `eval/` | Left in place from SiteClaim; not part of this build. |
 
-## ⚠️ Legal-safety note
+## DEMO_MODE
 
-Statutory values in `sopo_config.py` are tagged in two tiers: **SOURCED** (from a
-secondary law-firm summary, still to be cross-checked against the e-legislation
-Cap.652 text) and **`# UNVERIFIED`** (unconfirmed placeholders). All of them must
-be validated by a quantity surveyor or construction lawyer before any output is
-relied upon. SiteClaim assists drafting; it does not give legal advice.
+DEMO_MODE runs the whole pipeline **offline on fixtures**, exactly as the chassis
+did: zero network, no model load. Treat any network call in DEMO_MODE as a bug.
 
 ## Status
 
-**Layer 1 (Rules Engine) and pipeline stages 01–04 are built and tested; they
-run offline end-to-end (`backend/pipeline/run_pipeline.py`). The API and a React
-review-gate wizard are wired on top.**
-
-- **stage_01_extract** — `SourceMaterial` → `ExtractedFacts` (Layer 2).
-- **stage_02_validate** — LLM-as-judge confidence review + deterministic
-  `ValidityReport` + `DeadlineSet` (Layer 1).
-- **stage_03_draft** — facts + reports → `ClaimDraft` (structured +
-  `rendered_markdown`); missing/low-confidence fields become flagged
-  placeholders, a fatal check prints a "NOT FILEABLE" banner citing Layer 1.
-- **stage_04_audit** — forensic cross-check → `AuditReport` with a deterministic
-  verdict (`FILEABLE` / `FILEABLE_WITH_FIXES` / `NOT_FILEABLE`).
-- **API** (`backend/api.py`) — one POST per stage; each consumes the prior
-  (human-editable) output. DEMO_MODE keeps it offline.
-- **Frontend** (`frontend/`) — a 5-step wizard mirroring the pipeline, with an
-  edit gate between every stage.
-
-Stage 05 (a formal human-review/approval record) is the remaining stage — for now
-the wizard's final gate plus a person's sign-off stands in. Statutory values in
-`sopo_config.py` remain SOURCED/UNVERIFIED pending QS/lawyer sign-off.
+**Pivot in progress.** Phase 0 (orient/strip/reskin) and Phase 1 (schemas +
+rubrics) are landing first. The database, the stages, the API routes, and the
+frontend are rebuilt phase by phase per the build framework.
