@@ -58,6 +58,11 @@ def _canonical_trades(raw_trades: list[str]) -> list[str]:
 # ---------------------------------------------------------------------------
 # Source loading (tolerant: missing or empty directories are fine)
 # ---------------------------------------------------------------------------
+# The one illustrative demo stub under seed_data/public/. Every OTHER file there is
+# a real registry scrape, so its firms carry 'public_register' provenance.
+ILLUSTRATIVE_STUB = "seed_public_records.json"
+
+
 def _load_records(subdir: str) -> list[dict]:
     """Read every ``*.json`` under ``seed_data/<subdir>`` and flatten to records.
 
@@ -75,6 +80,25 @@ def _load_records(subdir: str) -> list[dict]:
         elif isinstance(data, dict):
             records.append(data)
     return records
+
+
+def _load_public_records() -> tuple[list[dict], dict[str, str]]:
+    """Public records plus a provenance map per firm_id. The illustrative stub is
+    'illustrative'; every other file (the real Hong Kong registry scrape) is
+    'public_register'. Provenance lets the coverage claim count only real firms."""
+    folder = SEED_DATA_DIR / "public"
+    records: list[dict] = []
+    provenance: dict[str, str] = {}
+    if not folder.is_dir():
+        return records, provenance
+    for path in sorted(folder.glob("*.json")):
+        prov = "illustrative" if path.name == ILLUSTRATIVE_STUB else "public_register"
+        data = json.loads(path.read_text(encoding="utf-8"))
+        for rec in data if isinstance(data, list) else [data]:
+            records.append(rec)
+            if rec.get("firm_id"):
+                provenance[rec["firm_id"]] = prov
+    return records, provenance
 
 
 # ---------------------------------------------------------------------------
@@ -101,7 +125,7 @@ def _bake_vectors(texts: list[str]) -> tuple[list[list[float]], str, int]:
 def build_database(db_path: Path | str = DEFAULT_DB_PATH) -> dict:
     """(Re)build the SQLite database at ``db_path``. Returns a small summary."""
     db_path = Path(db_path)
-    public = _load_records("public")
+    public, provenance_by_id = _load_public_records()
     eos = _load_records("eos")
     pricing = _load_records("pricing")
 
@@ -122,7 +146,7 @@ def build_database(db_path: Path | str = DEFAULT_DB_PATH) -> dict:
 
             conn.execute(
                 "INSERT INTO firms (firm_id, name_en, name_zh, registered_grade, value_band, "
-                "registers, trades, closeout_summary) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+                "registers, trades, closeout_summary, provenance) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
                 (
                     fid,
                     pub.get("name_en") or fid,
@@ -132,6 +156,7 @@ def build_database(db_path: Path | str = DEFAULT_DB_PATH) -> dict:
                     json.dumps(pub.get("registers", [])),
                     json.dumps(_canonical_trades(pub.get("trades", []))),
                     rep.get("closeout_summary", ""),
+                    provenance_by_id.get(fid, "illustrative"),
                 ),
             )
             for flag in pub.get("public_flags", []):

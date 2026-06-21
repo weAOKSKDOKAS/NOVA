@@ -102,11 +102,13 @@ def test_scenarios_are_deterministic_on_repeat():
         assert [r["firm_id"] for r in first["ranked"]] == [r["firm_id"] for r in second["ranked"]]
 
 
-def test_coverage_reads_live_from_the_db():
+def test_coverage_counts_only_real_provenance_firms():
     cov = client.get("/coverage").json()
-    # the real public-record pool is loaded alongside the illustrative demo firms
-    assert cov["total_firms"] >= 150
-    assert cov["flagged_firms"] >= 40
-    assert cov["assessable_firms"] >= 16  # only firms with EOS history are shortlistable
-    assert "safety_prosecution" in cov["flags_by_type"]
+    # the claim counts ONLY the real registry scrape, not the 16 illustrative firms
+    assert cov["provenance"] == "public_register"
+    assert cov["total_firms"] == 134
+    assert cov["flagged_firms"] == 46
+    # only the real flag types appear — the demo-only adjudication / distress filing
+    # (whose references are illustrative placeholders) are excluded from the claim
+    assert set(cov["flags_by_type"]) == {"debarment", "safety_prosecution", "winding_up"}
     assert "electrical" in cov["trades"]

@@ -164,25 +164,38 @@ def shortlistable_firms_for_trade(conn: sqlite3.Connection, trade: str) -> list[
     return [firm for firm in firms_for_trade(conn, trade) if firm.firm_id in assessable]
 
 
+_REAL = "public_register"
+
+
 def coverage(conn: sqlite3.Connection) -> dict:
-    """Live database-coverage figures for the UI's screening line. Read from the DB."""
-    total = conn.execute("SELECT COUNT(*) AS n FROM firms").fetchone()["n"]
-    flagged = conn.execute("SELECT COUNT(DISTINCT firm_id) AS n FROM public_flags").fetchone()["n"]
+    """Live database-coverage figures for the UI's screening line — counting **only
+    real-provenance firms** (the actual Hong Kong registry scrape). The illustrative
+    demo firms (fabricated, placeholder references) are deliberately excluded, so the
+    'sourced from official registers … linked to its government source' claim holds."""
+    total = conn.execute("SELECT COUNT(*) AS n FROM firms WHERE provenance = ?", (_REAL,)).fetchone()["n"]
+    flagged = conn.execute(
+        "SELECT COUNT(DISTINCT pf.firm_id) AS n FROM public_flags pf "
+        "JOIN firms f ON f.firm_id = pf.firm_id WHERE f.provenance = ?",
+        (_REAL,),
+    ).fetchone()["n"]
     flags_by_type = {
         row["signal_type"]: row["n"]
         for row in conn.execute(
-            "SELECT signal_type, COUNT(*) AS n FROM public_flags GROUP BY signal_type ORDER BY signal_type"
+            "SELECT pf.signal_type AS signal_type, COUNT(*) AS n FROM public_flags pf "
+            "JOIN firms f ON f.firm_id = pf.firm_id WHERE f.provenance = ? "
+            "GROUP BY pf.signal_type ORDER BY pf.signal_type",
+            (_REAL,),
         )
     }
     trades: set[str] = set()
-    for row in conn.execute("SELECT trades FROM firms"):
+    for row in conn.execute("SELECT trades FROM firms WHERE provenance = ?", (_REAL,)):
         trades |= set(_json_list(row["trades"]))
     return {
         "total_firms": int(total),
         "flagged_firms": int(flagged),
-        "assessable_firms": len(eos_firm_ids(conn)),
         "flags_by_type": flags_by_type,
         "trades": sorted(trades),
+        "provenance": _REAL,
     }
 
 

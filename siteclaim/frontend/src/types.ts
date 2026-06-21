@@ -170,10 +170,12 @@ export interface Health {
   demo_mode: boolean;
 }
 
+// Coverage of the real-provenance registry scrape only (the illustrative demo
+// firms are excluded from this claim).
 export interface Coverage {
   total_firms: number;
   flagged_firms: number;
-  assessable_firms: number;
   flags_by_type: Record<string, number>;
   trades: string[];
+  provenance: string;
 }
