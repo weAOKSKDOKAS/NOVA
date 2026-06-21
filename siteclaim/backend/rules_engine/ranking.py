@@ -29,12 +29,14 @@ def _fatal_reason(firm: RankedFirm) -> str:
 def rank_candidates(candidates: list[Candidate]) -> list[Candidate]:
     """Order candidates clean-first by descending ``match_score``; fatal-flagged last.
 
-    Stable: ties keep input order. Returns a new list; inputs are untouched.
+    Marks every fatal-flagged candidate ``recommended_against`` (so the shortlist
+    screen can show the gotcha as recommend-against). Stable; returns a new list.
     """
-    return sorted(
-        candidates,
-        key=lambda c: (has_fatal(c.risk_flags), -c.match_score),
-    )
+    marked = [
+        c.model_copy(update={"recommended_against": has_fatal(c.risk_flags)})
+        for c in candidates
+    ]
+    return sorted(marked, key=lambda c: (c.recommended_against, -c.match_score))
 
 
 def rank_by_total(firms: list[RankedFirm]) -> list[RankedFirm]:

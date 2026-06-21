@@ -166,6 +166,7 @@ class Candidate(BaseModel):
     match_score: float = Field(ge=0.0, le=1.0)
     evidence: list[Evidence] = Field(default_factory=list)
     risk_flags: list[RiskFlag] = Field(default_factory=list)
+    recommended_against: bool = False  # set by ranking when a fatal flag fires
 
 
 class ShortlistSet(BaseModel):

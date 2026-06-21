@@ -87,5 +87,9 @@ did: zero network, no model load. Treat any network call in DEMO_MODE as a bug.
 store, baked-vector embeddings, the fused seed with the planted gotcha electrical
 firm, plus `rules_engine/risk_scoring.py`, `rules_engine/ranking.py`, and
 `db/cross_reference.py`), and Phase 3 (`stage_01_ingest` — tender → scope split
-with Layer-1 taxonomy validation). The remaining stages, the API routes, and the
-frontend are rebuilt phase by phase per the build framework.
+with Layer-1 taxonomy validation), Phase 4 (`stage_02_shortlist` — the hero:
+ranked candidates per trade with cited evidence, the gotcha demoted and marked
+`recommended_against`), and Phase 5 (`stage_03_dispatch` — trade-only document
+bundles, Layer-2 composed emails, and a mock outbox, behind the Layer-4 approval
+gate). The remaining stages (level, recommend), the API routes, and the frontend
+are rebuilt phase by phase per the build framework.
