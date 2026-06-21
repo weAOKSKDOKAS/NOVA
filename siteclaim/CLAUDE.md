@@ -95,6 +95,9 @@ gate), Phase 6 (`stage_04_level` — `rules_engine/leveling.py` recomputes every
 amount, flags arithmetic errors / scope gaps / exclusions, and exports the
 comparison to Excel), and Phase 7 (`stage_05_recommend` — risk-adjusted ranking
 with the bid distribution and historical band, Layer-2 rationale; plus
-`run_pipeline.py`, the offline end-to-end runner that prints the hero catch). The
-API routes (Phase 8), the frontend wizard (Phase 9), and the demo polish (Phase 10)
-are rebuilt next per the build framework.
+`run_pipeline.py`, the offline end-to-end runner that prints the hero catch), and
+Phase 8 (`api.py` — one POST per stage `/ingest` `/shortlist` `/dispatch` `/level`
+`/recommend`, the `/leveling.xlsx` download, the multipart `/ingest-upload`, and the
+`/demo/cases` · `/demo/{id}` loaders; DEMO_MODE respected end-to-end, `/health`
+reports it). The frontend wizard (Phase 9) and the demo polish (Phase 10) are
+rebuilt next per the build framework.

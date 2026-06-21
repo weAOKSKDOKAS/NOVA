@@ -51,11 +51,13 @@ def ingest_tender(
     demo_fixture: Optional[str] = None,
     *,
     client: Optional[LLMClient] = None,
+    images: Optional[list[str]] = None,
 ) -> ScopePackages:
     """Split ``tender`` into one :class:`TradeWorkPackage` per trade.
 
     In DEMO_MODE the split is read from ``demo_fixture``; otherwise Layer 2 produces
-    it. Either way Layer 1 normalises trades against the taxonomy before returning.
+    it (reading ``images`` — rendered tender pages — when given, for the live upload
+    path). Either way Layer 1 normalises trades against the taxonomy before returning.
     """
     client = client or LLMClient()
     scope = client.complete_json(
@@ -63,6 +65,7 @@ def ingest_tender(
         user=_user_prompt(tender),
         target_model=ScopePackages,
         demo_fixture=demo_fixture,
+        images=images,
     )
     normalised, unmapped = validate_scope(scope)
     if unmapped:
