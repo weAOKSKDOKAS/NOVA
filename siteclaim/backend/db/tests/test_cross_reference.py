@@ -43,6 +43,23 @@ def test_gotcha_carries_fatal_winding_up_with_evidence(conn):
     assert winding.evidence and winding.evidence[0].reference == "CR:HCCW-215/2026"
 
 
-def test_no_electrical_firm_is_silently_dropped(conn):
+def test_no_eos_electrical_firm_is_silently_dropped(conn):
+    # New contract: every electrical firm WITH an assessable EOS record is shown
+    # (the flagged firm is demoted, never hidden); none is silently dropped.
     candidates = cross_reference(conn, "electrical", ELECTRICAL_SCOPE_QUERY)
-    assert set(_ids(candidates)) == {f.firm_id for f in store.firms_for_trade(conn, "electrical")}
+    assert set(_ids(candidates)) == {f.firm_id for f in store.shortlistable_firms_for_trade(conn, "electrical")}
+    assert "F-EL-01" in set(_ids(candidates))  # the flagged firm is present, just demoted
+
+
+def test_public_only_firms_are_in_db_but_never_shortlisted(conn):
+    # The wider public-record pool exists in the firms table (discovery/coverage) …
+    assessable = store.eos_firm_ids(conn)
+    public_only = {f.firm_id for f in store.all_firms(conn)} - assessable
+    assert public_only  # the real scrape is present in the DB
+    # … but no public-only firm (no EOS) appears in any per-tender shortlist.
+    for trade in ("electrical", "mechanical_plumbing", "fire_services"):
+        ids = {c.firm.firm_id for c in cross_reference(conn, trade, "scope summary")}
+        assert not (ids & public_only)
+    # and the electrical shortlist is exactly the four assessed demo firms, in order.
+    order = [c.firm.firm_id for c in cross_reference(conn, "electrical", ELECTRICAL_SCOPE_QUERY)]
+    assert order == ["F-EL-02", "F-EL-04", "F-EL-03", "F-EL-01"]

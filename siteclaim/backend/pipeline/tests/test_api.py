@@ -100,3 +100,13 @@ def test_scenarios_are_deterministic_on_repeat():
         second = _run_scenario(case_id)
         assert first["recommended_firm_id"] == second["recommended_firm_id"]
         assert [r["firm_id"] for r in first["ranked"]] == [r["firm_id"] for r in second["ranked"]]
+
+
+def test_coverage_reads_live_from_the_db():
+    cov = client.get("/coverage").json()
+    # the real public-record pool is loaded alongside the illustrative demo firms
+    assert cov["total_firms"] >= 150
+    assert cov["flagged_firms"] >= 40
+    assert cov["assessable_firms"] >= 16  # only firms with EOS history are shortlistable
+    assert "safety_prosecution" in cov["flags_by_type"]
+    assert "electrical" in cov["trades"]

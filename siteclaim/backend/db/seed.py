@@ -25,6 +25,7 @@ import datetime as _dt
 import json
 import os
 import sqlite3
+import sys
 from pathlib import Path
 
 from .embeddings import DETERMINISTIC_DIM, build_embeddings, deterministic_embedding
@@ -34,6 +35,24 @@ SCHEMA_PATH = _HERE / "schema.sql"
 SEED_DATA_DIR = _HERE / "seed_data"
 DEFAULT_DB_PATH = _HERE / "sitesource.db"
 SEED_VERSION = "1"
+
+# Reuse the Layer-1 taxonomy normaliser to screen real-scrape trade names (e.g.
+# "fire services", "mechanical and plumbing") into canonical keys at build time.
+if str(_HERE.parent) not in sys.path:
+    sys.path.insert(0, str(_HERE.parent))
+from rules_engine.taxonomy import normalize as _normalize_trade  # noqa: E402
+
+
+def _canonical_trades(raw_trades: list[str]) -> list[str]:
+    """Screen raw trade names against the taxonomy; keep canonical keys and preserve
+    an unmapped trade rather than drop it. De-duplicated, order-stable."""
+    out: list[str] = []
+    for trade in raw_trades or []:
+        key = _normalize_trade(trade) or trade
+        if key not in out:
+            out.append(key)
+    return out
+
 
 
 # ---------------------------------------------------------------------------
@@ -111,7 +130,7 @@ def build_database(db_path: Path | str = DEFAULT_DB_PATH) -> dict:
                     pub.get("registered_grade"),
                     pub.get("value_band"),
                     json.dumps(pub.get("registers", [])),
-                    json.dumps(pub.get("trades", [])),
+                    json.dumps(_canonical_trades(pub.get("trades", []))),
                     rep.get("closeout_summary", ""),
                 ),
             )

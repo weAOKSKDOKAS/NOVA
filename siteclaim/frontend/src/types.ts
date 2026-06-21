@@ -169,3 +169,11 @@ export interface Health {
   status: string;
   demo_mode: boolean;
 }
+
+export interface Coverage {
+  total_firms: number;
+  flagged_firms: number;
+  assessable_firms: number;
+  flags_by_type: Record<string, number>;
+  trades: string[];
+}

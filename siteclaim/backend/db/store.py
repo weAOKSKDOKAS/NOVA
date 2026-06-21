@@ -144,8 +144,46 @@ def firm_profile(conn: sqlite3.Connection, firm_id: str) -> Optional[FirmProfile
 
 
 def firms_for_trade(conn: sqlite3.Connection, trade: str) -> list[FirmProfile]:
-    """Every firm whose canonical trades include ``trade``."""
+    """Every firm whose canonical trades include ``trade`` (the discovery/coverage
+    pool — includes public-record-only firms with no closeout history)."""
     return [firm for firm in all_firms(conn) if trade in firm.trades]
+
+
+def eos_firm_ids(conn: sqlite3.Connection) -> set[str]:
+    """Firm ids that carry an **assessable EOS closeout record** (baked closeout
+    chunks). The per-tender shortlist is drawn only from these; the wider
+    public-record pool is screened and counted but not auto-shortlisted."""
+    rows = conn.execute("SELECT DISTINCT firm_id FROM closeout_embeddings").fetchall()
+    return {row["firm_id"] for row in rows}
+
+
+def shortlistable_firms_for_trade(conn: sqlite3.Connection, trade: str) -> list[FirmProfile]:
+    """Firms in ``trade`` that have an assessable EOS closeout record — the only
+    firms eligible for the per-tender shortlist."""
+    assessable = eos_firm_ids(conn)
+    return [firm for firm in firms_for_trade(conn, trade) if firm.firm_id in assessable]
+
+
+def coverage(conn: sqlite3.Connection) -> dict:
+    """Live database-coverage figures for the UI's screening line. Read from the DB."""
+    total = conn.execute("SELECT COUNT(*) AS n FROM firms").fetchone()["n"]
+    flagged = conn.execute("SELECT COUNT(DISTINCT firm_id) AS n FROM public_flags").fetchone()["n"]
+    flags_by_type = {
+        row["signal_type"]: row["n"]
+        for row in conn.execute(
+            "SELECT signal_type, COUNT(*) AS n FROM public_flags GROUP BY signal_type ORDER BY signal_type"
+        )
+    }
+    trades: set[str] = set()
+    for row in conn.execute("SELECT trades FROM firms"):
+        trades |= set(_json_list(row["trades"]))
+    return {
+        "total_firms": int(total),
+        "flagged_firms": int(flagged),
+        "assessable_firms": len(eos_firm_ids(conn)),
+        "flags_by_type": flags_by_type,
+        "trades": sorted(trades),
+    }
 
 
 # ---------------------------------------------------------------------------

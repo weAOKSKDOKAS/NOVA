@@ -1,0 +1,3224 @@
+[
+ {
+  "firm_id": "able-engineering-company-limited-093d",
+  "name_en": "Able Engineering Company Limited",
+  "name_zh": null,
+  "registered_grade": "Group C",
+  "registers": [
+   "List of Approved Contractors for Public Works",
+   "List of Approved Suppliers of Materials and Specialist Contractors for Public Works"
+  ],
+  "value_band": "Group C",
+  "trades": [
+   "builder's work",
+   "mechanical and plumbing"
+  ],
+  "raw_category": "Buildings; Plumbing Installation",
+  "public_flags": [
+   {
+    "signal_type": "debarment",
+    "label": "Suspended from tendering until 19 January 2027",
+    "date": null,
+    "source": "Development Bureau",
+    "reference": "https://www.devb.gov.hk/en/construction_sector_matters/contractors/contractor/index.html?search=true&category=buildings&group="
+   }
+  ],
+  "award_history": [],
+  "confidence": "high",
+  "sources_used": [
+   "https://www.devb.gov.hk/en/construction_sector_matters/contractors/contractor/index.html?search=true&category=buildings&group=",
+   "https://www.devb.gov.hk/en/construction_sector_matters/contractors/supplier/index.html?search=true&category=PLUM&group=&class="
+  ],
+  "display_sensitive": true
+ },
+ {
+  "firm_id": "abo-e-m-limited-7d3b",
+  "name_en": "ABO (E & M) Limited",
+  "name_zh": null,
+  "registered_grade": "Group II",
+  "registers": [
+   "List of Approved Suppliers of Materials and Specialist Contractors for Public Works"
+  ],
+  "value_band": "Group II",
+  "trades": [
+   "electrical"
+  ],
+  "raw_category": "Electrical Installation",
+  "public_flags": [],
+  "award_history": [],
+  "confidence": "high",
+  "sources_used": [
+   "https://www.devb.gov.hk/en/construction_sector_matters/contractors/supplier/index.html?search=true&category=ELEC&group=&class="
+  ]
+ },
+ {
+  "firm_id": "achieve-asia-fire-engineering-limited-684b",
+  "name_en": "Achieve Asia Fire Engineering Limited",
+  "name_zh": "雅緻工程(亞洲)有限公司",
+  "registered_grade": "RC1/0523 RC2/0696",
+  "registers": [
+   "Fire Services Department list of Registered Fire Service Installation Contractors"
+  ],
+  "value_band": null,
+  "trades": [
+   "fire services"
+  ],
+  "raw_category": "Registered Fire Service Installation Contractor",
+  "public_flags": [],
+  "award_history": [],
+  "confidence": "high",
+  "sources_used": [
+   "https://www.hkfsd.gov.hk/eng/source/safety/List_RFSICs_Successful_Cap572_eng.pdf"
+  ]
+ },
+ {
+  "firm_id": "acme-engineering-limited-c4ad",
+  "name_en": "ACME Engineering limited",
+  "name_zh": "達峰工程有限公司",
+  "registered_grade": "RC1/0430 RC2/0596",
+  "registers": [
+   "Fire Services Department list of Registered Fire Service Installation Contractors"
+  ],
+  "value_band": null,
+  "trades": [
+   "fire services"
+  ],
+  "raw_category": "Registered Fire Service Installation Contractor",
+  "public_flags": [],
+  "award_history": [],
+  "confidence": "high",
+  "sources_used": [
+   "https://www.hkfsd.gov.hk/eng/source/safety/List_RFSICs_Successful_Cap572_eng.pdf"
+  ]
+ },
+ {
+  "firm_id": "aggressive-construction-company-limited-607e",
+  "name_en": "Aggressive Construction Company Limited",
+  "name_zh": null,
+  "registered_grade": "Group C",
+  "registers": [
+   "List of Approved Contractors for Public Works",
+   "List of Approved Suppliers of Materials and Specialist Contractors for Public Works",
+   "Registered General Building Contractors"
+  ],
+  "value_band": "Group C",
+  "trades": [
+   "builder's work",
+   "mechanical and plumbing"
+  ],
+  "raw_category": "Buildings; Plumbing Installation",
+  "public_flags": [
+   {
+    "signal_type": "debarment",
+    "label": "Suspended from tendering and refused registration renewal due to multiple fatal incidents including a tower crane collapse",
+    "date": "2023-10-11",
+    "source": "Development Bureau",
+    "reference": "https://www.info.gov.hk/gia/general/202310/11/P2023101100689.htm"
+   }
+  ],
+  "award_history": [
+   {
+    "project": "Public housing development at Tuen Mun Area 29 West",
+    "client": "Housing Authority",
+    "year": 2024,
+    "source": "https://www.devb.gov.hk/en/sdev/press/index_id_14169.html"
+   }
+  ],
+  "confidence": "high",
+  "sources_used": [
+   "https://www.info.gov.hk/gia/general/202310/11/P2023101100689.htm",
+   "https://www.devb.gov.hk/en/sdev/press/index_id_14169.html",
+   "https://www.devb.gov.hk/en/construction_sector_matters/contractors/contractor/index.html?search=true&category=buildings&group="
+  ],
+  "display_sensitive": true
+ },
+ {
+  "firm_id": "alliance-contracting-company-limited-d1b5",
+  "name_en": "Alliance Contracting Company Limited",
+  "name_zh": null,
+  "registered_grade": "Group III",
+  "registers": [
+   "List of Approved Suppliers of Materials and Specialist Contractors for Public Works"
+  ],
+  "value_band": "Group III",
+  "trades": [
+   "electrical",
+   "mechanical and plumbing"
+  ],
+  "raw_category": "Electrical Installation; Plumbing Installation",
+  "public_flags": [],
+  "award_history": [],
+  "confidence": "high",
+  "sources_used": [
+   "https://www.devb.gov.hk/en/construction_sector_matters/contractors/supplier/index.html?search=true&category=ELEC&group=&class=",
+   "https://www.devb.gov.hk/en/construction_sector_matters/contractors/supplier/index.html?search=true&category=PLUM&group=&class="
+  ]
+ },
+ {
+  "firm_id": "allied-success-construction-limited-31ee",
+  "name_en": "Allied Success Construction Limited",
+  "name_zh": null,
+  "registered_grade": "Group C (Probationary)",
+  "registers": [
+   "List of Approved Contractors for Public Works"
+  ],
+  "value_band": "Group C",
+  "trades": [
+   "builder's work"
+  ],
+  "raw_category": "Buildings",
+  "public_flags": [],
+  "award_history": [],
+  "confidence": "high",
+  "sources_used": [
+   "https://www.devb.gov.hk/en/construction_sector_matters/contractors/contractor/index.html?search=true&category=buildings&group="
+  ]
+ },
+ {
+  "firm_id": "american-fire-engineering-company-limited-c871",
+  "name_en": "American Fire Engineering Company Limited",
+  "name_zh": "美利堅消防工程有限公司",
+  "registered_grade": "RC1/0259 RC2/0405",
+  "registers": [
+   "Fire Services Department list of Registered Fire Service Installation Contractors"
+  ],
+  "value_band": null,
+  "trades": [
+   "fire services"
+  ],
+  "raw_category": "Registered Fire Service Installation Contractor",
+  "public_flags": [],
+  "award_history": [],
+  "confidence": "high",
+  "sources_used": [
+   "https://www.hkfsd.gov.hk/eng/source/safety/List_RFSICs_Successful_Cap572_eng.pdf"
+  ]
+ },
+ {
+  "firm_id": "an-hsin-construction-company-limited-0d64",
+  "name_en": "An Hsin Construction Company Limited",
+  "name_zh": null,
+  "registered_grade": "Group A (Probationary)",
+  "registers": [
+   "List of Approved Contractors for Public Works"
+  ],
+  "value_band": "Group A",
+  "trades": [
+   "builder's work"
+  ],
+  "raw_category": "Buildings",
+  "public_flags": [],
+  "award_history": [],
+  "confidence": "high",
+  "sources_used": [
+   "https://www.devb.gov.hk/en/construction_sector_matters/contractors/contractor/index.html?search=true&category=buildings&group="
+  ]
+ },
+ {
+  "firm_id": "apex-engineering-company-bade",
+  "name_en": "Apex Engineering Company",
+  "name_zh": "創鋒工程公司",
+  "registered_grade": "RC1/0186 RC2/0327",
+  "registers": [
+   "Fire Services Department list of Registered Fire Service Installation Contractors"
+  ],
+  "value_band": null,
+  "trades": [
+   "fire services"
+  ],
+  "raw_category": "Registered Fire Service Installation Contractor",
+  "public_flags": [],
+  "award_history": [],
+  "confidence": "high",
+  "sources_used": [
+   "https://www.hkfsd.gov.hk/eng/source/safety/List_RFSICs_Successful_Cap572_eng.pdf"
+  ]
+ },
+ {
+  "firm_id": "artsuc-m-e-limited-4499",
+  "name_en": "Artsuc M & E Limited",
+  "name_zh": null,
+  "registered_grade": "Group I",
+  "registers": [
+   "List of Approved Suppliers of Materials and Specialist Contractors for Public Works"
+  ],
+  "value_band": "Group I",
+  "trades": [
+   "electrical"
+  ],
+  "raw_category": "Electrical Installation",
+  "public_flags": [],
+  "award_history": [],
+  "confidence": "high",
+  "sources_used": [
+   "https://www.devb.gov.hk/en/construction_sector_matters/contractors/supplier/index.html?search=true&category=ELEC&group=&class="
+  ]
+ },
+ {
+  "firm_id": "asian-ah-chi-engineering-and-construction-works-limited-17ec",
+  "name_en": "Asian (Ah Chi) Engineering and Construction Works Limited",
+  "name_zh": null,
+  "registered_grade": "Group A (Probationary)",
+  "registers": [
+   "List of Approved Contractors for Public Works"
+  ],
+  "value_band": "Group A",
+  "trades": [
+   "builder's work"
+  ],
+  "raw_category": "Buildings",
+  "public_flags": [],
+  "award_history": [],
+  "confidence": "high",
+  "sources_used": [
+   "https://www.devb.gov.hk/en/construction_sector_matters/contractors/contractor/index.html?search=true&category=buildings&group="
+  ]
+ },
+ {
+  "firm_id": "atal-engineering-limited-39d6",
+  "name_en": "ATAL Engineering Limited",
+  "name_zh": null,
+  "registered_grade": "Group III",
+  "registers": [
+   "List of Approved Suppliers of Materials and Specialist Contractors for Public Works"
+  ],
+  "value_band": "Group III",
+  "trades": [
+   "electrical"
+  ],
+  "raw_category": "Electrical Installation",
+  "public_flags": [],
+  "award_history": [],
+  "confidence": "high",
+  "sources_used": [
+   "https://www.devb.gov.hk/en/construction_sector_matters/contractors/supplier/index.html?search=true&category=ELEC&group=&class="
+  ]
+ },
+ {
+  "firm_id": "au-chow-electrical-company-limited-687d",
+  "name_en": "Au Chow Electrical Company Limited",
+  "name_zh": null,
+  "registered_grade": "Group III",
+  "registers": [
+   "List of Approved Suppliers of Materials and Specialist Contractors for Public Works"
+  ],
+  "value_band": "Group III",
+  "trades": [
+   "electrical"
+  ],
+  "raw_category": "Electrical Installation",
+  "public_flags": [],
+  "award_history": [],
+  "confidence": "high",
+  "sources_used": [
+   "https://www.devb.gov.hk/en/construction_sector_matters/contractors/supplier/index.html?search=true&category=ELEC&group=&class="
+  ]
+ },
+ {
+  "firm_id": "best-engineering-services-limited-9a18",
+  "name_en": "Best Engineering Services Limited",
+  "name_zh": null,
+  "registered_grade": "RC1/0390 RC2/0555",
+  "registers": [
+   "Fire Services Department disciplinary order record for Registered Fire Service Installation Contractors"
+  ],
+  "value_band": null,
+  "trades": [
+   "fire services"
+  ],
+  "raw_category": "Registered Fire Service Installation Contractor",
+  "public_flags": [
+   {
+    "signal_type": "debarment",
+    "label": "Removed from the registers of Class 1 and Class 2 Fire Service Installation Contractors for 2 weeks and reprimanded",
+    "date": "2025-03-27",
+    "source": "Fire Services Department Registered Fire Service Installation Contractors Disciplinary Board",
+    "reference": "https://egazette.gld.gov.hk/pdf?type=egn&year=2025&volume=29&gno=15&notice_no=2238&extra=0"
+   }
+  ],
+  "award_history": [],
+  "confidence": "medium",
+  "sources_used": [
+   "https://www.hkfsd.gov.hk/eng/source/record_of_orders/D_board_orders_2025_eng_20251202_151252.pdf",
+   "https://egazette.gld.gov.hk/pdf?type=egn&year=2025&volume=29&gno=15&notice_no=2238&extra=0"
+  ],
+  "display_sensitive": true
+ },
+ {
+  "firm_id": "best-gold-engineering-limited-cf09",
+  "name_en": "Best Gold Engineering Limited",
+  "name_zh": "寶高工程有限公司",
+  "registered_grade": "RC1/0464 RC2/0635",
+  "registers": [
+   "Fire Services Department list of Registered Fire Service Installation Contractors"
+  ],
+  "value_band": null,
+  "trades": [
+   "fire services"
+  ],
+  "raw_category": "Registered Fire Service Installation Contractor",
+  "public_flags": [],
+  "award_history": [],
+  "confidence": "high",
+  "sources_used": [
+   "https://www.hkfsd.gov.hk/eng/source/safety/List_RFSICs_Successful_Cap572_eng.pdf"
+  ]
+ },
+ {
+  "firm_id": "bestwise-envirotech-limited-229f",
+  "name_en": "Bestwise Envirotech Limited",
+  "name_zh": "百威環保科技有限公司",
+  "registered_grade": "RC1/0281 RC2/0427",
+  "registers": [
+   "Fire Services Department list of Registered Fire Service Installation Contractors"
+  ],
+  "value_band": null,
+  "trades": [
+   "fire services"
+  ],
+  "raw_category": "Registered Fire Service Installation Contractor",
+  "public_flags": [],
+  "award_history": [],
+  "confidence": "high",
+  "sources_used": [
+   "https://www.hkfsd.gov.hk/eng/source/safety/List_RFSICs_Successful_Cap572_eng.pdf"
+  ]
+ },
+ {
+  "firm_id": "blazers-engineering-co-limited-43a2",
+  "name_en": "Blazers Engineering Co., Limited",
+  "name_zh": "創機工程有限公司",
+  "registered_grade": "RC1/0539 RC2/0715",
+  "registers": [
+   "Fire Services Department list of Registered Fire Service Installation Contractors"
+  ],
+  "value_band": null,
+  "trades": [
+   "fire services"
+  ],
+  "raw_category": "Registered Fire Service Installation Contractor",
+  "public_flags": [],
+  "award_history": [],
+  "confidence": "high",
+  "sources_used": [
+   "https://www.hkfsd.gov.hk/eng/source/safety/List_RFSICs_Successful_Cap572_eng.pdf"
+  ]
+ },
+ {
+  "firm_id": "bright-wong-engineering-company-limited-c1bd",
+  "name_en": "Bright Wong Engineering Company Limited",
+  "name_zh": "威煌工程有限公司",
+  "registered_grade": "RC1/0638 RC2/0290",
+  "registers": [
+   "Fire Services Department list of Registered Fire Service Installation Contractors"
+  ],
+  "value_band": null,
+  "trades": [
+   "fire services"
+  ],
+  "raw_category": "Registered Fire Service Installation Contractor",
+  "public_flags": [],
+  "award_history": [],
+  "confidence": "high",
+  "sources_used": [
+   "https://www.hkfsd.gov.hk/eng/source/safety/List_RFSICs_Successful_Cap572_eng.pdf"
+  ]
+ },
+ {
+  "firm_id": "build-king-richwell-engineering-joint-venture-44fa",
+  "name_en": "Build King-Richwell Engineering Joint Venture",
+  "name_zh": null,
+  "registered_grade": null,
+  "registers": [
+   "List of Approved Contractors for Public Works"
+  ],
+  "value_band": null,
+  "trades": [
+   "external works",
+   "structural"
+  ],
+  "raw_category": "Civil Engineering",
+  "public_flags": [],
+  "award_history": [
+   {
+    "project": "Universal Accessibility Programme retrofitting barrier-free access facilities",
+    "client": "Highways Department",
+    "year": 2019,
+    "source": "https://www.neccontract.com/projects/universal-accessibility-lift-retrofit-projects-hong-kong"
+   }
+  ],
+  "confidence": "high",
+  "sources_used": [
+   "https://www.neccontract.com/projects/universal-accessibility-lift-retrofit-projects-hong-kong"
+  ]
+ },
+ {
+  "firm_id": "byme-engineering-hong-kong-limited-f642",
+  "name_en": "BYME Engineering (Hong Kong) Limited",
+  "name_zh": null,
+  "registered_grade": "Group III",
+  "registers": [
+   "List of Approved Suppliers of Materials and Specialist Contractors for Public Works"
+  ],
+  "value_band": "Group III",
+  "trades": [
+   "electrical",
+   "mechanical and plumbing"
+  ],
+  "raw_category": "Electrical Installation; Plumbing Installation",
+  "public_flags": [],
+  "award_history": [],
+  "confidence": "high",
+  "sources_used": [
+   "https://www.devb.gov.hk/en/construction_sector_matters/contractors/supplier/index.html?search=true&category=ELEC&group=&class=",
+   "https://www.devb.gov.hk/en/construction_sector_matters/contractors/supplier/index.html?search=true&category=PLUM&group=&class="
+  ]
+ },
+ {
+  "firm_id": "carewin-engineering-limited-4ddd",
+  "name_en": "Carewin Engineering Limited",
+  "name_zh": null,
+  "registered_grade": "Group II",
+  "registers": [
+   "List of Approved Suppliers of Materials and Specialist Contractors for Public Works"
+  ],
+  "value_band": "Group II",
+  "trades": [
+   "electrical"
+  ],
+  "raw_category": "Electrical Installation",
+  "public_flags": [],
+  "award_history": [],
+  "confidence": "high",
+  "sources_used": [
+   "https://www.devb.gov.hk/en/construction_sector_matters/contractors/supplier/index.html?search=true&category=ELEC&group=&class="
+  ]
+ },
+ {
+  "firm_id": "century-fire-service-engineering-co-limited-b860",
+  "name_en": "Century Fire Service Engineering Co. Limited",
+  "name_zh": "世紀消防工程有限公司",
+  "registered_grade": "RC1/0389 RC2/0554",
+  "registers": [
+   "Fire Services Department list of Registered Fire Service Installation Contractors"
+  ],
+  "value_band": null,
+  "trades": [
+   "fire services"
+  ],
+  "raw_category": "Registered Fire Service Installation Contractor",
+  "public_flags": [],
+  "award_history": [],
+  "confidence": "high",
+  "sources_used": [
+   "https://www.hkfsd.gov.hk/eng/source/safety/List_RFSICs_Successful_Cap572_eng.pdf"
+  ]
+ },
+ {
+  "firm_id": "chat-horn-engineering-limited-d0bd",
+  "name_en": "Chat Horn Engineering Limited",
+  "name_zh": null,
+  "registered_grade": "Group III",
+  "registers": [
+   "List of Approved Suppliers of Materials and Specialist Contractors for Public Works"
+  ],
+  "value_band": "Group III",
+  "trades": [
+   "electrical"
+  ],
+  "raw_category": "Electrical Installation",
+  "public_flags": [],
+  "award_history": [],
+  "confidence": "high",
+  "sources_used": [
+   "https://www.devb.gov.hk/en/construction_sector_matters/contractors/supplier/index.html?search=true&category=ELEC&group=&class="
+  ]
+ },
+ {
+  "firm_id": "chavez-engineering-limited-fff8",
+  "name_en": "Chavez Engineering Limited",
+  "name_zh": "卓域工程有限公司",
+  "registered_grade": "RC2/0550",
+  "registers": [
+   "Fire Services Department list of Registered Fire Service Installation Contractors"
+  ],
+  "value_band": null,
+  "trades": [
+   "fire services"
+  ],
+  "raw_category": "Registered Fire Service Installation Contractor",
+  "public_flags": [],
+  "award_history": [],
+  "confidence": "high",
+  "sources_used": [
+   "https://www.hkfsd.gov.hk/eng/source/safety/List_RFSICs_Successful_Cap572_eng.pdf"
+  ]
+ },
+ {
+  "firm_id": "che-luen-electrical-engineering-company-limited-8b48",
+  "name_en": "Che Luen Electrical Engineering Company Limited",
+  "name_zh": null,
+  "registered_grade": "Group III",
+  "registers": [
+   "List of Approved Suppliers of Materials and Specialist Contractors for Public Works"
+  ],
+  "value_band": "Group III",
+  "trades": [
+   "electrical"
+  ],
+  "raw_category": "Electrical Installation",
+  "public_flags": [],
+  "award_history": [],
+  "confidence": "high",
+  "sources_used": [
+   "https://www.devb.gov.hk/en/construction_sector_matters/contractors/supplier/index.html?search=true&category=ELEC&group=&class="
+  ]
+ },
+ {
+  "firm_id": "cheung-hing-e-m-limited-eb9e",
+  "name_en": "Cheung Hing E & M Limited",
+  "name_zh": null,
+  "registered_grade": "Group III",
+  "registers": [
+   "List of Approved Suppliers of Materials and Specialist Contractors for Public Works"
+  ],
+  "value_band": "Group III",
+  "trades": [
+   "electrical"
+  ],
+  "raw_category": "Electrical Installation",
+  "public_flags": [],
+  "award_history": [],
+  "confidence": "high",
+  "sources_used": [
+   "https://www.devb.gov.hk/en/construction_sector_matters/contractors/supplier/index.html?search=true&category=ELEC&group=&class="
+  ]
+ },
+ {
+  "firm_id": "cheung-ho-electric-co-limited-d3d3",
+  "name_en": "Cheung Ho Electric Co., Limited",
+  "name_zh": null,
+  "registered_grade": "Group I",
+  "registers": [
+   "List of Approved Suppliers of Materials and Specialist Contractors for Public Works"
+  ],
+  "value_band": "Group I",
+  "trades": [
+   "electrical"
+  ],
+  "raw_category": "Electrical Installation",
+  "public_flags": [],
+  "award_history": [],
+  "confidence": "high",
+  "sources_used": [
+   "https://www.devb.gov.hk/en/construction_sector_matters/contractors/supplier/index.html?search=true&category=ELEC&group=&class="
+  ]
+ },
+ {
+  "firm_id": "cheung-man-fire-engineering-consultant-co-limited-a471",
+  "name_en": "Cheung Man Fire Engineering Consultant Co., Limited",
+  "name_zh": "張文消防工程顧問有限公司",
+  "registered_grade": "RC1/0444 RC2/0525",
+  "registers": [
+   "Fire Services Department list of Registered Fire Service Installation Contractors"
+  ],
+  "value_band": null,
+  "trades": [
+   "fire services"
+  ],
+  "raw_category": "Registered Fire Service Installation Contractor",
+  "public_flags": [],
+  "award_history": [],
+  "confidence": "high",
+  "sources_used": [
+   "https://www.hkfsd.gov.hk/eng/source/safety/List_RFSICs_Successful_Cap572_eng.pdf"
+  ]
+ },
+ {
+  "firm_id": "cheung-on-engineering-company-1b3b",
+  "name_en": "Cheung On Engineering Company",
+  "name_zh": "長安工程公司",
+  "registered_grade": "RC1/0360 RC2/0428",
+  "registers": [
+   "Fire Services Department list of Registered Fire Service Installation Contractors"
+  ],
+  "value_band": null,
+  "trades": [
+   "fire services"
+  ],
+  "raw_category": "Registered Fire Service Installation Contractor",
+  "public_flags": [],
+  "award_history": [],
+  "confidence": "high",
+  "sources_used": [
+   "https://www.hkfsd.gov.hk/eng/source/safety/List_RFSICs_Successful_Cap572_eng.pdf"
+  ]
+ },
+ {
+  "firm_id": "cheung-on-engineering-construction-limited-6426",
+  "name_en": "Cheung On Engineering Construction Limited",
+  "name_zh": "長安工程建設有限公司",
+  "registered_grade": "RC1/0628 RC2/0815",
+  "registers": [
+   "Fire Services Department list of Registered Fire Service Installation Contractors"
+  ],
+  "value_band": null,
+  "trades": [
+   "fire services"
+  ],
+  "raw_category": "Registered Fire Service Installation Contractor",
+  "public_flags": [],
+  "award_history": [],
+  "confidence": "high",
+  "sources_used": [
+   "https://www.hkfsd.gov.hk/eng/source/safety/List_RFSICs_Successful_Cap572_eng.pdf"
+  ]
+ },
+ {
+  "firm_id": "chevalier-e-m-contracting-limited-114d",
+  "name_en": "Chevalier (E & M Contracting) Limited",
+  "name_zh": null,
+  "registered_grade": "Group III",
+  "registers": [
+   "List of Approved Suppliers of Materials and Specialist Contractors for Public Works"
+  ],
+  "value_band": "Group III",
+  "trades": [
+   "electrical"
+  ],
+  "raw_category": "Electrical Installation",
+  "public_flags": [],
+  "award_history": [],
+  "confidence": "high",
+  "sources_used": [
+   "https://www.devb.gov.hk/en/construction_sector_matters/contractors/supplier/index.html?search=true&category=ELEC&group=&class="
+  ]
+ },
+ {
+  "firm_id": "chi-tat-manufacturing-limited-c1e1",
+  "name_en": "Chi Tat Manufacturing Limited",
+  "name_zh": null,
+  "registered_grade": null,
+  "registers": [],
+  "value_band": null,
+  "trades": [
+   "builder's work"
+  ],
+  "raw_category": "Manufacturing",
+  "public_flags": [
+   {
+    "signal_type": "safety_prosecution",
+    "label": "Fined HK$10,000 for failing to comply with air pollution abatement notice",
+    "date": "2022-11-11",
+    "source": "Environmental Protection Department",
+    "reference": "https://www.epd.gov.hk/epd/english/laws_regulations/enforcement/convictions_jun23.html"
+   }
+  ],
+  "award_history": [],
+  "confidence": "high",
+  "sources_used": [
+   "https://www.epd.gov.hk/epd/english/laws_regulations/enforcement/convictions_jun23.html"
+  ],
+  "display_sensitive": true
+ },
+ {
+  "firm_id": "chief-way-engineering-limited-f5e8",
+  "name_en": "Chief Way Engineering Limited",
+  "name_zh": null,
+  "registered_grade": "Group II",
+  "registers": [
+   "List of Approved Suppliers of Materials and Specialist Contractors for Public Works"
+  ],
+  "value_band": "Group II",
+  "trades": [
+   "electrical"
+  ],
+  "raw_category": "Electrical Installation",
+  "public_flags": [],
+  "award_history": [],
+  "confidence": "high",
+  "sources_used": [
+   "https://www.devb.gov.hk/en/construction_sector_matters/contractors/supplier/index.html?search=true&category=ELEC&group=&class="
+  ]
+ },
+ {
+  "firm_id": "china-aircraft-services-limited-18e4",
+  "name_en": "China Aircraft Services Limited",
+  "name_zh": null,
+  "registered_grade": null,
+  "registers": [],
+  "value_band": null,
+  "trades": [
+   "mechanical and plumbing"
+  ],
+  "raw_category": "Aircraft Services",
+  "public_flags": [
+   {
+    "signal_type": "safety_prosecution",
+    "label": "Fined HK$440,000 for safety violations",
+    "date": "2026-01-28",
+    "source": "Labour Department",
+    "reference": "https://www.info.gov.hk/gia/general/202601/28/P2026012800614.htm"
+   }
+  ],
+  "award_history": [],
+  "confidence": "high",
+  "sources_used": [
+   "https://www.info.gov.hk/gia/general/202601/28/P2026012800614.htm"
+  ],
+  "display_sensitive": true
+ },
+ {
+  "firm_id": "china-geo-engineering-4395",
+  "name_en": "China Geo-Engineering",
+  "name_zh": null,
+  "registered_grade": null,
+  "registers": [
+   "List of Approved Contractors for Public Works"
+  ],
+  "value_band": null,
+  "trades": [
+   "external works",
+   "foundation and substructure"
+  ],
+  "raw_category": "Civil Engineering",
+  "public_flags": [],
+  "award_history": [
+   {
+    "project": "Universal Accessibility Programme retrofitting barrier-free access facilities",
+    "client": "Highways Department",
+    "year": 2019,
+    "source": "https://www.neccontract.com/projects/universal-accessibility-lift-retrofit-projects-hong-kong"
+   }
+  ],
+  "confidence": "medium",
+  "sources_used": [
+   "https://www.neccontract.com/projects/universal-accessibility-lift-retrofit-projects-hong-kong"
+  ]
+ },
+ {
+  "firm_id": "china-national-chemical-engineering-4e69",
+  "name_en": "China National Chemical Engineering",
+  "name_zh": null,
+  "registered_grade": null,
+  "registers": [
+   "List of Approved Contractors for Public Works"
+  ],
+  "value_band": null,
+  "trades": [
+   "external works",
+   "structural"
+  ],
+  "raw_category": "Civil Engineering",
+  "public_flags": [],
+  "award_history": [
+   {
+    "project": "Universal Accessibility Programme retrofitting barrier-free access facilities",
+    "client": "Highways Department",
+    "year": 2019,
+    "source": "https://www.neccontract.com/projects/universal-accessibility-lift-retrofit-projects-hong-kong"
+   }
+  ],
+  "confidence": "medium",
+  "sources_used": [
+   "https://www.neccontract.com/projects/universal-accessibility-lift-retrofit-projects-hong-kong"
+  ]
+ },
+ {
+  "firm_id": "china-overseas-building-construction-limited-9a40",
+  "name_en": "China Overseas Building Construction Limited",
+  "name_zh": null,
+  "registered_grade": "Group C",
+  "registers": [
+   "List of Approved Contractors for Public Works"
+  ],
+  "value_band": "Group C",
+  "trades": [
+   "builder's work"
+  ],
+  "raw_category": "Buildings",
+  "public_flags": [
+   {
+    "signal_type": "safety_prosecution",
+    "label": "Fined HK$170,000 for a fatal scaffolding fall at a construction site in the Kai Tak area",
+    "date": "2025-11-24",
+    "source": "Labour Department",
+    "reference": "https://www.info.gov.hk/gia/general/202511/24/P2025112400659.htm"
+   }
+  ],
+  "award_history": [],
+  "confidence": "medium",
+  "sources_used": [
+   "https://www.info.gov.hk/gia/general/202511/24/P2025112400659.htm"
+  ],
+  "display_sensitive": true
+ },
+ {
+  "firm_id": "china-state-construction-engineering-hong-kong-limited-b3c1",
+  "name_en": "China State Construction Engineering (Hong Kong) Limited",
+  "name_zh": null,
+  "registered_grade": "Group C",
+  "registers": [
+   "List of Approved Contractors for Public Works"
+  ],
+  "value_band": "Group C",
+  "trades": [
+   "builder's work",
+   "external works"
+  ],
+  "raw_category": "Buildings; Roads and Drainage",
+  "public_flags": [
+   {
+    "signal_type": "debarment",
+    "label": "Suspended from tendering for construction issues at Exhibition Centre Station",
+    "date": "2018-10-08",
+    "source": "Development Bureau",
+    "reference": "https://www.info.gov.hk/gia/general/201810/08/P2018100800583.htm"
+   }
+  ],
+  "award_history": [],
+  "confidence": "high",
+  "sources_used": [
+   "https://www.info.gov.hk/gia/general/201810/08/P2018100800583.htm"
+  ],
+  "display_sensitive": true
+ },
+ {
+  "firm_id": "china-state-mechanical-electrical-engineering-limited-b183",
+  "name_en": "China State Mechanical & Electrical Engineering Limited",
+  "name_zh": null,
+  "registered_grade": "Group III",
+  "registers": [
+   "List of Approved Suppliers of Materials and Specialist Contractors for Public Works"
+  ],
+  "value_band": "Group III",
+  "trades": [
+   "electrical",
+   "mechanical and plumbing"
+  ],
+  "raw_category": "Electrical Installation; Plumbing Installation",
+  "public_flags": [],
+  "award_history": [],
+  "confidence": "high",
+  "sources_used": [
+   "https://www.devb.gov.hk/en/construction_sector_matters/contractors/supplier/index.html?search=true&category=ELEC&group=&class=",
+   "https://www.devb.gov.hk/en/construction_sector_matters/contractors/supplier/index.html?search=true&category=PLUM&group=&class="
+  ]
+ },
+ {
+  "firm_id": "chiu-hing-construction-transportation-company-limited-d9cf",
+  "name_en": "Chiu Hing Construction & Transportation Company Limited",
+  "name_zh": null,
+  "registered_grade": "Roads and Drainage C",
+  "registers": [
+   "DEVB List of Approved Contractors for Public Works",
+   "List of Approved Contractors for Public Works"
+  ],
+  "value_band": "Group C, up to unlimited",
+  "trades": [
+   "external works",
+   "mechanical and plumbing"
+  ],
+  "raw_category": "Drainage and sewerage systems",
+  "public_flags": [
+   {
+    "signal_type": "safety_prosecution",
+    "label": "Fined HK$256,000 for a fatal accident during sewer pipe clearing in Sha Tin",
+    "date": "2025-12-05",
+    "source": "Labour Department",
+    "reference": "https://www.info.gov.hk/gia/general/202512/05/P2025120500617.htm"
+   }
+  ],
+  "award_history": [
+   {
+    "project": "Maintenance term contract for drainage and sewerage systems in Mainland South districts",
+    "client": "Drainage Services Department",
+    "year": 2023,
+    "source": "https://www.dsd.gov.hk/EN/What_s_New/What_s_New/news30890.html"
+   }
+  ],
+  "confidence": "high",
+  "sources_used": [
+   "https://www.devb.gov.hk/en/construction_sector_matters/contractors/contractor/index.html?search=true",
+   "https://www.dsd.gov.hk/EN/What_s_New/What_s_New/news30890.html",
+   "https://www.info.gov.hk/gia/general/202512/05/P2025120500617.htm"
+  ],
+  "display_sensitive": true
+ },
+ {
+  "firm_id": "chun-wo-construction-and-engineering-company-limited-248f",
+  "name_en": "Chun Wo Construction and Engineering Company Limited",
+  "name_zh": null,
+  "registered_grade": "Group II",
+  "registers": [
+   "List of Approved Suppliers of Materials and Specialist Contractors for Public Works"
+  ],
+  "value_band": "Group II",
+  "trades": [
+   "mechanical and plumbing"
+  ],
+  "raw_category": "Plumbing Installation",
+  "public_flags": [],
+  "award_history": [],
+  "confidence": "high",
+  "sources_used": [
+   "https://www.devb.gov.hk/en/construction_sector_matters/contractors/supplier/index.html?search=true&category=PLUM&group=&class="
+  ]
+ },
+ {
+  "firm_id": "chun-wo-e-m-engineering-limited-7040",
+  "name_en": "Chun Wo E & M Engineering Limited",
+  "name_zh": null,
+  "registered_grade": "Group III",
+  "registers": [
+   "List of Approved Suppliers of Materials and Specialist Contractors for Public Works"
+  ],
+  "value_band": "Group III",
+  "trades": [
+   "electrical"
+  ],
+  "raw_category": "Electrical Installation",
+  "public_flags": [],
+  "award_history": [],
+  "confidence": "high",
+  "sources_used": [
+   "https://www.devb.gov.hk/en/construction_sector_matters/contractors/supplier/index.html?search=true&category=ELEC&group=&class="
+  ]
+ },
+ {
+  "firm_id": "chung-hing-engineers-limited-1ab2",
+  "name_en": "Chung Hing Engineers Limited",
+  "name_zh": null,
+  "registered_grade": "Group I",
+  "registers": [
+   "List of Approved Suppliers of Materials and Specialist Contractors for Public Works"
+  ],
+  "value_band": "Group I",
+  "trades": [
+   "electrical"
+  ],
+  "raw_category": "Electrical Installation",
+  "public_flags": [],
+  "award_history": [],
+  "confidence": "high",
+  "sources_used": [
+   "https://www.devb.gov.hk/en/construction_sector_matters/contractors/supplier/index.html?search=true&category=ELEC&group=&class="
+  ]
+ },
+ {
+  "firm_id": "citysearch-technology-hk-company-limited-d3b9",
+  "name_en": "Citysearch Technology (HK) Company Limited",
+  "name_zh": null,
+  "registered_grade": null,
+  "registers": [],
+  "value_band": null,
+  "trades": [
+   "electrical"
+  ],
+  "raw_category": "Technology",
+  "public_flags": [
+   {
+    "signal_type": "safety_prosecution",
+    "label": "Fined HK$180,000 for a fatal fall involving a loaded trolley in Wan Chai",
+    "date": "2026-03-06",
+    "source": "Labour Department",
+    "reference": "https://www.info.gov.hk/gia/general/202603/06/P2026030600350p.htm"
+   }
+  ],
+  "award_history": [],
+  "confidence": "high",
+  "sources_used": [
+   "https://www.info.gov.hk/gia/general/202603/06/P2026030600350p.htm"
+  ],
+  "display_sensitive": true
+ },
+ {
+  "firm_id": "clpe-solutions-limited-39bf",
+  "name_en": "CLPe Solutions Limited",
+  "name_zh": null,
+  "registered_grade": "Group II",
+  "registers": [
+   "List of Approved Suppliers of Materials and Specialist Contractors for Public Works"
+  ],
+  "value_band": "Group II",
+  "trades": [
+   "electrical"
+  ],
+  "raw_category": "Electrical Installation",
+  "public_flags": [],
+  "award_history": [],
+  "confidence": "high",
+  "sources_used": [
+   "https://www.devb.gov.hk/en/construction_sector_matters/contractors/supplier/index.html?search=true&category=ELEC&group=&class="
+  ]
+ },
+ {
+  "firm_id": "clydeman-engineering-limited-87d0",
+  "name_en": "ClydeMan Engineering Limited",
+  "name_zh": null,
+  "registered_grade": "Group II",
+  "registers": [
+   "List of Approved Suppliers of Materials and Specialist Contractors for Public Works"
+  ],
+  "value_band": "Group II",
+  "trades": [
+   "electrical",
+   "mechanical and plumbing"
+  ],
+  "raw_category": "Electrical Installation; Plumbing Installation",
+  "public_flags": [],
+  "award_history": [],
+  "confidence": "high",
+  "sources_used": [
+   "https://www.devb.gov.hk/en/construction_sector_matters/contractors/supplier/index.html?search=true&category=ELEC&group=&class=",
+   "https://www.devb.gov.hk/en/construction_sector_matters/contractors/supplier/index.html?search=true&category=PLUM&group=&class="
+  ]
+ },
+ {
+  "firm_id": "dix-construction-transportation-limited-5b1b",
+  "name_en": "Dix Construction & Transportation Limited",
+  "name_zh": null,
+  "registered_grade": "Group C",
+  "registers": [
+   "List of Approved Contractors for Public Works"
+  ],
+  "value_band": "Group C",
+  "trades": [
+   "external works",
+   "foundation and substructure"
+  ],
+  "raw_category": "Roads and Drainage; Site Formation",
+  "public_flags": [],
+  "award_history": [
+   {
+    "project": "Universal Accessibility Programme retrofitting barrier-free access facilities",
+    "client": "Highways Department",
+    "year": 2019,
+    "source": "https://www.neccontract.com/projects/universal-accessibility-lift-retrofit-projects-hong-kong"
+   }
+  ],
+  "confidence": "high",
+  "sources_used": [
+   "https://www.devb.gov.hk/en/construction_sector_matters/contractors/contractor/index.html?search=true",
+   "https://www.neccontract.com/projects/universal-accessibility-lift-retrofit-projects-hong-kong"
+  ]
+ },
+ {
+  "firm_id": "dixie-engineering-company-limited-ca60",
+  "name_en": "Dixie Engineering Company Limited",
+  "name_zh": null,
+  "registered_grade": "-, -, C, BP, AP",
+  "registers": [
+   "DEVB List of Approved Contractors for Public Works"
+  ],
+  "value_band": "Roads and Drainage Group C, up to unlimited; Site Formation Group B, probationary, up to HK$400M; Waterworks Group A, probationary, up to HK$150M",
+  "trades": [
+   "external works"
+  ],
+  "raw_category": "Roads and Drainage; Site Formation; Waterworks",
+  "public_flags": [
+   {
+    "signal_type": "safety_prosecution",
+    "label": "Fined for violations of the Factories and Industrial Undertakings Ordinance, the Construction Sites (Safety) Regulations and the Safety Management Regulation",
+    "date": "2025-12-05",
+    "source": "Labour Department",
+    "reference": "https://www.info.gov.hk/gia/general/202512/05/P2025120500617.htm"
+   }
+  ],
+  "award_history": [],
+  "confidence": "high",
+  "sources_used": [
+   "https://www.devb.gov.hk/en/construction_sector_matters/contractors/contractor/index.html?search=true",
+   "https://www.info.gov.hk/gia/general/202512/05/P2025120500617.htm"
+  ],
+  "display_sensitive": true
+ },
+ {
+  "firm_id": "dragages-hong-kong-limited-a9f3",
+  "name_en": "Dragages Hong Kong Limited",
+  "name_zh": null,
+  "registered_grade": "Group C",
+  "registers": [
+   "List of Approved Contractors for Public Works"
+  ],
+  "value_band": "Group C",
+  "trades": [
+   "builder's work",
+   "external works",
+   "foundation and substructure"
+  ],
+  "raw_category": "Buildings; Port Works; Roads & Drainage; Site Formation; Waterworks",
+  "public_flags": [
+   {
+    "signal_type": "safety_prosecution",
+    "label": "Fined HK$154,800 for a fatal accident involving a falling metal fin in Tung Chung",
+    "date": "2026-05-18",
+    "source": "Labour Department",
+    "reference": "https://www.info.gov.hk/gia/general/202605/18/P2026051800717.htm"
+   }
+  ],
+  "award_history": [],
+  "confidence": "high",
+  "sources_used": [
+   "https://www.info.gov.hk/gia/general/202605/18/P2026051800717.htm",
+   "https://www.devb.gov.hk/en/construction_sector_matters/contractors/contractor/index.html?search=true"
+  ],
+  "display_sensitive": true
+ },
+ {
+  "firm_id": "eastwell-hk-engineering-limited-2a18",
+  "name_en": "Eastwell (HK) Engineering Limited",
+  "name_zh": "東滙工程有限公司",
+  "registered_grade": "RC1/0446 RC2/0618",
+  "registers": [
+   "Fire Services Department list of Registered Fire Service Installation Contractors"
+  ],
+  "value_band": null,
+  "trades": [
+   "fire services"
+  ],
+  "raw_category": "Registered Fire Service Installation Contractor",
+  "public_flags": [],
+  "award_history": [],
+  "confidence": "high",
+  "sources_used": [
+   "https://www.hkfsd.gov.hk/eng/source/safety/List_RFSICs_Successful_Cap572_eng.pdf"
+  ]
+ },
+ {
+  "firm_id": "es-nature-international-trading-company-limited-9850",
+  "name_en": "ES Nature International Trading Company Limited",
+  "name_zh": null,
+  "registered_grade": null,
+  "registers": [],
+  "value_band": null,
+  "trades": [
+   "joinery and fitting-out"
+  ],
+  "raw_category": "Renovation",
+  "public_flags": [
+   {
+    "signal_type": "safety_prosecution",
+    "label": "Fined HK$440,000 for a fatal ladder fall during wooden partition demolition in Fanling",
+    "date": "2026-02-24",
+    "source": "Labour Department",
+    "reference": "https://www.info.gov.hk/gia/general/202602/24/P2026022400404.htm"
+   }
+  ],
+  "award_history": [],
+  "confidence": "high",
+  "sources_used": [
+   "https://www.info.gov.hk/gia/general/202602/24/P2026022400404.htm"
+  ],
+  "display_sensitive": true
+ },
+ {
+  "firm_id": "excel-engineering-company-limited-2301",
+  "name_en": "Excel Engineering Company Limited",
+  "name_zh": null,
+  "registered_grade": "Group C",
+  "registers": [
+   "List of Approved Contractors for Public Works"
+  ],
+  "value_band": "Group C",
+  "trades": [
+   "builder's work",
+   "external works",
+   "mechanical and plumbing"
+  ],
+  "raw_category": "Buildings; Roads and Drainage; Waterworks",
+  "public_flags": [],
+  "award_history": [],
+  "confidence": "high",
+  "sources_used": [
+   "https://www.devb.gov.hk/en/construction_sector_matters/contractors/contractor/index.html?search=true"
+  ]
+ },
+ {
+  "firm_id": "express-fire-engineering-company-limited-8b66",
+  "name_en": "Express Fire Engineering Company Limited",
+  "name_zh": "運通消防工程有限公司",
+  "registered_grade": "RC1/0191 RC2/0298",
+  "registers": [
+   "Fire Services Department list of Registered Fire Service Installation Contractors"
+  ],
+  "value_band": null,
+  "trades": [
+   "fire services"
+  ],
+  "raw_category": "Registered Fire Service Installation Contractor",
+  "public_flags": [],
+  "award_history": [],
+  "confidence": "high",
+  "sources_used": [
+   "https://www.hkfsd.gov.hk/eng/source/safety/List_RFSICs_Successful_Cap572_eng.pdf"
+  ]
+ },
+ {
+  "firm_id": "faith-well-engineering-limited-1089",
+  "name_en": "Faith Well Engineering Limited",
+  "name_zh": "運成工程有限公司",
+  "registered_grade": "RC2/0707",
+  "registers": [
+   "Fire Services Department list of Registered Fire Service Installation Contractors"
+  ],
+  "value_band": null,
+  "trades": [
+   "fire services"
+  ],
+  "raw_category": "Registered Fire Service Installation Contractor",
+  "public_flags": [],
+  "award_history": [],
+  "confidence": "high",
+  "sources_used": [
+   "https://www.hkfsd.gov.hk/eng/source/safety/List_RFSICs_Successful_Cap572_eng.pdf"
+  ]
+ },
+ {
+  "firm_id": "fan-ah-fire-engineering-co-ca83",
+  "name_en": "Fan Ah Fire Engineering Co.",
+  "name_zh": "泛亞消防工程公司",
+  "registered_grade": "RC1/0240 RC2/0232",
+  "registers": [
+   "Fire Services Department list of Registered Fire Service Installation Contractors"
+  ],
+  "value_band": null,
+  "trades": [
+   "fire services"
+  ],
+  "raw_category": "Registered Fire Service Installation Contractor",
+  "public_flags": [],
+  "award_history": [],
+  "confidence": "high",
+  "sources_used": [
+   "https://www.hkfsd.gov.hk/eng/source/safety/List_RFSICs_Successful_Cap572_eng.pdf"
+  ]
+ },
+ {
+  "firm_id": "firecom-engineering-limited-d00c",
+  "name_en": "FIRECOM Engineering Limited",
+  "name_zh": "德耀消防工程有限公司",
+  "registered_grade": "RC1/0455 RC2/0627",
+  "registers": [
+   "Fire Services Department list of Registered Fire Service Installation Contractors"
+  ],
+  "value_band": null,
+  "trades": [
+   "fire services"
+  ],
+  "raw_category": "Registered Fire Service Installation Contractor",
+  "public_flags": [],
+  "award_history": [],
+  "confidence": "high",
+  "sources_used": [
+   "https://www.hkfsd.gov.hk/eng/source/safety/List_RFSICs_Successful_Cap572_eng.pdf"
+  ]
+ },
+ {
+  "firm_id": "fita-international-fire-prevention-engineering-limited-309a",
+  "name_en": "Fita (International) Fire Prevention Engineering Limited",
+  "name_zh": "飛達(國際)防火工程有限公司",
+  "registered_grade": "RC1/0176 RC2/0313",
+  "registers": [
+   "Fire Services Department list of Registered Fire Service Installation Contractors"
+  ],
+  "value_band": null,
+  "trades": [
+   "fire services"
+  ],
+  "raw_category": "Registered Fire Service Installation Contractor",
+  "public_flags": [],
+  "award_history": [],
+  "confidence": "high",
+  "sources_used": [
+   "https://www.hkfsd.gov.hk/eng/source/safety/List_RFSICs_Successful_Cap572_eng.pdf"
+  ]
+ },
+ {
+  "firm_id": "fook-cheong-engineering-h-k-limited-c9dc",
+  "name_en": "Fook Cheong Engineering (H.K.) Limited",
+  "name_zh": "福昌工程(香港)有限公司",
+  "registered_grade": "RC1/0222 RC2/0366",
+  "registers": [
+   "Fire Services Department list of Registered Fire Service Installation Contractors"
+  ],
+  "value_band": null,
+  "trades": [
+   "fire services"
+  ],
+  "raw_category": "Registered Fire Service Installation Contractor",
+  "public_flags": [],
+  "award_history": [],
+  "confidence": "high",
+  "sources_used": [
+   "https://www.hkfsd.gov.hk/eng/source/safety/List_RFSICs_Successful_Cap572_eng.pdf"
+  ]
+ },
+ {
+  "firm_id": "gammon-e-m-limited-9349",
+  "name_en": "Gammon E&M Limited",
+  "name_zh": null,
+  "registered_grade": "Group III",
+  "registers": [
+   "List of Approved Suppliers of Materials and Specialist Contractors for Public Works"
+  ],
+  "value_band": "Group III",
+  "trades": [
+   "electrical",
+   "mechanical and plumbing"
+  ],
+  "raw_category": "Electrical Installation; Plumbing Installation",
+  "public_flags": [],
+  "award_history": [],
+  "confidence": "high",
+  "sources_used": [
+   "https://www.devb.gov.hk/en/construction_sector_matters/contractors/supplier/index.html?search=true&category=ELEC&group=&class=",
+   "https://www.devb.gov.hk/en/construction_sector_matters/contractors/supplier/index.html?search=true&category=PLUM&group=&class="
+  ]
+ },
+ {
+  "firm_id": "global-engineering-consultants-limited-a880",
+  "name_en": "Global Engineering Consultants Limited",
+  "name_zh": "高寶工程顧問有限公司",
+  "registered_grade": "RC1/0512 RC2/0684",
+  "registers": [
+   "Fire Services Department list of Registered Fire Service Installation Contractors"
+  ],
+  "value_band": null,
+  "trades": [
+   "fire services"
+  ],
+  "raw_category": "Registered Fire Service Installation Contractor",
+  "public_flags": [],
+  "award_history": [],
+  "confidence": "high",
+  "sources_used": [
+   "https://www.hkfsd.gov.hk/eng/source/safety/List_RFSICs_Successful_Cap572_eng.pdf"
+  ]
+ },
+ {
+  "firm_id": "gold-success-engineering-limited-7062",
+  "name_en": "Gold Success Engineering Limited",
+  "name_zh": "志興工程有限公司",
+  "registered_grade": "RC1/0327 RC2/0479",
+  "registers": [
+   "Fire Services Department list of Registered Fire Service Installation Contractors"
+  ],
+  "value_band": null,
+  "trades": [
+   "fire services"
+  ],
+  "raw_category": "Registered Fire Service Installation Contractor",
+  "public_flags": [],
+  "award_history": [],
+  "confidence": "high",
+  "sources_used": [
+   "https://www.hkfsd.gov.hk/eng/source/safety/List_RFSICs_Successful_Cap572_eng.pdf"
+  ]
+ },
+ {
+  "firm_id": "good-castle-fire-engineering-ltd-4a8f",
+  "name_en": "Good Castle Fire Engineering Ltd.",
+  "name_zh": "利堡消防工程有限公司",
+  "registered_grade": "RC1/0053 RC2/0149",
+  "registers": [
+   "Fire Services Department list of Registered Fire Service Installation Contractors"
+  ],
+  "value_band": null,
+  "trades": [
+   "fire services"
+  ],
+  "raw_category": "Registered Fire Service Installation Contractor",
+  "public_flags": [],
+  "award_history": [],
+  "confidence": "high",
+  "sources_used": [
+   "https://www.hkfsd.gov.hk/eng/source/safety/List_RFSICs_Successful_Cap572_eng.pdf"
+  ]
+ },
+ {
+  "firm_id": "groupone-fire-services-company-limited-8316",
+  "name_en": "GroupOne Fire Services Company Limited",
+  "name_zh": "合壹消防工程有限公司",
+  "registered_grade": "RC1/0525 RC2/0698",
+  "registers": [
+   "Fire Services Department list of Registered Fire Service Installation Contractors"
+  ],
+  "value_band": null,
+  "trades": [
+   "fire services"
+  ],
+  "raw_category": "Registered Fire Service Installation Contractor",
+  "public_flags": [],
+  "award_history": [],
+  "confidence": "high",
+  "sources_used": [
+   "https://www.hkfsd.gov.hk/eng/source/safety/List_RFSICs_Successful_Cap572_eng.pdf"
+  ]
+ },
+ {
+  "firm_id": "guardian-engineering-limited-a1de",
+  "name_en": "Guardian Engineering Limited",
+  "name_zh": "衛保工程有限公司",
+  "registered_grade": "RC1/0456 RC2/0628",
+  "registers": [
+   "Fire Services Department list of Registered Fire Service Installation Contractors"
+  ],
+  "value_band": null,
+  "trades": [
+   "fire services"
+  ],
+  "raw_category": "Registered Fire Service Installation Contractor",
+  "public_flags": [],
+  "award_history": [],
+  "confidence": "high",
+  "sources_used": [
+   "https://www.hkfsd.gov.hk/eng/source/safety/List_RFSICs_Successful_Cap572_eng.pdf"
+  ]
+ },
+ {
+  "firm_id": "h-l-k-services-ltd-8439",
+  "name_en": "H.L.K. Services Ltd.",
+  "name_zh": "益雅基服務有限公司",
+  "registered_grade": "RC1/0031 RC2/0093",
+  "registers": [
+   "Fire Services Department list of Registered Fire Service Installation Contractors"
+  ],
+  "value_band": null,
+  "trades": [
+   "fire services"
+  ],
+  "raw_category": "Registered Fire Service Installation Contractor",
+  "public_flags": [],
+  "award_history": [],
+  "confidence": "high",
+  "sources_used": [
+   "https://www.hkfsd.gov.hk/eng/source/safety/List_RFSICs_Successful_Cap572_eng.pdf"
+  ]
+ },
+ {
+  "firm_id": "haco-engineering-services-limited-b9e2",
+  "name_en": "HACO Engineering Services Limited",
+  "name_zh": "恒匯工程服務有限公司",
+  "registered_grade": "RC1/0373 RC2/0532",
+  "registers": [
+   "Fire Services Department list of Registered Fire Service Installation Contractors"
+  ],
+  "value_band": null,
+  "trades": [
+   "fire services"
+  ],
+  "raw_category": "Registered Fire Service Installation Contractor",
+  "public_flags": [],
+  "award_history": [],
+  "confidence": "high",
+  "sources_used": [
+   "https://www.hkfsd.gov.hk/eng/source/safety/List_RFSICs_Successful_Cap572_eng.pdf"
+  ]
+ },
+ {
+  "firm_id": "hai-shun-fung-engineering-company-limited-34a2",
+  "name_en": "Hai Shun (Fung) Engineering Company Limited",
+  "name_zh": null,
+  "registered_grade": null,
+  "registers": [],
+  "value_band": null,
+  "trades": [
+   "builder's work",
+   "structural"
+  ],
+  "raw_category": "Scaffolding",
+  "public_flags": [
+   {
+    "signal_type": "safety_prosecution",
+    "label": "Fined HK$125,000 for a fatal truss-out bamboo scaffold fall in To Kwa Wan",
+    "date": "2026-01-26",
+    "source": "Labour Department",
+    "reference": "https://www.info.gov.hk/gia/general/202601/26/P2026012600600.htm"
+   }
+  ],
+  "award_history": [],
+  "confidence": "high",
+  "sources_used": [
+   "https://www.info.gov.hk/gia/general/202601/26/P2026012600600.htm"
+  ],
+  "display_sensitive": true
+ },
+ {
+  "firm_id": "hang-yue-engineering-consultants-limited-dab0",
+  "name_en": "Hang Yue Engineering Consultants Limited",
+  "name_zh": "恒裕工程顧問有限公司",
+  "registered_grade": "RC1/0432 RC2/0606",
+  "registers": [
+   "Fire Services Department list of Registered Fire Service Installation Contractors"
+  ],
+  "value_band": null,
+  "trades": [
+   "fire services"
+  ],
+  "raw_category": "Registered Fire Service Installation Contractor",
+  "public_flags": [],
+  "award_history": [],
+  "confidence": "high",
+  "sources_used": [
+   "https://www.hkfsd.gov.hk/eng/source/safety/List_RFSICs_Successful_Cap572_eng.pdf"
+  ]
+ },
+ {
+  "firm_id": "hilltech-m-e-engineering-company-limited-8825",
+  "name_en": "Hilltech (M&E) Engineering Company Limited",
+  "name_zh": "曉達機電工程有限公司",
+  "registered_grade": "RC1/0416 RC2/0590",
+  "registers": [
+   "Fire Services Department list of Registered Fire Service Installation Contractors"
+  ],
+  "value_band": null,
+  "trades": [
+   "fire services"
+  ],
+  "raw_category": "Registered Fire Service Installation Contractor",
+  "public_flags": [],
+  "award_history": [],
+  "confidence": "high",
+  "sources_used": [
+   "https://www.hkfsd.gov.hk/eng/source/safety/List_RFSICs_Successful_Cap572_eng.pdf"
+  ]
+ },
+ {
+  "firm_id": "hip-cheung-engineering-co-2ab5",
+  "name_en": "Hip Cheung Engineering Co.",
+  "name_zh": "協昌工程公司",
+  "registered_grade": "RC2/0287",
+  "registers": [
+   "Fire Services Department list of Registered Fire Service Installation Contractors"
+  ],
+  "value_band": null,
+  "trades": [
+   "fire services"
+  ],
+  "raw_category": "Registered Fire Service Installation Contractor",
+  "public_flags": [],
+  "award_history": [],
+  "confidence": "high",
+  "sources_used": [
+   "https://www.hkfsd.gov.hk/eng/source/safety/List_RFSICs_Successful_Cap572_eng.pdf"
+  ]
+ },
+ {
+  "firm_id": "hip-kei-fire-engineering-limited-bdaa",
+  "name_en": "Hip Kei Fire Engineering Limited",
+  "name_zh": "協基消防工程有限公司",
+  "registered_grade": "RC1/0480 RC2/0652",
+  "registers": [
+   "Fire Services Department list of Registered Fire Service Installation Contractors"
+  ],
+  "value_band": null,
+  "trades": [
+   "fire services"
+  ],
+  "raw_category": "Registered Fire Service Installation Contractor",
+  "public_flags": [],
+  "award_history": [],
+  "confidence": "high",
+  "sources_used": [
+   "https://www.hkfsd.gov.hk/eng/source/safety/List_RFSICs_Successful_Cap572_eng.pdf"
+  ]
+ },
+ {
+  "firm_id": "hitachi-elevator-engineering-company-hong-kong-limited-07c8",
+  "name_en": "Hitachi Elevator Engineering Company (Hong Kong) Limited",
+  "name_zh": null,
+  "registered_grade": "Lift, Escalator and Passenger Conveyor Installation",
+  "registers": [
+   "DEVB List of Approved Suppliers of Materials and Specialist Contractors for Public Works"
+  ],
+  "value_band": null,
+  "trades": [
+   "mechanical and plumbing"
+  ],
+  "raw_category": "Lift, Escalator and Passenger Conveyor Installation",
+  "public_flags": [
+   {
+    "signal_type": "safety_prosecution",
+    "label": "Fined for failing to ensure safety and health of employees",
+    "date": "2026-02-13",
+    "source": "Labour Department",
+    "reference": "https://www.info.gov.hk/gia/general/202602/13/P2026021300475.htm"
+   }
+  ],
+  "award_history": [],
+  "confidence": "high",
+  "sources_used": [
+   "https://www.devb.gov.hk/en/construction_sector_matters/contractors/supplier/index.html?category=&class=&group=&search=true",
+   "https://www.info.gov.hk/gia/general/202602/13/P2026021300475.htm"
+  ],
+  "display_sensitive": true
+ },
+ {
+  "firm_id": "hk-fully-wealth-holding-limited-c74b",
+  "name_en": "HK Fully Wealth Holding Limited",
+  "name_zh": "港消集團有限公司",
+  "registered_grade": "RC1/0477 RC2/0649",
+  "registers": [
+   "Fire Services Department list of Registered Fire Service Installation Contractors"
+  ],
+  "value_band": null,
+  "trades": [
+   "fire services"
+  ],
+  "raw_category": "Registered Fire Service Installation Contractor",
+  "public_flags": [],
+  "award_history": [],
+  "confidence": "high",
+  "sources_used": [
+   "https://www.hkfsd.gov.hk/eng/source/safety/List_RFSICs_Successful_Cap572_eng.pdf"
+  ]
+ },
+ {
+  "firm_id": "hon-fung-engineering-limited-758b",
+  "name_en": "Hon Fung Engineering Limited",
+  "name_zh": null,
+  "registered_grade": "A, -, -, -, -",
+  "registers": [
+   "DEVB List of Approved Contractors for Public Works"
+  ],
+  "value_band": "Buildings Group A, up to HK$150M",
+  "trades": [
+   "builder's work"
+  ],
+  "raw_category": "Buildings",
+  "public_flags": [],
+  "award_history": [],
+  "confidence": "medium",
+  "sources_used": [
+   "https://www.devb.gov.hk/en/construction_sector_matters/contractors/contractor/index.html?search=true"
+  ]
+ },
+ {
+  "firm_id": "hongfaith-engineering-limited-e4cb",
+  "name_en": "Hongfaith Engineering Limited",
+  "name_zh": "康輝工程顧問有限公司",
+  "registered_grade": "RC1/0350 RC2/0507",
+  "registers": [
+   "Fire Services Department list of Registered Fire Service Installation Contractors"
+  ],
+  "value_band": null,
+  "trades": [
+   "fire services"
+  ],
+  "raw_category": "Registered Fire Service Installation Contractor",
+  "public_flags": [],
+  "award_history": [],
+  "confidence": "high",
+  "sources_used": [
+   "https://www.hkfsd.gov.hk/eng/source/safety/List_RFSICs_Successful_Cap572_eng.pdf"
+  ]
+ },
+ {
+  "firm_id": "hsin-chong-aster-building-services-limited-a538",
+  "name_en": "Hsin Chong Aster Building Services Limited",
+  "name_zh": null,
+  "registered_grade": "Group III",
+  "registers": [
+   "List of Approved Suppliers of Materials and Specialist Contractors for Public Works"
+  ],
+  "value_band": "Group III",
+  "trades": [
+   "electrical",
+   "mechanical and plumbing"
+  ],
+  "raw_category": "Electrical Installation; Plumbing Installation",
+  "public_flags": [],
+  "award_history": [],
+  "confidence": "high",
+  "sources_used": [
+   "https://www.devb.gov.hk/en/construction_sector_matters/contractors/supplier/index.html?search=true&category=ELEC&group=&class=",
+   "https://www.devb.gov.hk/en/construction_sector_matters/contractors/supplier/index.html?search=true&category=PLUM&group=&class="
+  ]
+ },
+ {
+  "firm_id": "hsin-chong-construction-company-limited-8dcb",
+  "name_en": "Hsin Chong Construction Company Limited",
+  "name_zh": null,
+  "registered_grade": "Group C",
+  "registers": [
+   "List of Approved Contractors for Public Works"
+  ],
+  "value_band": "Group C",
+  "trades": [
+   "builder's work",
+   "external works"
+  ],
+  "raw_category": "Buildings; Roads and Drainage",
+  "public_flags": [
+   {
+    "signal_type": "debarment",
+    "label": "Suspended from tendering for 4 months due to construction issues at To Kwa Wan Station",
+    "date": "2018-10-08",
+    "source": "Development Bureau",
+    "reference": "https://www.info.gov.hk/gia/general/201810/08/P2018100800583.htm"
+   },
+   {
+    "signal_type": "winding_up",
+    "label": "Winding-up petition commenced and provisional liquidators appointed",
+    "date": "2019-04-17",
+    "source": "Housing Authority",
+    "reference": "https://www.info.gov.hk/gia/general/201904/17/P2019041700439.htm"
+   }
+  ],
+  "award_history": [],
+  "confidence": "high",
+  "sources_used": [
+   "https://www.info.gov.hk/gia/general/201810/08/P2018100800583.htm",
+   "https://www.info.gov.hk/gia/general/201904/17/P2019041700439.htm"
+  ],
+  "display_sensitive": true
+ },
+ {
+  "firm_id": "hugo-fire-engineering-4fe5",
+  "name_en": "Hugo Fire Engineering",
+  "name_zh": "耀高消防工程公司",
+  "registered_grade": "RC1/0588 RC2/0777",
+  "registers": [
+   "Fire Services Department list of Registered Fire Service Installation Contractors"
+  ],
+  "value_band": null,
+  "trades": [
+   "fire services"
+  ],
+  "raw_category": "Registered Fire Service Installation Contractor",
+  "public_flags": [],
+  "award_history": [],
+  "confidence": "high",
+  "sources_used": [
+   "https://www.hkfsd.gov.hk/eng/source/safety/List_RFSICs_Successful_Cap572_eng.pdf"
+  ]
+ },
+ {
+  "firm_id": "hung-yip-hk-engineering-company-limited-a502",
+  "name_en": "Hung Yip (HK) Engineering Company Limited",
+  "name_zh": null,
+  "registered_grade": "-, -, B, -, -",
+  "registers": [
+   "DEVB List of Approved Contractors for Public Works"
+  ],
+  "value_band": "Roads and Drainage Group B, up to HK$400M",
+  "trades": [
+   "external works"
+  ],
+  "raw_category": "Roads and Drainage",
+  "public_flags": [],
+  "award_history": [],
+  "confidence": "medium",
+  "sources_used": [
+   "https://www.devb.gov.hk/en/construction_sector_matters/contractors/contractor/index.html?search=true"
+  ]
+ },
+ {
+  "firm_id": "joint-effort-engineering-asia-limited-1cac",
+  "name_en": "Joint Effort Engineering (Asia) Limited",
+  "name_zh": "合豐工程(亞洲)有限公司",
+  "registered_grade": "RC1/0355 RC2/0512",
+  "registers": [
+   "Fire Services Department list of Registered Fire Service Installation Contractors"
+  ],
+  "value_band": null,
+  "trades": [
+   "fire services"
+  ],
+  "raw_category": "Registered Fire Service Installation Contractor",
+  "public_flags": [],
+  "award_history": [],
+  "confidence": "high",
+  "sources_used": [
+   "https://www.hkfsd.gov.hk/eng/source/safety/List_RFSICs_Successful_Cap572_eng.pdf"
+  ]
+ },
+ {
+  "firm_id": "joinwell-enterprises-limited-db5e",
+  "name_en": "Joinwell Enterprises Limited",
+  "name_zh": null,
+  "registered_grade": null,
+  "registers": [],
+  "value_band": null,
+  "trades": [
+   "builder's work"
+  ],
+  "raw_category": "Enterprises",
+  "public_flags": [
+   {
+    "signal_type": "safety_prosecution",
+    "label": "Fined HK$5,000 for using powered mechanical equipment otherwise than in accordance with noise permit",
+    "date": "2025-05-09",
+    "source": "Environmental Protection Department",
+    "reference": "https://www.epd.gov.hk/epd/english/laws_regulations/enforcement/convictions_dec25.html"
+   }
+  ],
+  "award_history": [],
+  "confidence": "high",
+  "sources_used": [
+   "https://www.epd.gov.hk/epd/english/laws_regulations/enforcement/convictions_dec25.html"
+  ],
+  "display_sensitive": true
+ },
+ {
+  "firm_id": "joinwell-technical-engineering-co-limited-3bcc",
+  "name_en": "Joinwell Technical Engineering Co. Limited",
+  "name_zh": "進匯機電工程有限公司",
+  "registered_grade": "RC1/0268 RC2/0412",
+  "registers": [
+   "Fire Services Department list of Registered Fire Service Installation Contractors"
+  ],
+  "value_band": null,
+  "trades": [
+   "fire services"
+  ],
+  "raw_category": "Registered Fire Service Installation Contractor",
+  "public_flags": [],
+  "award_history": [],
+  "confidence": "high",
+  "sources_used": [
+   "https://www.hkfsd.gov.hk/eng/source/safety/List_RFSICs_Successful_Cap572_eng.pdf"
+  ]
+ },
+ {
+  "firm_id": "jolly-development-engineering-limited-a998",
+  "name_en": "Jolly Development Engineering Limited",
+  "name_zh": "中力發展工程有限公司",
+  "registered_grade": "RC1/0581 RC2/0769",
+  "registers": [
+   "Fire Services Department list of Registered Fire Service Installation Contractors"
+  ],
+  "value_band": null,
+  "trades": [
+   "fire services"
+  ],
+  "raw_category": "Registered Fire Service Installation Contractor",
+  "public_flags": [],
+  "award_history": [],
+  "confidence": "high",
+  "sources_used": [
+   "https://www.hkfsd.gov.hk/eng/source/safety/List_RFSICs_Successful_Cap572_eng.pdf"
+  ]
+ },
+ {
+  "firm_id": "kam-yep-engineering-company-limited-426d",
+  "name_en": "Kam Yep Engineering Company Limited",
+  "name_zh": null,
+  "registered_grade": null,
+  "registers": [],
+  "value_band": null,
+  "trades": [
+   "builder's work"
+  ],
+  "raw_category": "Construction",
+  "public_flags": [
+   {
+    "signal_type": "safety_prosecution",
+    "label": "Fined HK$190,000 for a fatal scaffolding fall at a construction site in the Kai Tak area",
+    "date": "2025-11-24",
+    "source": "Labour Department",
+    "reference": "https://www.info.gov.hk/gia/general/202511/24/P2025112400659.htm"
+   }
+  ],
+  "award_history": [],
+  "confidence": "high",
+  "sources_used": [
+   "https://www.info.gov.hk/gia/general/202511/24/P2025112400659.htm"
+  ],
+  "display_sensitive": true
+ },
+ {
+  "firm_id": "kea-kwun-international-fire-service-engineering-limited-1d65",
+  "name_en": "Kea Kwun (International) Fire Service Engineering Limited",
+  "name_zh": "其冠(國際)消防工程有限公司",
+  "registered_grade": "RC1/0269 RC2/0413",
+  "registers": [
+   "Fire Services Department list of Registered Fire Service Installation Contractors"
+  ],
+  "value_band": null,
+  "trades": [
+   "fire services"
+  ],
+  "raw_category": "Registered Fire Service Installation Contractor",
+  "public_flags": [
+   {
+    "signal_type": "safety_prosecution",
+    "label": "Convicted on multiple counts for failing to provide and ensure the use of safe means of support at Queens Hill Community Complex, Fanling",
+    "date": "2024-04-16",
+    "source": "Labour Department",
+    "reference": "https://www.labour.gov.hk/common/osh/pdf/Conviction_record_en.pdf"
+   },
+   {
+    "signal_type": "safety_prosecution",
+    "label": "Convicted for failing to ensure workmen wore suitable safety helmets at Queens Hill Community Complex, Fanling",
+    "date": "2024-04-16",
+    "source": "Labour Department",
+    "reference": "https://www.labour.gov.hk/common/osh/pdf/Conviction_record_en.pdf"
+   }
+  ],
+  "award_history": [],
+  "confidence": "high",
+  "sources_used": [
+   "https://www.hkfsd.gov.hk/eng/source/safety/List_RFSICs_Successful_Cap572_eng.pdf",
+   "https://www.labour.gov.hk/common/osh/pdf/Conviction_record_en.pdf"
+  ],
+  "display_sensitive": true
+ },
+ {
+  "firm_id": "kml-engineering-limited-237f",
+  "name_en": "KML Engineering Limited",
+  "name_zh": null,
+  "registered_grade": "Group II",
+  "registers": [
+   "List of Approved Suppliers of Materials and Specialist Contractors for Public Works"
+  ],
+  "value_band": "Group II",
+  "trades": [
+   "electrical"
+  ],
+  "raw_category": "Electrical Installation",
+  "public_flags": [],
+  "award_history": [],
+  "confidence": "high",
+  "sources_used": [
+   "https://www.devb.gov.hk/en/construction_sector_matters/contractors/supplier/index.html?search=true&category=ELEC&group=&class="
+  ]
+ },
+ {
+  "firm_id": "kuly-construction-and-engineering-1b81",
+  "name_en": "Kuly Construction and Engineering",
+  "name_zh": null,
+  "registered_grade": null,
+  "registers": [
+   "List of Approved Contractors for Public Works"
+  ],
+  "value_band": null,
+  "trades": [
+   "external works",
+   "structural"
+  ],
+  "raw_category": "Civil Engineering",
+  "public_flags": [],
+  "award_history": [
+   {
+    "project": "Universal Accessibility Programme retrofitting barrier-free access facilities",
+    "client": "Highways Department",
+    "year": 2019,
+    "source": "https://www.neccontract.com/projects/universal-accessibility-lift-retrofit-projects-hong-kong"
+   }
+  ],
+  "confidence": "medium",
+  "sources_used": [
+   "https://www.neccontract.com/projects/universal-accessibility-lift-retrofit-projects-hong-kong"
+  ]
+ },
+ {
+  "firm_id": "lap-kei-engineering-company-limited-1e09",
+  "name_en": "Lap Kei Engineering Company Limited",
+  "name_zh": null,
+  "registered_grade": "Group II",
+  "registers": [
+   "List of Approved Suppliers of Materials and Specialist Contractors for Public Works"
+  ],
+  "value_band": "Group II",
+  "trades": [
+   "mechanical and plumbing"
+  ],
+  "raw_category": "Plumbing Installation",
+  "public_flags": [],
+  "award_history": [],
+  "confidence": "high",
+  "sources_used": [
+   "https://www.devb.gov.hk/en/construction_sector_matters/contractors/supplier/index.html?search=true&category=PLUM&group=&class="
+  ]
+ },
+ {
+  "firm_id": "lei-gwai-fung-engineering-co-limited-e314",
+  "name_en": "Lei Gwai Fung Engineering Co., Limited",
+  "name_zh": "利貴灃工程有限公司",
+  "registered_grade": null,
+  "registers": [],
+  "value_band": null,
+  "trades": [
+   "structural"
+  ],
+  "raw_category": "Temporary metal structure",
+  "public_flags": [
+   {
+    "signal_type": "safety_prosecution",
+    "label": "Fined HK$102,000 for a fatal fall from height at a construction site in Yau Tong",
+    "date": "2026-02-02",
+    "source": "Labour Department",
+    "reference": "https://www.info.gov.hk/gia/general/202602/02/P2026020200631.htm"
+   }
+  ],
+  "award_history": [],
+  "confidence": "high",
+  "sources_used": [
+   "https://www.info.gov.hk/gia/general/202602/02/P2026020200631.htm",
+   "https://www.cr.gov.hk/docs/wrpt/wk_new&changednamecoys_20201102.pdf"
+  ],
+  "display_sensitive": true
+ },
+ {
+  "firm_id": "leighton-contractors-asia-limited-437a",
+  "name_en": "Leighton Contractors (Asia) Limited",
+  "name_zh": null,
+  "registered_grade": "Group C",
+  "registers": [
+   "List of Approved Contractors for Public Works"
+  ],
+  "value_band": "Group C",
+  "trades": [
+   "builder's work",
+   "external works"
+  ],
+  "raw_category": "Buildings; Roads and Drainage",
+  "public_flags": [
+   {
+    "signal_type": "debarment",
+    "label": "Suspended from tendering for 12 months due to construction issues at Hung Hom Station and Exhibition Centre Station",
+    "date": "2018-10-08",
+    "source": "Development Bureau",
+    "reference": "https://www.info.gov.hk/gia/general/201810/08/P2018100800583.htm"
+   }
+  ],
+  "award_history": [],
+  "confidence": "high",
+  "sources_used": [
+   "https://www.info.gov.hk/gia/general/201810/08/P2018100800583.htm"
+  ],
+  "display_sensitive": true
+ },
+ {
+  "firm_id": "lucky-engineering-company-limited-87e3",
+  "name_en": "Lucky Engineering Company Limited",
+  "name_zh": null,
+  "registered_grade": "Air-conditioning Installation (Group II); Electrical Installation (Group III)",
+  "registers": [
+   "DEVB List of Approved Suppliers of Materials and Specialist Contractors for Public Works"
+  ],
+  "value_band": "Air-conditioning Installation Group II, up to unlimited; Electrical Installation Group III, up to unlimited",
+  "trades": [
+   "electrical",
+   "mechanical and plumbing"
+  ],
+  "raw_category": "Air-conditioning Installation; Electrical Installation",
+  "public_flags": [
+   {
+    "signal_type": "safety_prosecution",
+    "label": "Convicted for failing to rectify hazardous conditions of persons working at a height in construction work",
+    "date": "2025-11-24",
+    "source": "Labour Department",
+    "reference": "https://www.labour.gov.hk/common/osh/pdf/Conviction_record_en.pdf"
+   }
+  ],
+  "award_history": [],
+  "confidence": "high",
+  "sources_used": [
+   "https://www.devb.gov.hk/en/construction_sector_matters/contractors/supplier/index.html?category=ELEC&class=&group=&search=true",
+   "https://www.devb.gov.hk/en/construction_sector_matters/contractors/category_class_and_group_description/index.html",
+   "https://www.labour.gov.hk/common/osh/pdf/Conviction_record_en.pdf"
+  ],
+  "display_sensitive": true
+ },
+ {
+  "firm_id": "m-v-engineering-e-m-limited-5cdf",
+  "name_en": "M & V Engineering (E & M) Limited",
+  "name_zh": null,
+  "registered_grade": "Electrical Installation (Group III)",
+  "registers": [
+   "DEVB List of Approved Suppliers of Materials and Specialist Contractors for Public Works"
+  ],
+  "value_band": "Group III, up to unlimited",
+  "trades": [
+   "electrical"
+  ],
+  "raw_category": "Electrical Installation",
+  "public_flags": [],
+  "award_history": [],
+  "confidence": "medium",
+  "sources_used": [
+   "https://www.devb.gov.hk/en/construction_sector_matters/contractors/supplier/index.html?category=ELEC&class=&group=&search=true",
+   "https://www.devb.gov.hk/en/construction_sector_matters/contractors/category_class_and_group_description/index.html"
+  ]
+ },
+ {
+  "firm_id": "machinery-transportation-limited-44f4",
+  "name_en": "Machinery Transportation Limited",
+  "name_zh": null,
+  "registered_grade": null,
+  "registers": [],
+  "value_band": null,
+  "trades": [
+   "mechanical and plumbing",
+   "external works"
+  ],
+  "raw_category": "Lifting Appliances",
+  "public_flags": [
+   {
+    "signal_type": "safety_prosecution",
+    "label": "Fined HK$170,000 for a fatal accident at an open storage yard in Sheung Shui",
+    "date": "2025-12-09",
+    "source": "Labour Department",
+    "reference": "https://www.info.gov.hk/gia/general/202512/09/P2025120900524.htm"
+   }
+  ],
+  "award_history": [],
+  "confidence": "high",
+  "sources_used": [
+   "https://www.info.gov.hk/gia/general/202512/09/P2025120900524.htm"
+  ],
+  "display_sensitive": true
+ },
+ {
+  "firm_id": "marco-peace-limited-8987",
+  "name_en": "Marco Peace Limited",
+  "name_zh": null,
+  "registered_grade": null,
+  "registers": [],
+  "value_band": null,
+  "trades": [
+   "builder's work"
+  ],
+  "raw_category": "Engineering",
+  "public_flags": [
+   {
+    "signal_type": "safety_prosecution",
+    "label": "Fined HK$4,000 for making noise in a public place",
+    "date": "2025-06-06",
+    "source": "Environmental Protection Department",
+    "reference": "https://www.epd.gov.hk/epd/english/laws_regulations/enforcement/convictions_dec25.html"
+   }
+  ],
+  "award_history": [],
+  "confidence": "high",
+  "sources_used": [
+   "https://www.epd.gov.hk/epd/english/laws_regulations/enforcement/convictions_dec25.html"
+  ],
+  "display_sensitive": true
+ },
+ {
+  "firm_id": "maxfaith-engineering-limited-abda",
+  "name_en": "Maxfaith Engineering Limited",
+  "name_zh": null,
+  "registered_grade": null,
+  "registers": [],
+  "value_band": null,
+  "trades": [
+   "electrical"
+  ],
+  "raw_category": "Electrical",
+  "public_flags": [
+   {
+    "signal_type": "safety_prosecution",
+    "label": "Fined HK$152,000 for a fatal electric shock accident during false ceiling work in Chek Lap Kok",
+    "date": "2026-02-05",
+    "source": "Labour Department",
+    "reference": "https://www.info.gov.hk/gia/general/202602/05/P2026020500505.htm"
+   }
+  ],
+  "award_history": [],
+  "confidence": "high",
+  "sources_used": [
+   "https://www.info.gov.hk/gia/general/202602/05/P2026020500505.htm"
+  ],
+  "display_sensitive": true
+ },
+ {
+  "firm_id": "ms-hk-engineering-limited-1ae1",
+  "name_en": "MS (HK) Engineering Limited",
+  "name_zh": null,
+  "registered_grade": null,
+  "registers": [],
+  "value_band": null,
+  "trades": [
+   "mechanical and plumbing"
+  ],
+  "raw_category": "Material Hoist",
+  "public_flags": [
+   {
+    "signal_type": "safety_prosecution",
+    "label": "Fined HK$210,000 for a fatal material hoist accident at a Sha Tin construction site",
+    "date": "2026-04-10",
+    "source": "Labour Department",
+    "reference": "https://www.info.gov.hk/gia/general/202604/10/P2026041000505.htm"
+   }
+  ],
+  "award_history": [],
+  "confidence": "high",
+  "sources_used": [
+   "https://www.info.gov.hk/gia/general/202604/10/P2026041000505.htm"
+  ],
+  "display_sensitive": true
+ },
+ {
+  "firm_id": "paul-y-e-m-contractors-limited-21d3",
+  "name_en": "Paul Y. (E & M) Contractors Limited",
+  "name_zh": null,
+  "registered_grade": "Group II",
+  "registers": [
+   "List of Approved Suppliers of Materials and Specialist Contractors for Public Works"
+  ],
+  "value_band": "Group II",
+  "trades": [
+   "mechanical and plumbing"
+  ],
+  "raw_category": "Plumbing Installation",
+  "public_flags": [],
+  "award_history": [],
+  "confidence": "high",
+  "sources_used": [
+   "https://www.devb.gov.hk/en/construction_sector_matters/contractors/supplier/index.html?search=true&category=PLUM&group=&class="
+  ]
+ },
+ {
+  "firm_id": "pyrofoe-contractors-limited-06ec",
+  "name_en": "Pyrofoe Contractors Limited",
+  "name_zh": null,
+  "registered_grade": "RC1/0278 RC2/0422",
+  "registers": [
+   "Fire Services Department disciplinary order record for Registered Fire Service Installation Contractors"
+  ],
+  "value_band": null,
+  "trades": [
+   "fire services"
+  ],
+  "raw_category": "Registered Fire Service Installation Contractor",
+  "public_flags": [
+   {
+    "signal_type": "debarment",
+    "label": "Removed from the registers of Class 1 and Class 2 Fire Service Installation Contractors for 2 months",
+    "date": "2025-03-25",
+    "source": "Fire Services Department Registered Fire Service Installation Contractors Disciplinary Board",
+    "reference": "https://egazette.gld.gov.hk/pdf?type=egn&year=2025&volume=29&gno=15&notice_no=2237&extra=0"
+   }
+  ],
+  "award_history": [],
+  "confidence": "medium",
+  "sources_used": [
+   "https://www.hkfsd.gov.hk/eng/source/record_of_orders/D_board_orders_2025_eng_20251202_151252.pdf",
+   "https://egazette.gld.gov.hk/pdf?type=egn&year=2025&volume=29&gno=15&notice_no=2237&extra=0"
+  ],
+  "display_sensitive": true
+ },
+ {
+  "firm_id": "pyrofoe-engineers-limited-233f",
+  "name_en": "Pyrofoe Engineers Limited",
+  "name_zh": null,
+  "registered_grade": "RC1/0068 RC2/0188",
+  "registers": [
+   "Fire Services Department disciplinary order record for Registered Fire Service Installation Contractors"
+  ],
+  "value_band": null,
+  "trades": [
+   "fire services"
+  ],
+  "raw_category": "Registered Fire Service Installation Contractor",
+  "public_flags": [
+   {
+    "signal_type": "debarment",
+    "label": "Removed from the register of Class 1 and Class 2 Fire Service Installation Contractors for 1 month",
+    "date": "2025-11-11",
+    "source": "Fire Services Department Registered Fire Service Installation Contractors Disciplinary Board",
+    "reference": "https://egazette.gld.gov.hk/pdf?type=egn&year=2025&volume=29&gno=48&notice_no=7485&extra=0"
+   }
+  ],
+  "award_history": [],
+  "confidence": "medium",
+  "sources_used": [
+   "https://www.hkfsd.gov.hk/eng/source/record_of_orders/D_board_orders_2025_eng_20251202_151252.pdf",
+   "https://egazette.gld.gov.hk/pdf?type=egn&year=2025&volume=29&gno=48&notice_no=7485&extra=0"
+  ],
+  "display_sensitive": true
+ },
+ {
+  "firm_id": "rec-engineering-company-limited-0394",
+  "name_en": "REC Engineering Company Limited",
+  "name_zh": null,
+  "registered_grade": "Group II",
+  "registers": [
+   "List of Approved Suppliers of Materials and Specialist Contractors for Public Works"
+  ],
+  "value_band": "Group II",
+  "trades": [
+   "mechanical and plumbing"
+  ],
+  "raw_category": "Plumbing Installation",
+  "public_flags": [],
+  "award_history": [],
+  "confidence": "high",
+  "sources_used": [
+   "https://www.devb.gov.hk/en/construction_sector_matters/contractors/supplier/index.html?search=true&category=PLUM&group=&class="
+  ]
+ },
+ {
+  "firm_id": "samsung-c-t-corporation-27ff",
+  "name_en": "Samsung C & T Corporation",
+  "name_zh": null,
+  "registered_grade": null,
+  "registers": [
+   "List of Approved Contractors for Public Works"
+  ],
+  "value_band": null,
+  "trades": [
+   "builder's work",
+   "external works"
+  ],
+  "raw_category": "Buildings; Roads and Drainage",
+  "public_flags": [
+   {
+    "signal_type": "debarment",
+    "label": "Suspended from tendering for 4 months due to construction issues at To Kwa Wan Station",
+    "date": "2018-10-08",
+    "source": "Development Bureau",
+    "reference": "https://www.info.gov.hk/gia/general/201810/08/P2018100800583.htm"
+   }
+  ],
+  "award_history": [],
+  "confidence": "medium",
+  "sources_used": [
+   "https://www.info.gov.hk/gia/general/201810/08/P2018100800583.htm"
+  ],
+  "display_sensitive": true
+ },
+ {
+  "firm_id": "schindler-lifts-hong-kong-limited-575d",
+  "name_en": "Schindler Lifts (Hong Kong) Limited",
+  "name_zh": null,
+  "registered_grade": "Lift, Escalator and Passenger Conveyor Installation",
+  "registers": [
+   "DEVB List of Approved Suppliers of Materials and Specialist Contractors for Public Works",
+   "CIC Registered Specialist Trade Contractors Scheme regulatory actions notice"
+  ],
+  "value_band": null,
+  "trades": [
+   "mechanical and plumbing"
+  ],
+  "raw_category": "Lift, Escalator and Passenger Conveyor Installation",
+  "public_flags": [
+   {
+    "signal_type": "safety_prosecution",
+    "label": "Fined for violation of the Factories and Industrial Undertakings Ordinance and the Construction Sites (Safety) Regulations",
+    "date": "2016-12-29",
+    "source": "Labour Department",
+    "reference": "https://www.info.gov.hk/gia/general/201612/29/P2016122900823.htm"
+   }
+  ],
+  "award_history": [],
+  "confidence": "high",
+  "sources_used": [
+   "https://www.devb.gov.hk/en/construction_sector_matters/contractors/supplier/index.html?category=&class=&group=&search=true",
+   "https://rstc.cic.hk/en/notice.aspx",
+   "https://www.info.gov.hk/gia/general/201612/29/P2016122900823.htm"
+  ],
+  "display_sensitive": true
+ },
+ {
+  "firm_id": "shawn-godwyn-leung-energy-limited-811b",
+  "name_en": "Shawn&Godwyn Leung Energy Limited",
+  "name_zh": null,
+  "registered_grade": null,
+  "registers": [],
+  "value_band": null,
+  "trades": [
+   "electrical",
+   "builder's work"
+  ],
+  "raw_category": "Energy",
+  "public_flags": [
+   {
+    "signal_type": "safety_prosecution",
+    "label": "Fined HK$4,000 for carrying out asbestos work without a registered contractor",
+    "date": "2022-11-14",
+    "source": "Environmental Protection Department",
+    "reference": "https://www.epd.gov.hk/epd/english/laws_regulations/enforcement/convictions_jun23.html"
+   }
+  ],
+  "award_history": [],
+  "confidence": "high",
+  "sources_used": [
+   "https://www.epd.gov.hk/epd/english/laws_regulations/enforcement/convictions_jun23.html"
+  ],
+  "display_sensitive": true
+ },
+ {
+  "firm_id": "shui-on-building-contractors-limited-40f1",
+  "name_en": "Shui On Building Contractors Limited",
+  "name_zh": null,
+  "registered_grade": "Group II",
+  "registers": [
+   "List of Approved Suppliers of Materials and Specialist Contractors for Public Works"
+  ],
+  "value_band": "Group II",
+  "trades": [
+   "mechanical and plumbing",
+   "builder's work"
+  ],
+  "raw_category": "Plumbing Installation",
+  "public_flags": [
+   {
+    "signal_type": "safety_prosecution",
+    "label": "Fined HK$21,000 for a fatal fall during debris clearance work at Anderson Road",
+    "date": "2025-06-30",
+    "source": "Labour Department",
+    "reference": "https://www.info.gov.hk/gia/general/202506/30/P2025063000489.htm"
+   }
+  ],
+  "award_history": [],
+  "confidence": "high",
+  "sources_used": [
+   "https://www.info.gov.hk/gia/general/202506/30/P2025063000489.htm",
+   "https://www.devb.gov.hk/en/construction_sector_matters/contractors/supplier/index.html?search=true&category=PLUM&group=&class="
+  ],
+  "display_sensitive": true
+ },
+ {
+  "firm_id": "shun-cheong-electrical-engineering-company-limited-3bf0",
+  "name_en": "Shun Cheong Electrical Engineering Company Limited",
+  "name_zh": null,
+  "registered_grade": "Group II",
+  "registers": [
+   "List of Approved Suppliers of Materials and Specialist Contractors for Public Works",
+   "Registered Specialist Contractors"
+  ],
+  "value_band": "Group II",
+  "trades": [
+   "mechanical and plumbing",
+   "electrical"
+  ],
+  "raw_category": "Plumbing Installation; Electrical",
+  "public_flags": [],
+  "award_history": [],
+  "confidence": "high",
+  "sources_used": [
+   "https://www.devb.gov.hk/en/construction_sector_matters/contractors/supplier/index.html?search=true&category=PLUM&group=&class=",
+   "https://data.gov.hk/en-data/dataset/hk-ofca-ofca-ofca-dataset-35/resource/b04f5f94-e23c-4424-82eb-f6c9334b2214/view/a0ba9594-0b46-4309-9539-65c14e5de7d1"
+  ]
+ },
+ {
+  "firm_id": "shun-hing-engineering-contracting-company-limited-dda5",
+  "name_en": "Shun Hing Engineering Contracting Company Limited",
+  "name_zh": null,
+  "registered_grade": "Electrical Installation (Group III) - On probation",
+  "registers": [
+   "DEVB List of Approved Suppliers of Materials and Specialist Contractors for Public Works"
+  ],
+  "value_band": "Group III, up to unlimited, on probation",
+  "trades": [
+   "electrical"
+  ],
+  "raw_category": "Electrical Installation",
+  "public_flags": [
+   {
+    "signal_type": "safety_prosecution",
+    "label": "Convicted for failing to take adequate steps to prevent a person from falling",
+    "date": "2025-10-03",
+    "source": "Labour Department",
+    "reference": "https://www.labour.gov.hk/common/osh/pdf/Conviction_record_en.pdf"
+   }
+  ],
+  "award_history": [],
+  "confidence": "high",
+  "sources_used": [
+   "https://www.devb.gov.hk/en/construction_sector_matters/contractors/supplier/index.html?category=ELEC&class=&group=&search=true",
+   "https://www.devb.gov.hk/en/construction_sector_matters/contractors/category_class_and_group_description/index.html",
+   "https://www.labour.gov.hk/common/osh/pdf/Conviction_record_en.pdf"
+  ],
+  "display_sensitive": true
+ },
+ {
+  "firm_id": "shun-shing-contractors-limited-9434",
+  "name_en": "Shun Shing Contractors Limited",
+  "name_zh": null,
+  "registered_grade": null,
+  "registers": [],
+  "value_band": null,
+  "trades": [
+   "builder's work"
+  ],
+  "raw_category": "Renovation",
+  "public_flags": [
+   {
+    "signal_type": "safety_prosecution",
+    "label": "Fined HK$20,000 for a fatal electric shock accident at a renovation site in Tseung Kwan O",
+    "date": "2025-10-17",
+    "source": "Labour Department",
+    "reference": "https://www.info.gov.hk/gia/general/202510/17/P2025101700598.htm"
+   }
+  ],
+  "award_history": [],
+  "confidence": "high",
+  "sources_used": [
+   "https://www.info.gov.hk/gia/general/202510/17/P2025101700598.htm"
+  ],
+  "display_sensitive": true
+ },
+ {
+  "firm_id": "shun-yip-construction-company-limited-661c",
+  "name_en": "Shun Yip Construction Company Limited",
+  "name_zh": null,
+  "registered_grade": "B, -, AP, -, -",
+  "registers": [
+   "DEVB List of Approved Contractors for Public Works"
+  ],
+  "value_band": "Buildings Group B, up to HK$400M; Roads and Drainage Group A, probationary, up to HK$150M",
+  "trades": [
+   "builder's work",
+   "external works"
+  ],
+  "raw_category": "Buildings; Roads and Drainage",
+  "public_flags": [],
+  "award_history": [],
+  "confidence": "medium",
+  "sources_used": [
+   "https://www.devb.gov.hk/en/construction_sector_matters/contractors/contractor/index.html?search=true"
+  ]
+ },
+ {
+  "firm_id": "southa-technical-limited-537f",
+  "name_en": "Southa Technical Limited",
+  "name_zh": null,
+  "registered_grade": "Group II",
+  "registers": [
+   "List of Approved Suppliers of Materials and Specialist Contractors for Public Works"
+  ],
+  "value_band": "Group II",
+  "trades": [
+   "mechanical and plumbing"
+  ],
+  "raw_category": "Plumbing Installation",
+  "public_flags": [],
+  "award_history": [],
+  "confidence": "high",
+  "sources_used": [
+   "https://www.devb.gov.hk/en/construction_sector_matters/contractors/supplier/index.html?search=true&category=PLUM&group=&class="
+  ]
+ },
+ {
+  "firm_id": "sui-leung-engineering-limited-0157",
+  "name_en": "Sui Leung Engineering Limited",
+  "name_zh": null,
+  "registered_grade": null,
+  "registers": [],
+  "value_band": null,
+  "trades": [
+   "builder's work"
+  ],
+  "raw_category": "Engineering",
+  "public_flags": [
+   {
+    "signal_type": "safety_prosecution",
+    "label": "Fined HK$4,200 for carrying out prescribed construction work without a valid noise permit",
+    "date": "2025-05-10",
+    "source": "Environmental Protection Department",
+    "reference": "https://www.epd.gov.hk/epd/english/laws_regulations/enforcement/convictions_dec25.html"
+   }
+  ],
+  "award_history": [],
+  "confidence": "high",
+  "sources_used": [
+   "https://www.epd.gov.hk/epd/english/laws_regulations/enforcement/convictions_dec25.html"
+  ],
+  "display_sensitive": true
+ },
+ {
+  "firm_id": "sun-on-engineering-company-limited-c56c",
+  "name_en": "Sun On Engineering Company Limited",
+  "name_zh": null,
+  "registered_grade": "AP, -, -, -, -",
+  "registers": [
+   "DEVB List of Approved Contractors for Public Works"
+  ],
+  "value_band": "Buildings Group A, probationary, up to HK$150M",
+  "trades": [
+   "builder's work"
+  ],
+  "raw_category": "Buildings",
+  "public_flags": [],
+  "award_history": [],
+  "confidence": "medium",
+  "sources_used": [
+   "https://www.devb.gov.hk/en/construction_sector_matters/contractors/contractor/index.html?category=buildings&group=&search=true"
+  ]
+ },
+ {
+  "firm_id": "sun-shine-decoration-limited-32d3",
+  "name_en": "Sun Shine Decoration Limited",
+  "name_zh": null,
+  "registered_grade": null,
+  "registers": [],
+  "value_band": null,
+  "trades": [
+   "joinery and fitting-out"
+  ],
+  "raw_category": "Decoration",
+  "public_flags": [
+   {
+    "signal_type": "safety_prosecution",
+    "label": "Fined HK$500,000 for a fatal fall while mounting insulation boards in Kwu Tung",
+    "date": "2026-04-14",
+    "source": "Labour Department",
+    "reference": "https://www.info.gov.hk/gia/general/202604/14/P2026041400499.htm"
+   }
+  ],
+  "award_history": [],
+  "confidence": "high",
+  "sources_used": [
+   "https://www.info.gov.hk/gia/general/202604/14/P2026041400499.htm"
+  ],
+  "display_sensitive": true
+ },
+ {
+  "firm_id": "tail-lee-engineering-4382",
+  "name_en": "Tail Lee Engineering",
+  "name_zh": null,
+  "registered_grade": null,
+  "registers": [
+   "List of Approved Contractors for Public Works"
+  ],
+  "value_band": null,
+  "trades": [
+   "external works",
+   "structural"
+  ],
+  "raw_category": "Civil Engineering",
+  "public_flags": [],
+  "award_history": [
+   {
+    "project": "Universal Accessibility Programme retrofitting barrier-free access facilities",
+    "client": "Highways Department",
+    "year": 2019,
+    "source": "https://www.neccontract.com/projects/universal-accessibility-lift-retrofit-projects-hong-kong"
+   }
+  ],
+  "confidence": "medium",
+  "sources_used": [
+   "https://www.neccontract.com/projects/universal-accessibility-lift-retrofit-projects-hong-kong"
+  ]
+ },
+ {
+  "firm_id": "tapbo-construction-company-limited-c769",
+  "name_en": "Tapbo Construction Company Limited",
+  "name_zh": null,
+  "registered_grade": "AP, -, -, -, -",
+  "registers": [
+   "DEVB List of Approved Contractors for Public Works"
+  ],
+  "value_band": "Buildings Group A, probationary, up to HK$150M",
+  "trades": [
+   "builder's work"
+  ],
+  "raw_category": "Buildings",
+  "public_flags": [],
+  "award_history": [],
+  "confidence": "medium",
+  "sources_used": [
+   "https://www.devb.gov.hk/en/construction_sector_matters/contractors/contractor/index.html?search=true"
+  ]
+ },
+ {
+  "firm_id": "unistress-building-construction-limited-e412",
+  "name_en": "UniStress Building Construction Limited",
+  "name_zh": null,
+  "registered_grade": "Group C",
+  "registers": [
+   "List of Approved Contractors for Public Works"
+  ],
+  "value_band": "Group C",
+  "trades": [
+   "builder's work"
+  ],
+  "raw_category": "Buildings",
+  "public_flags": [
+   {
+    "signal_type": "safety_prosecution",
+    "label": "Fined HK$26,000 for a fatal fall from height at a construction site in Yau Tong",
+    "date": "2026-02-02",
+    "source": "Labour Department",
+    "reference": "https://www.info.gov.hk/gia/general/202602/02/P2026020200631.htm"
+   }
+  ],
+  "award_history": [],
+  "confidence": "high",
+  "sources_used": [
+   "https://www.info.gov.hk/gia/general/202602/02/P2026020200631.htm",
+   "https://www.devb.gov.hk/filemanager/en/content_203/ARC_v3_25_04.pdf"
+  ],
+  "display_sensitive": true
+ },
+ {
+  "firm_id": "united-communications-electrical-engineering-company-limited-340a",
+  "name_en": "United Communications Electrical Engineering Company Limited",
+  "name_zh": null,
+  "registered_grade": null,
+  "registers": [
+   "List of Approved Contractors for Public Works"
+  ],
+  "value_band": null,
+  "trades": [
+   "electrical"
+  ],
+  "raw_category": "Electrical",
+  "public_flags": [
+   {
+    "signal_type": "safety_prosecution",
+    "label": "Fined HK$234,000 for a fatal electric shock accident at a renovation site in Tseung Kwan O",
+    "date": "2025-10-17",
+    "source": "Labour Department",
+    "reference": "https://www.info.gov.hk/gia/general/202510/17/P2025101700598.htm"
+   }
+  ],
+  "award_history": [],
+  "confidence": "high",
+  "sources_used": [
+   "https://www.info.gov.hk/gia/general/202510/17/P2025101700598.htm",
+   "https://www.devb.gov.hk/filemanager/en/content_203/ARC_v3_25_04.pdf"
+  ],
+  "display_sensitive": true
+ },
+ {
+  "firm_id": "wah-fung-building-engineering-limited-1761",
+  "name_en": "Wah Fung Building & Engineering Limited",
+  "name_zh": null,
+  "registered_grade": null,
+  "registers": [],
+  "value_band": null,
+  "trades": [
+   "builder's work",
+   "external works"
+  ],
+  "raw_category": "Sewer pipe clearing",
+  "public_flags": [
+   {
+    "signal_type": "safety_prosecution",
+    "label": "Fined HK$217,000 for a fatal accident during sewer pipe clearing in Sha Tin",
+    "date": "2025-12-05",
+    "source": "Labour Department",
+    "reference": "https://www.info.gov.hk/gia/general/202512/05/P2025120500617.htm"
+   }
+  ],
+  "award_history": [],
+  "confidence": "high",
+  "sources_used": [
+   "https://www.info.gov.hk/gia/general/202512/05/P2025120500617.htm"
+  ],
+  "display_sensitive": true
+ },
+ {
+  "firm_id": "wai-shing-design-decoration-and-engineering-limited-12be",
+  "name_en": "Wai Shing Design Decoration And Engineering Limited",
+  "name_zh": "威信設計裝飾工程公司",
+  "registered_grade": "Class I, II, III",
+  "registers": [
+   "Registered Minor Works Contractors"
+  ],
+  "value_band": null,
+  "trades": [
+   "joinery and fitting-out",
+   "builder's work"
+  ],
+  "raw_category": "Minor Works",
+  "public_flags": [
+   {
+    "signal_type": "safety_prosecution",
+    "label": "Fined HK$228,000 for a fatal electric shock accident at a renovation site in Tseung Kwan O",
+    "date": "2025-10-17",
+    "source": "Labour Department",
+    "reference": "https://www.info.gov.hk/gia/general/202510/17/P2025101700598.htm"
+   }
+  ],
+  "award_history": [],
+  "confidence": "high",
+  "sources_used": [
+   "https://www.info.gov.hk/gia/general/202510/17/P2025101700598.htm",
+   "http://www.tenderking.hk/PDF/mwc%20sha%20tin.pdf"
+  ],
+  "display_sensitive": true
+ },
+ {
+  "firm_id": "wai-tat-aluminium-glass-engineering-company-limited-1747",
+  "name_en": "Wai Tat Aluminium & Glass Engineering Company Limited",
+  "name_zh": null,
+  "registered_grade": null,
+  "registers": [],
+  "value_band": null,
+  "trades": [
+   "joinery and fitting-out",
+   "builder's work"
+  ],
+  "raw_category": "Aluminium and Glass",
+  "public_flags": [
+   {
+    "signal_type": "safety_prosecution",
+    "label": "Fined HK$230,000 for a fatal fall while mounting insulation boards in Kwu Tung",
+    "date": "2026-04-14",
+    "source": "Labour Department",
+    "reference": "https://www.info.gov.hk/gia/general/202604/14/P2026041400499.htm"
+   }
+  ],
+  "award_history": [],
+  "confidence": "high",
+  "sources_used": [
+   "https://www.info.gov.hk/gia/general/202604/14/P2026041400499.htm"
+  ],
+  "display_sensitive": true
+ },
+ {
+  "firm_id": "wan-chung-construction-company-limited-9dbb",
+  "name_en": "Wan Chung Construction Company Limited",
+  "name_zh": null,
+  "registered_grade": "Group I",
+  "registers": [
+   "List of Approved Suppliers of Materials and Specialist Contractors for Public Works"
+  ],
+  "value_band": "Group I",
+  "trades": [
+   "mechanical and plumbing"
+  ],
+  "raw_category": "Plumbing Installation",
+  "public_flags": [],
+  "award_history": [],
+  "confidence": "high",
+  "sources_used": [
+   "https://www.devb.gov.hk/en/construction_sector_matters/contractors/supplier/index.html?search=true&category=PLUM&group=&class="
+  ]
+ },
+ {
+  "firm_id": "wecon-construction-engineering-limited-8312",
+  "name_en": "Wecon Construction & Engineering Limited",
+  "name_zh": null,
+  "registered_grade": "CP, -, -, -, -",
+  "registers": [
+   "DEVB List of Approved Contractors for Public Works"
+  ],
+  "value_band": "Buildings Group C, probationary, up to unlimited",
+  "trades": [
+   "builder's work"
+  ],
+  "raw_category": "Buildings",
+  "public_flags": [],
+  "award_history": [],
+  "confidence": "medium",
+  "sources_used": [
+   "https://www.devb.gov.hk/en/construction_sector_matters/contractors/contractor/index.html?search=true"
+  ]
+ },
+ {
+  "firm_id": "welcome-fire-engineering-limited-91d9",
+  "name_en": "Welcome Fire Engineering Limited",
+  "name_zh": null,
+  "registered_grade": "RC1/0452 RC2/0624",
+  "registers": [
+   "Fire Services Department disciplinary order record for Registered Fire Service Installation Contractors"
+  ],
+  "value_band": null,
+  "trades": [
+   "fire services"
+  ],
+  "raw_category": "Registered Fire Service Installation Contractor",
+  "public_flags": [
+   {
+    "signal_type": "debarment",
+    "label": "Removed from the registers of Class 1 and Class 2 Fire Service Installation Contractors for 13 weeks",
+    "date": "2025-05-09",
+    "source": "Fire Services Department Registered Fire Service Installation Contractors Disciplinary Board",
+    "reference": "https://egazette.gld.gov.hk/pdf?type=egn&year=2025&volume=29&gno=25&notice_no=3714&extra=0"
+   }
+  ],
+  "award_history": [],
+  "confidence": "medium",
+  "sources_used": [
+   "https://www.hkfsd.gov.hk/eng/source/record_of_orders/D_board_orders_2025_eng_20251202_151252.pdf",
+   "https://egazette.gld.gov.hk/pdf?type=egn&year=2025&volume=29&gno=25&notice_no=3714&extra=0"
+  ],
+  "display_sensitive": true
+ },
+ {
+  "firm_id": "westco-airconditioning-limited-ef50",
+  "name_en": "Westco Airconditioning Limited",
+  "name_zh": null,
+  "registered_grade": "Air-conditioning Installation",
+  "registers": [
+   "DEVB List of Approved Suppliers of Materials and Specialist Contractors for Public Works",
+   "CIC Registered Specialist Trade Contractors Scheme regulatory actions notice"
+  ],
+  "value_band": null,
+  "trades": [
+   "mechanical and plumbing"
+  ],
+  "raw_category": "Air-conditioning Installation",
+  "public_flags": [],
+  "award_history": [],
+  "confidence": "medium",
+  "sources_used": [
+   "https://www.devb.gov.hk/en/construction_sector_matters/contractors/supplier/index.html?category=&class=&group=&search=true",
+   "https://rstc.cic.hk/en/notice.aspx"
+  ]
+ },
+ {
+  "firm_id": "wong-po-kee-limited-cbf6",
+  "name_en": "Wong Po Kee Limited",
+  "name_zh": null,
+  "registered_grade": "Group II",
+  "registers": [
+   "List of Approved Suppliers of Materials and Specialist Contractors for Public Works"
+  ],
+  "value_band": "Group II",
+  "trades": [
+   "mechanical and plumbing"
+  ],
+  "raw_category": "Plumbing Installation",
+  "public_flags": [],
+  "award_history": [],
+  "confidence": "high",
+  "sources_used": [
+   "https://www.devb.gov.hk/en/construction_sector_matters/contractors/supplier/index.html?search=true&category=PLUM&group=&class="
+  ]
+ },
+ {
+  "firm_id": "woon-lee-construction-company-limited-e374",
+  "name_en": "Woon Lee Construction Company Limited",
+  "name_zh": null,
+  "registered_grade": "Group C",
+  "registers": [
+   "List of Approved Contractors for Public Works",
+   "List of Approved Suppliers of Materials and Specialist Contractors for Public Works"
+  ],
+  "value_band": "Group C",
+  "trades": [
+   "builder's work",
+   "joinery and fitting-out"
+  ],
+  "raw_category": "Buildings; Turn-key Interior Design and Fitting-out Works",
+  "public_flags": [
+   {
+    "signal_type": "debarment",
+    "label": "Suspended from tendering until 19 June 2026",
+    "date": null,
+    "source": "Development Bureau",
+    "reference": "https://www.devb.gov.hk/en/construction_sector_matters/contractors/contractor/index.html?search=true&category=buildings&group="
+   }
+  ],
+  "award_history": [],
+  "confidence": "high",
+  "sources_used": [
+   "https://www.devb.gov.hk/en/construction_sector_matters/contractors/contractor/index.html?search=true&category=buildings&group=",
+   "https://www.devb.gov.hk/en/construction_sector_matters/contractors/supplier/index.html?search=true&category=&group=&class="
+  ],
+  "display_sensitive": true
+ },
+ {
+  "firm_id": "world-pacific-scaffolding-systems-limited-0862",
+  "name_en": "World Pacific Scaffolding Systems Limited",
+  "name_zh": null,
+  "registered_grade": null,
+  "registers": [
+   "Registered Specialist Trade Contractors Scheme"
+  ],
+  "value_band": null,
+  "trades": [
+   "structural"
+  ],
+  "raw_category": "Scaffolding",
+  "public_flags": [
+   {
+    "signal_type": "safety_prosecution",
+    "label": "Fined HK$150,000 for a fatal scaffolding fall at a construction site in the Kai Tak area",
+    "date": "2025-11-24",
+    "source": "Labour Department",
+    "reference": "https://www.info.gov.hk/gia/general/202511/24/P2025112400659.htm"
+   }
+  ],
+  "award_history": [],
+  "confidence": "high",
+  "sources_used": [
+   "https://www.info.gov.hk/gia/general/202511/24/P2025112400659.htm"
+  ],
+  "display_sensitive": true
+ },
+ {
+  "firm_id": "yat-ming-construction-engineering-limited-a8e3",
+  "name_en": "Yat Ming Construction & Engineering Limited",
+  "name_zh": null,
+  "registered_grade": "Group II",
+  "registers": [
+   "List of Approved Suppliers of Materials and Specialist Contractors for Public Works",
+   "List of Approved Contractors for Public Works"
+  ],
+  "value_band": "Group II",
+  "trades": [
+   "foundation and substructure",
+   "builder's work",
+   "structural"
+  ],
+  "raw_category": "Land Piling; Buildings; Site Formation",
+  "public_flags": [
+   {
+    "signal_type": "safety_prosecution",
+    "label": "Fined HK$120,000 for a fatal excavator accident at a construction site at the Peak",
+    "date": "2026-04-23",
+    "source": "Labour Department",
+    "reference": "https://www.info.gov.hk/gia/general/202604/23/P2026042300629.htm"
+   }
+  ],
+  "award_history": [],
+  "confidence": "high",
+  "sources_used": [
+   "https://www.info.gov.hk/gia/general/202604/23/P2026042300629.htm",
+   "https://www.devb.gov.hk/en/construction_sector_matters/contractors/supplier/index.html?search=true&category=&group=&class="
+  ],
+  "display_sensitive": true
+ },
+ {
+  "firm_id": "yau-lee-construction-company-limited-b0b8",
+  "name_en": "Yau Lee Construction Company Limited",
+  "name_zh": null,
+  "registered_grade": "Group C",
+  "registers": [
+   "List of Approved Contractors for Public Works",
+   "List of Approved Suppliers of Materials and Specialist Contractors for Public Works"
+  ],
+  "value_band": "Group C",
+  "trades": [
+   "builder's work",
+   "external works",
+   "foundation and substructure",
+   "mechanical and plumbing",
+   "joinery and fitting-out"
+  ],
+  "raw_category": "Buildings; Roads and Drainage; Site Formation; Waterworks; Repair and Restoration of Historic Buildings; Turn-key Interior Design",
+  "public_flags": [],
+  "award_history": [],
+  "confidence": "high",
+  "sources_used": [
+   "https://www.devb.gov.hk/en/construction_sector_matters/contractors/contractor/index.html?search=true&category=buildings&group=",
+   "https://www.devb.gov.hk/en/construction_sector_matters/contractors/supplier/index.html?search=true&category=&group=&class="
+  ]
+ },
+ {
+  "firm_id": "yick-hing-construction-company-limited-2d99",
+  "name_en": "Yick Hing Construction Company Limited",
+  "name_zh": null,
+  "registered_grade": "AP, -, C, BP, CP; Landslip Preventive/Remedial Works to Slopes/Retaining Walls",
+  "registers": [
+   "DEVB List of Approved Contractors for Public Works",
+   "DEVB List of Approved Suppliers of Materials and Specialist Contractors for Public Works"
+  ],
+  "value_band": "Buildings Group A, probationary, up to HK$150M; Roads and Drainage Group C, up to unlimited; Site Formation Group B, probationary, up to HK$400M; Waterworks Group C, probationary, up to unlimited",
+  "trades": [
+   "builder's work",
+   "external works"
+  ],
+  "raw_category": "Buildings; Roads and Drainage; Site Formation; Waterworks; Landslip Preventive/Remedial Works to Slopes/Retaining Walls",
+  "public_flags": [
+   {
+    "signal_type": "safety_prosecution",
+    "label": "Convicted for failing to display a required safety-supervisor notice at site",
+    "date": "2025-10-03",
+    "source": "Labour Department",
+    "reference": "https://www.labour.gov.hk/common/osh/pdf/Conviction_record_en.pdf"
+   }
+  ],
+  "award_history": [],
+  "confidence": "high",
+  "sources_used": [
+   "https://www.devb.gov.hk/en/construction_sector_matters/contractors/contractor/index.html?category=buildings&group=&search=true",
+   "https://www.devb.gov.hk/en/construction_sector_matters/contractors/supplier/index.html?category=&class=&group=&search=true",
+   "https://www.labour.gov.hk/common/osh/pdf/Conviction_record_en.pdf"
+  ],
+  "display_sensitive": true
+ },
+ {
+  "firm_id": "ying-wah-civil-engineering-co-limited-bd72",
+  "name_en": "Ying Wah Civil Engineering Co. Limited",
+  "name_zh": null,
+  "registered_grade": "-, -, BP, -, -",
+  "registers": [
+   "DEVB List of Approved Contractors for Public Works"
+  ],
+  "value_band": "Roads and Drainage Group B, probationary, up to HK$400M",
+  "trades": [
+   "external works"
+  ],
+  "raw_category": "Roads and Drainage",
+  "public_flags": [],
+  "award_history": [],
+  "confidence": "medium",
+  "sources_used": [
+   "https://www.devb.gov.hk/en/construction_sector_matters/contractors/contractor/index.html?search=true"
+  ]
+ },
+ {
+  "firm_id": "ying-wah-construction-limited-b5c8",
+  "name_en": "Ying Wah Construction Limited",
+  "name_zh": null,
+  "registered_grade": "AP, -, -, -, -",
+  "registers": [
+   "DEVB List of Approved Contractors for Public Works"
+  ],
+  "value_band": "Buildings Group A, probationary, up to HK$150M",
+  "trades": [
+   "builder's work"
+  ],
+  "raw_category": "Buildings",
+  "public_flags": [],
+  "award_history": [],
+  "confidence": "medium",
+  "sources_used": [
+   "https://www.devb.gov.hk/en/construction_sector_matters/contractors/contractor/index.html?search=true"
+  ]
+ },
+ {
+  "firm_id": "yu-hsin-construction-company-limited-8c45",
+  "name_en": "Yu Hsin Construction Company Limited",
+  "name_zh": null,
+  "registered_grade": "BP, -, -, -, -",
+  "registers": [
+   "DEVB List of Approved Contractors for Public Works"
+  ],
+  "value_band": "Buildings Group B, probationary, up to HK$400M",
+  "trades": [
+   "builder's work"
+  ],
+  "raw_category": "Buildings",
+  "public_flags": [],
+  "award_history": [],
+  "confidence": "medium",
+  "sources_used": [
+   "https://www.devb.gov.hk/en/construction_sector_matters/contractors/contractor/index.html?category=buildings&group=&search=true"
+  ]
+ },
+ {
+  "firm_id": "zhen-hua-engineering-company-limited-4db0",
+  "name_en": "Zhen Hua Engineering Company Limited",
+  "name_zh": null,
+  "registered_grade": "BP, C, CP, BP, -",
+  "registers": [
+   "DEVB List of Approved Contractors for Public Works"
+  ],
+  "value_band": "Buildings Group B, probationary, up to HK$400M; Port Works Group C, up to unlimited; Roads and Drainage Group C, probationary, up to unlimited; Site Formation Group B, probationary, up to HK$400M",
+  "trades": [
+   "builder's work",
+   "external works"
+  ],
+  "raw_category": "Buildings; Port Works; Roads and Drainage; Site Formation",
+  "public_flags": [
+   {
+    "signal_type": "safety_prosecution",
+    "label": "Fined for violation of the Factories and Industrial Undertakings Ordinance, Guarding and Operation of Machinery Regulations and Safety Management Regulation",
+    "date": "2021-01-07",
+    "source": "Labour Department",
+    "reference": "https://www.info.gov.hk/gia/general/202101/07/P2021010700671.htm"
+   }
+  ],
+  "award_history": [],
+  "confidence": "high",
+  "sources_used": [
+   "https://www.devb.gov.hk/en/construction_sector_matters/contractors/contractor/index.html?search=true",
+   "https://www.info.gov.hk/gia/general/202101/07/P2021010700671.htm"
+  ],
+  "display_sensitive": true
+ }
+]

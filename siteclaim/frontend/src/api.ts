@@ -1,5 +1,6 @@
 import type {
   BidReply,
+  Coverage,
   DemoCase,
   DemoCaseSummary,
   DispatchSet,
@@ -50,6 +51,7 @@ export interface DispatchRequest {
 export const api = {
   base: BASE,
   health: () => get<Health>("/health"),
+  coverage: () => get<Coverage>("/coverage"),
   demoCases: () => get<DemoCaseSummary[]>("/demo/cases"),
   demoCase: (id: string) => get<DemoCase>(`/demo/${id}`),
 
