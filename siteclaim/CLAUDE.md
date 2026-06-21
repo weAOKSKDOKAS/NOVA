@@ -91,5 +91,10 @@ with Layer-1 taxonomy validation), Phase 4 (`stage_02_shortlist` — the hero:
 ranked candidates per trade with cited evidence, the gotcha demoted and marked
 `recommended_against`), and Phase 5 (`stage_03_dispatch` — trade-only document
 bundles, Layer-2 composed emails, and a mock outbox, behind the Layer-4 approval
-gate). The remaining stages (level, recommend), the API routes, and the frontend
-are rebuilt phase by phase per the build framework.
+gate), Phase 6 (`stage_04_level` — `rules_engine/leveling.py` recomputes every
+amount, flags arithmetic errors / scope gaps / exclusions, and exports the
+comparison to Excel), and Phase 7 (`stage_05_recommend` — risk-adjusted ranking
+with the bid distribution and historical band, Layer-2 rationale; plus
+`run_pipeline.py`, the offline end-to-end runner that prints the hero catch). The
+API routes (Phase 8), the frontend wizard (Phase 9), and the demo polish (Phase 10)
+are rebuilt next per the build framework.
