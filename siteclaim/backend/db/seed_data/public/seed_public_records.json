@@ -228,7 +228,10 @@
     "registers": [],
     "value_band": "up_to_50m",
     "trades": ["field_testing"],
-    "public_flags": [],
+    "public_flags": [
+      {"signal_type": "safety_prosecution", "label": "Conviction — Construction Sites (Safety) Regulations, work near slope crest", "date": "2025-03-18", "source": "Labour Department", "reference": "LD:GIS-2207/2025"},
+      {"signal_type": "safety_prosecution", "label": "Conviction — Factories and Industrial Undertakings (excavation) Regulation", "date": "2024-11-05", "source": "Labour Department", "reference": "LD:GIS-1840/2024"}
+    ],
     "award_history": []
   },
   {

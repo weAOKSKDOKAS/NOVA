@@ -177,5 +177,32 @@
     "projects": [
       {"project": "Wan Chai hotel — bespoke joinery", "client": "Hospitality group", "year": 2022, "delayed": 0, "note": "On-time closeout.", "source": "End-of-Site closeout report", "reference": "EOS:F-JF-03:2022"}
     ]
+  },
+  {
+    "firm_id": "F-GI-02",
+    "closeout_summary": "Ground-investigation subcontractor: drillholes, sampling and the drainage field test delivered on programme, with clean instrumentation records and a complete final report.",
+    "report_text": [
+      "Delivered the drainage field test in full: manufactured and mobilised the test rig, set up at each test location, supplied water and provided and removed the freeboard to the Method of Measurement.",
+      "Drainage modification, the field installations and instrumentation, and the borehole televiewer / geophysical survey were completed to a high standard with clean monitoring and data records.",
+      "Closeout was on programme: instrumentation logs, the land resistivity and ground penetrating radar interpretation, and a complete final report were submitted at completion with no outstanding items."
+    ]
+  },
+  {
+    "firm_id": "F-GI-01",
+    "closeout_summary": "Ground-investigation subcontractor: drainage field test rig and instrumentation set up and delivered; closeout acceptable with minor reinstatement re-work.",
+    "report_text": [
+      "Scope covered the drainage field test rig manufacture and mobilisation, set up at each test location, and the field installations and instrumentation for the test.",
+      "Workmanship on the test rig and monitoring instruments was competent, with minor reinstatement re-work on the drainage modification.",
+      "Closeout was acceptable, with freeboard removal and reinstatement closed out shortly after the drainage field test completed."
+    ]
+  },
+  {
+    "firm_id": "F-GI-03",
+    "closeout_summary": "Ground-investigation subcontractor: field testing and geophysical survey delivered; closeout adequate with some delay in data submission.",
+    "report_text": [
+      "Carried out the drainage field testing and the borehole televiewer / geophysical survey, including the land resistivity and ground penetrating radar runs.",
+      "Delivery on site was adequate, with the test set up and instrumentation installed and monitored as required.",
+      "Closeout was adequate overall, though the geophysical data interpretation and final report submission ran late against the programme."
+    ]
   }
 ]
