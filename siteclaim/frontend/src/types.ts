@@ -199,3 +199,12 @@ export interface Coverage {
   trades: string[];
   provenance: string;
 }
+
+// A clicked citation, opened in the evidence drawer. Built from a flag/evidence the
+// backend already returns (source + reference + a snippet/label, optional date).
+export interface Citation {
+  source: string | null;
+  reference: string | null;
+  detail: string;
+  date?: string | null;
+}

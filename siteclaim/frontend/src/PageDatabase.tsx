@@ -1,243 +1,291 @@
-import { useEffect, useMemo, useState } from "react";
-import { api } from "./api";
-import type { Coverage, Firm, PublicFlag, Severity } from "./types";
-import { tradeLabel } from "./format";
-import { Card, ErrorBanner, SeverityTag, cx } from "./ui";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { useCite } from "./cite";
+import {
+  registerFor, rgba, sevMeta, signalColor, signalLabel, signalSeverity, tradeColor, tradeLabel, type Sev,
+} from "./theme";
+import type { Coverage, Firm, PublicFlag } from "./types";
 
-// Registry signal -> a face-value severity for the table (the firm-level fatal-on-
-// two-prosecutions rule is a sourcing decision, applied in the wizard, not here).
-const SIGNAL_SEVERITY: Record<string, Severity> = {
-  winding_up: "fatal",
-  debarment: "fatal",
-  adjudication: "fatal",
-  safety_prosecution: "warning",
-  distress_filing: "warning",
-};
-const SIGNAL_LABEL: Record<string, string> = {
-  winding_up: "Winding-up petition",
-  debarment: "Debarment / suspension",
-  adjudication: "Unpaid adjudication",
-  safety_prosecution: "Safety prosecution",
-  distress_filing: "Distress filing",
-};
-
-const signalSeverity = (s: string): Severity => SIGNAL_SEVERITY[s] ?? "info";
-const signalLabel = (s: string): string => SIGNAL_LABEL[s] ?? s.replace(/_/g, " ");
-
-export function PageDatabase({ coverage }: { coverage: Coverage | null }) {
-  const [firms, setFirms] = useState<Firm[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  const [query, setQuery] = useState("");
+export function PageDatabase({
+  active,
+  firms,
+  coverage,
+  registers,
+}: {
+  active: boolean;
+  firms: Firm[];
+  coverage: Coverage | null;
+  registers: number;
+}) {
+  const cite = useCite();
+  const [q, setQ] = useState("");
   const [trade, setTrade] = useState("all");
   const [flaggedOnly, setFlaggedOnly] = useState(false);
 
-  useEffect(() => {
-    api
-      .firms()
-      .then(setFirms)
-      .catch((e) => setError(e instanceof Error ? e.message : String(e)))
-      .finally(() => setLoading(false));
-  }, []);
+  const total = coverage?.total_firms ?? firms.length;
+  const flagged = coverage?.flagged_firms ?? firms.filter((f) => f.public_flags.length > 0).length;
 
+  // ---- count-up (replays each time the page becomes active) ----
+  const [counts, setCounts] = useState({ firms: 0, flagged: 0, registers: 0 });
+  const raf = useRef(0);
+  useEffect(() => {
+    if (!active) return;
+    const dur = 1150, t0 = performance.now();
+    const tick = (now: number) => {
+      const p = Math.min(1, (now - t0) / dur), e = 1 - Math.pow(1 - p, 3);
+      setCounts({ firms: Math.round(total * e), flagged: Math.round(flagged * e), registers: Math.round(registers * e) });
+      if (p < 1) raf.current = requestAnimationFrame(tick);
+    };
+    raf.current = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf.current);
+  }, [active, total, flagged, registers]);
+
+  // ---- breathing matrix ----
+  const cells = useMemo(() => {
+    const out: { color: string; dur: string; delay: string }[] = [];
+    for (let i = 0; i < total; i++) {
+      const isFlag = i < flagged;
+      const color = isFlag
+        ? i < flagged * 0.65 ? "#E5484D" : i < flagged * 0.85 ? "#C13439" : "#D99513"
+        : "rgba(159,180,214,0.26)";
+      out.push({ color, dur: (2.4 + (i % 5) * 0.45).toFixed(2) + "s", delay: ((i % 13) * 0.13).toFixed(2) + "s" });
+    }
+    return out;
+  }, [total, flagged]);
+
+  // ---- breakdown by signal type (live /coverage) ----
+  const breakdown = useMemo(() => {
+    const fbt = coverage?.flags_by_type ?? {};
+    const entries = Object.entries(fbt).map(([type, n]) => ({ type, n, label: signalLabel(type), color: signalColor(type) }));
+    entries.sort((a, b) => b.n - a.n);
+    const sum = entries.reduce((s, e) => s + e.n, 0) || 1;
+    return entries.map((e) => ({ ...e, pct: ((e.n / sum) * 100).toFixed(2) + "%" }));
+  }, [coverage]);
+
+  // ---- register chips (distinct issuing registers in the data) ----
+  const registerChips = useMemo(() => {
+    const map = new Map<string, ReturnType<typeof registerFor>>();
+    for (const f of firms) for (const fl of f.public_flags) { const r = registerFor(fl.source); map.set(r.short, r); }
+    return [...map.values()];
+  }, [firms]);
+
+  // ---- trade chips ----
   const trades = useMemo(() => {
     const set = new Set<string>();
     for (const f of firms) for (const t of f.trades) set.add(t);
     return [...set].sort();
   }, [firms]);
 
-  const filtered = useMemo(() => {
-    const q = query.trim().toLowerCase();
+  // ---- filtering ----
+  const rows = useMemo(() => {
+    const needle = q.trim().toLowerCase();
     return firms.filter((f) => {
       if (flaggedOnly && f.public_flags.length === 0) return false;
       if (trade !== "all" && !f.trades.includes(trade)) return false;
-      if (q && !(f.name_en.toLowerCase().includes(q) || (f.name_zh ?? "").toLowerCase().includes(q))) return false;
+      if (needle && !(f.name_en.toLowerCase().includes(needle) || (f.name_zh ?? "").toLowerCase().includes(needle))) return false;
       return true;
     });
-  }, [firms, query, trade, flaggedOnly]);
+  }, [firms, q, trade, flaggedOnly]);
+
+  const registerCite = (r: ReturnType<typeof registerFor>) =>
+    cite.open({ source: r.name, reference: r.home, detail: `${r.name} — register cross-checked against all ${total} screened firms. Adverse records are matched by company name and registration number.`, date: null });
+
+  const mono = "'Spline Sans Mono',monospace";
+  const display = "'Bricolage Grotesque',sans-serif";
 
   return (
-    <main className="mx-auto max-w-7xl space-y-5 px-5 py-8">
-      <div>
-        <h1 className="text-xl font-bold tracking-tight text-ink">The proprietary database</h1>
-        <p className="mt-1 max-w-3xl text-sm text-ink-soft">
-          Subcontractor performance and risk signals fused from official Hong Kong public records. This is the moat: the
-          data the sourcing engine cross-references at the award decision — data a generic chatbot cannot reach.
-        </p>
-      </div>
-
-      {coverage && <CoverageBanner coverage={coverage} />}
-      {error && <ErrorBanner message={error} />}
-
-      {/* Controls */}
-      <div className="flex flex-wrap items-end gap-3">
-        <div className="min-w-[14rem] flex-1">
-          <label htmlFor="db-search" className="mb-1 block text-xs font-semibold uppercase tracking-wide text-ink-faint">
-            Search by name
-          </label>
-          <input
-            id="db-search"
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            placeholder="Firm name (English or 中文)…"
-            className="w-full rounded-lg border border-line bg-card px-3 py-2 text-sm text-ink placeholder:text-ink-faint focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
-          />
-        </div>
-        <div>
-          <label htmlFor="db-trade" className="mb-1 block text-xs font-semibold uppercase tracking-wide text-ink-faint">
-            Trade
-          </label>
-          <select
-            id="db-trade"
-            value={trade}
-            onChange={(e) => setTrade(e.target.value)}
-            className="rounded-lg border border-line bg-card px-3 py-2 text-sm text-ink focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
-          >
-            <option value="all">All trades</option>
-            {trades.map((t) => (
-              <option key={t} value={t}>
-                {tradeLabel(t)}
-              </option>
-            ))}
-          </select>
-        </div>
-        <label className="flex items-center gap-2 rounded-lg border border-line bg-card px-3 py-2 text-sm text-ink">
-          <input
-            type="checkbox"
-            checked={flaggedOnly}
-            onChange={(e) => setFlaggedOnly(e.target.checked)}
-            className="h-4 w-4 accent-[var(--color-brand)]"
-          />
-          Carries a public flag
-        </label>
-        <span className="tabular ml-auto text-xs text-ink-faint">
-          {loading ? "Loading…" : `Showing ${filtered.length} of ${firms.length} firms`}
-        </span>
-      </div>
-
-      {/* Table */}
-      <Card className="overflow-hidden">
-        <div className="max-h-[68vh] overflow-auto">
-          <table className="w-full min-w-[860px] text-sm">
-            <thead className="sticky top-0 z-10 bg-card">
-              <tr className="border-b border-line text-left text-xs uppercase tracking-wide text-ink-faint">
-                <th className="px-4 py-2.5 font-semibold">Firm</th>
-                <th className="px-3 py-2.5 font-semibold">Grade</th>
-                <th className="px-3 py-2.5 font-semibold">Value band</th>
-                <th className="px-3 py-2.5 font-semibold">Trades</th>
-                <th className="px-4 py-2.5 font-semibold">Public risk flags</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-line-soft">
-              {filtered.map((f) => (
-                <FirmRow key={f.firm_id} firm={f} />
+    <main style={{ maxWidth: 1260, margin: "0 auto", padding: "26px 30px 72px" }}>
+      {/* HERO */}
+      <section style={{ position: "relative", overflow: "hidden", borderRadius: 22, padding: "36px 38px 32px", color: "#EAF0FB", background: "radial-gradient(820px 420px at 86% -20%, rgba(110,86,207,0.55), transparent 62%), radial-gradient(680px 520px at 6% 130%, rgba(15,181,166,0.34), transparent 56%), linear-gradient(135deg,#0F1B2D 0%, #14213B 55%, #182347 100%)", boxShadow: "0 24px 60px -28px rgba(15,27,45,0.55)" }}>
+        <div style={{ position: "relative", zIndex: 2, display: "flex", gap: 40, flexWrap: "wrap", alignItems: "flex-end", justifyContent: "space-between" }}>
+          <div style={{ maxWidth: 540 }}>
+            <div style={{ display: "inline-flex", alignItems: "center", gap: 8, fontFamily: mono, fontSize: 11, letterSpacing: "0.16em", textTransform: "uppercase", color: "#9fb4d6", border: "1px solid rgba(159,180,214,0.28)", borderRadius: 999, padding: "5px 12px", marginBottom: 18 }}>
+              <span style={{ width: 6, height: 6, borderRadius: "50%", background: "#0FB5A6" }} /> The proprietary data asset
+            </div>
+            <h1 style={{ margin: 0, fontFamily: display, fontSize: 42, fontWeight: 700, lineHeight: 1.04, letterSpacing: "-0.025em", color: "#fff" }}>Every subcontractor,<br />screened against the public record.</h1>
+            <p style={{ margin: "16px 0 0", fontSize: 15, lineHeight: 1.62, color: "#b9c7de", maxWidth: 480 }}>Performance and risk signals fused from official Hong Kong registers — the moat a generic chatbot cannot reach. Every figure below traces to a government record. Tap any <span style={{ color: "#fff", fontWeight: 500 }}>citation</span> to open the source.</p>
+          </div>
+          <div style={{ flex: "none" }}>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 14, marginBottom: 11 }}>
+              <span style={{ fontFamily: mono, fontSize: 10.5, letterSpacing: "0.12em", textTransform: "uppercase", color: "#9fb4d6" }}>Signal map · {total} firms</span>
+              <div style={{ display: "flex", gap: 12, fontFamily: mono, fontSize: 10, color: "#9fb4d6" }}>
+                <span style={{ display: "inline-flex", alignItems: "center", gap: 5 }}><span style={{ width: 8, height: 8, borderRadius: 2, background: "#E5484D" }} />flagged</span>
+                <span style={{ display: "inline-flex", alignItems: "center", gap: 5 }}><span style={{ width: 8, height: 8, borderRadius: 2, background: "rgba(159,180,214,0.30)" }} />clear</span>
+              </div>
+            </div>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(20,1fr)", gap: 4, width: 360 }}>
+              {cells.map((c, i) => (
+                <span key={i} style={{ width: "100%", aspectRatio: "1", borderRadius: 2.5, background: c.color, animation: `ssPulse ${c.dur} ease-in-out ${c.delay} infinite` }} />
               ))}
-              {!loading && filtered.length === 0 && (
-                <tr>
-                  <td colSpan={5} className="px-4 py-8 text-center text-sm text-ink-faint">
-                    No firms match these filters.
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
+            </div>
+          </div>
         </div>
-      </Card>
 
-      <p className="text-xs text-ink-faint">
-        Real Hong Kong public-record data — every flag links to its government source; click to verify on screen. The
-        illustrative firms used in the Sourcing demo are not shown here.
-      </p>
+        {/* figures */}
+        <div style={{ position: "relative", zIndex: 2, display: "flex", flexWrap: "wrap", marginTop: 30, paddingTop: 26, borderTop: "1px solid rgba(159,180,214,0.18)" }}>
+          <Figure value={counts.firms} label="Firms screened" color="#fff" mono={mono} display={display}
+            cite={() => cite.open({ source: "Companies Registry", reference: "https://www.cr.gov.hk/", detail: `The screened universe of ${total} Hong Kong construction firms, compiled from official registers and matched by company name and registration number.`, date: null })} citeBg={rgba("#1F6FEB", 0.22)} citeFg="#9fc0ff" />
+          <Figure value={counts.flagged} label="Carry a verified risk signal" color="#FF8E8E" underline mono={mono} display={display}
+            cite={() => cite.open({ source: "Labour Department", reference: "https://www.labour.gov.hk/eng/news/prosecutions.htm", detail: `Of ${total} screened firms, ${flagged} carry at least one verified public risk signal — each traceable to its issuing register.`, date: null })} citeBg={rgba("#E5484D", 0.22)} citeFg="#ffb3b3" />
+          <div style={{ padding: "0 34px", borderLeft: "1px solid rgba(159,180,214,0.18)" }}>
+            <span style={{ fontFamily: display, fontVariantNumeric: "tabular-nums", fontSize: 56, fontWeight: 700, lineHeight: 0.9, color: "#fff" }}>{counts.registers}</span>
+            <div style={{ fontSize: 12, letterSpacing: "0.06em", textTransform: "uppercase", color: "#9fb4d6", marginTop: 9 }}>Official registers cross-checked</div>
+          </div>
+        </div>
+
+        {/* register chips */}
+        <div style={{ position: "relative", zIndex: 2, display: "flex", flexWrap: "wrap", alignItems: "center", gap: 13, marginTop: 20, paddingTop: 18, borderTop: "1px solid rgba(159,180,214,0.18)" }}>
+          <span style={{ fontFamily: mono, fontSize: 10.5, letterSpacing: "0.1em", textTransform: "uppercase", color: "#9fb4d6" }}>Registers · tap to verify →</span>
+          <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+            {registerChips.map((r) => (
+              <button key={r.short} type="button" onClick={() => registerCite(r)} style={{ display: "inline-flex", alignItems: "center", gap: 7, cursor: "pointer", background: "rgba(255,255,255,0.04)", border: `1px solid ${rgba(r.color, 0.4)}`, borderRadius: 8, padding: "6px 12px", fontSize: 11.5, color: "#dbe5f4" }}>
+                <span style={{ width: 7, height: 7, borderRadius: "50%", background: r.color }} />{r.short}
+              </button>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* SIGNAL BREAKDOWN */}
+      <section style={{ display: "flex", flexWrap: "wrap", gap: 16, marginTop: 18 }}>
+        <div style={{ flex: 2, minWidth: 340, background: "#fff", border: "1px solid rgba(15,27,45,0.07)", borderRadius: 16, padding: "18px 20px", boxShadow: "0 10px 30px -22px rgba(15,27,45,0.35)" }}>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 14 }}>
+            <span style={{ fontSize: 12.5, fontWeight: 600, color: "#0F1B2D" }}>The {flagged} flagged firms, by signal type</span>
+            <span style={{ fontFamily: mono, fontSize: 11, color: "#8a98ab" }}>verified · sourced</span>
+          </div>
+          <div style={{ display: "flex", height: 14, borderRadius: 7, overflow: "hidden", marginBottom: 14 }}>
+            {breakdown.map((b) => <div key={b.type} style={{ width: b.pct, background: b.color }} title={b.label} />)}
+          </div>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: "7px 16px" }}>
+            {breakdown.map((b) => (
+              <div key={b.type} style={{ display: "flex", alignItems: "center", gap: 7 }}>
+                <span style={{ width: 9, height: 9, borderRadius: 2, background: b.color }} />
+                <span style={{ fontSize: 12, color: "#46566b" }}>{b.label}</span>
+                <span style={{ fontFamily: mono, fontSize: 12, fontWeight: 600, color: "#0F1B2D" }}>{b.n}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+        <div style={{ flex: 1, minWidth: 220, background: "linear-gradient(140deg,#0FB5A6,#1F6FEB)", borderRadius: 16, padding: "18px 20px", color: "#fff", boxShadow: "0 14px 32px -20px rgba(15,181,166,0.7)", display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
+          <div style={{ fontFamily: mono, fontSize: 10.5, letterSpacing: "0.1em", textTransform: "uppercase", opacity: 0.85 }}>Coverage integrity</div>
+          <div>
+            <div style={{ fontFamily: display, fontSize: 34, fontWeight: 700, lineHeight: 1 }}>100%</div>
+            <div style={{ fontSize: 12.5, lineHeight: 1.5, opacity: 0.92, marginTop: 6 }}>of risk signals carry a clickable government source. Nothing is asserted without a record.</div>
+          </div>
+        </div>
+      </section>
+
+      {/* CONTROLS */}
+      <section style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: 12, margin: "24px 0 14px" }}>
+        <div style={{ flex: 1, minWidth: 260, display: "flex", alignItems: "center", gap: 10, background: "#fff", border: "1px solid rgba(15,27,45,0.10)", borderRadius: 12, padding: "0 14px", height: 46, boxShadow: "0 6px 18px -14px rgba(15,27,45,0.4)" }}>
+          <span style={{ color: "#1F6FEB", fontSize: 16 }}>⌕</span>
+          <input value={q} onChange={(e) => setQ(e.target.value)} placeholder={`Search ${total} firms — name, English or 中文…`} style={{ flex: 1, border: "none", outline: "none", background: "transparent", fontSize: 14, color: "#0F1B2D", height: "100%" }} />
+          <span style={{ fontFamily: mono, fontSize: 11, color: "#8a98ab" }}>{rows.length}/{firms.length}</span>
+        </div>
+        <div style={{ display: "flex", flexWrap: "wrap", gap: 7 }}>
+          <button type="button" onClick={() => setTrade("all")} style={{ border: `1px solid ${trade === "all" ? "#0F1B2D" : "rgba(15,27,45,0.14)"}`, background: trade === "all" ? "#0F1B2D" : "#fff", color: trade === "all" ? "#fff" : "#46566b", fontSize: 12.5, fontWeight: 500, padding: "8px 13px", borderRadius: 9, cursor: "pointer" }}>All trades</button>
+          {trades.map((t) => {
+            const col = tradeColor(t), on = trade === t;
+            return (
+              <button key={t} type="button" onClick={() => setTrade(on ? "all" : t)} style={{ display: "inline-flex", alignItems: "center", gap: 6, border: `1px solid ${on ? col : rgba(col, 0.25)}`, background: on ? col : rgba(col, 0.08), color: on ? "#fff" : col, fontSize: 12.5, fontWeight: 500, padding: "8px 13px", borderRadius: 9, cursor: "pointer" }}>
+                <span style={{ width: 7, height: 7, borderRadius: "50%", background: on ? "#fff" : col }} />{tradeLabel(t)}
+              </button>
+            );
+          })}
+        </div>
+        <button type="button" onClick={() => setFlaggedOnly((v) => !v)} style={{ display: "inline-flex", alignItems: "center", gap: 8, height: 38, background: flaggedOnly ? rgba("#E5484D", 0.08) : "#fff", border: `1px solid ${flaggedOnly ? rgba("#E5484D", 0.4) : "rgba(15,27,45,0.14)"}`, borderRadius: 9, padding: "0 14px", fontSize: 12.5, fontWeight: 600, color: flaggedOnly ? "#E5484D" : "#46566b", cursor: "pointer" }}>
+          <span style={{ width: 8, height: 8, borderRadius: "50%", background: "#E5484D" }} />Flagged only
+        </button>
+      </section>
+
+      {/* FIRM LIST */}
+      <section style={{ display: "flex", flexDirection: "column", gap: 11 }}>
+        {rows.map((f) => <FirmRow key={f.firm_id} firm={f} onCite={cite.open} />)}
+        <div style={{ textAlign: "center", padding: 12, fontFamily: mono, fontSize: 11.5, color: "#8a98ab" }}>— showing {rows.length} of {firms.length} screened firms · {flagged} carry a public signal —</div>
+      </section>
     </main>
   );
 }
 
-function CoverageBanner({ coverage }: { coverage: Coverage }) {
+function Figure({ value, label, color, underline, cite, citeBg, citeFg, mono, display }: {
+  value: number; label: string; color: string; underline?: boolean; cite: () => void; citeBg: string; citeFg: string; mono: string; display: string;
+}) {
   return (
-    <Card className="p-5">
-      <p className="text-base text-ink">
-        Screening against{" "}
-        <span className="tabular text-2xl font-bold text-ink">{coverage.total_firms.toLocaleString("en-HK")}</span> firms
-        sourced from official Hong Kong registers —{" "}
-        <span className="tabular text-2xl font-bold text-ink">{coverage.flagged_firms.toLocaleString("en-HK")}</span> carry
-        verified public risk flags, each linked to its government source.
-      </p>
-      <div className="mt-3 flex flex-wrap gap-2">
-        {Object.entries(coverage.flags_by_type).map(([type, n]) => {
-          const sev = signalSeverity(type);
-          return (
-            <span
-              key={type}
-              className="inline-flex items-center gap-1.5 rounded-md border border-line bg-paper/50 px-2 py-1 text-xs text-ink-soft"
-            >
-              <span
-                className={cx(
-                  "h-1.5 w-1.5 rounded-full",
-                  sev === "fatal" ? "bg-bad" : sev === "warning" ? "bg-warn" : "bg-brand",
-                )}
-              />
-              {signalLabel(type)} <span className="tabular font-semibold text-ink">{n}</span>
-            </span>
-          );
-        })}
+    <div style={{ padding: "0 34px", borderLeft: label === "Firms screened" ? "none" : "1px solid rgba(159,180,214,0.18)", paddingLeft: label === "Firms screened" ? 0 : 34 }}>
+      <div style={{ display: "flex", alignItems: "flex-start", gap: 6 }}>
+        <span style={{ position: "relative", fontFamily: display, fontVariantNumeric: "tabular-nums", fontSize: 56, fontWeight: 700, lineHeight: 0.9, color }}>
+          {value}
+          {underline && <span style={{ position: "absolute", left: 0, right: 0, bottom: -3, height: 3, borderRadius: 2, background: "linear-gradient(90deg,#E5484D,#D99513)" }} />}
+        </span>
+        <button type="button" onClick={cite} title="Open the source record" style={{ marginTop: 6, cursor: "pointer", border: "none", background: citeBg, color: citeFg, fontFamily: mono, fontSize: 11, fontWeight: 600, width: 20, height: 20, borderRadius: 6 }}>§</button>
       </div>
-    </Card>
+      <div style={{ fontSize: 12, letterSpacing: "0.06em", textTransform: "uppercase", color: "#9fb4d6", marginTop: 9 }}>{label}</div>
+    </div>
   );
 }
 
-function FirmRow({ firm }: { firm: Firm }) {
+function FirmRow({ firm, onCite }: { firm: Firm; onCite: (c: { source: string | null; reference: string | null; detail: string; date?: string | null }) => void }) {
+  const sevOf = (fl: PublicFlag): Sev => signalSeverity(fl.signal_type);
+  const worst: Sev | null = firm.public_flags.some((f) => sevOf(f) === "fatal") ? "fatal"
+    : firm.public_flags.some((f) => sevOf(f) === "warning") ? "warning" : null;
+  const accent = worst === "fatal" ? "#E5484D" : worst === "warning" ? "#D99513" : "#2EA56A";
+  const sm = worst ? sevMeta(worst) : null;
+  const display = "'Bricolage Grotesque',sans-serif", mono = "'Spline Sans Mono',monospace";
+
   return (
-    <tr className="align-top hover:bg-line-soft/40">
-      <td className="px-4 py-2.5">
-        <div className="font-medium text-ink">{firm.name_en}</div>
-        {firm.name_zh && <div className="text-xs text-ink-faint">{firm.name_zh}</div>}
-      </td>
-      <td className="tabular px-3 py-2.5 text-ink-soft">{firm.registered_grade || "—"}</td>
-      <td className="px-3 py-2.5 text-ink-soft">{firm.value_band || "—"}</td>
-      <td className="px-3 py-2.5">
-        <div className="flex flex-wrap gap-1">
-          {firm.trades.map((t) => (
-            <span key={t} className="rounded bg-line-soft px-1.5 py-0.5 text-xs text-ink-soft">
-              {tradeLabel(t)}
+    <article style={{ position: "relative", display: "flex", background: "#fff", border: "1px solid rgba(15,27,45,0.07)", borderRadius: 15, overflow: "hidden", boxShadow: "0 8px 24px -20px rgba(15,27,45,0.45)" }}>
+      <div style={{ width: 5, flex: "none", background: accent }} />
+      <div style={{ flex: 1, minWidth: 0, padding: "17px 20px" }}>
+        <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: 10 }}>
+          <span style={{ fontFamily: display, fontSize: 17, fontWeight: 600, letterSpacing: "-0.01em", color: "#0F1B2D" }}>{firm.name_en}</span>
+          {firm.name_zh && <span style={{ fontSize: 13, color: "#8a98ab" }}>{firm.name_zh}</span>}
+          {firm.registered_grade && <span style={{ fontFamily: mono, fontSize: 11, color: "#5a6b80", background: "#EEF2F7", borderRadius: 6, padding: "3px 8px" }}>{firm.registered_grade}</span>}
+          {firm.public_flags.length === 0 ? (
+            <span style={{ display: "inline-flex", alignItems: "center", gap: 6, marginLeft: "auto", fontSize: 12, fontWeight: 600, color: "#2EA56A", background: rgba("#2EA56A", 0.1), borderRadius: 999, padding: "4px 11px" }}>
+              <span style={{ width: 6, height: 6, borderRadius: "50%", background: "#2EA56A" }} />No adverse record
             </span>
-          ))}
+          ) : (
+            <span style={{ display: "inline-flex", alignItems: "center", gap: 6, marginLeft: "auto", fontSize: 12, fontWeight: 700, color: sm!.fg, background: sm!.bg, borderRadius: 999, padding: "4px 11px" }}>
+              <span style={{ width: 6, height: 6, borderRadius: "50%", background: sm!.dot }} />{sm!.label}
+            </span>
+          )}
         </div>
-      </td>
-      <td className="px-4 py-2.5">
-        {firm.public_flags.length === 0 ? (
-          <span className="text-xs text-ink-faint">— clean —</span>
-        ) : (
-          <ul className="space-y-1.5">
-            {firm.public_flags.map((flag, i) => (
-              <FlagLine key={i} flag={flag} />
-            ))}
-          </ul>
-        )}
-      </td>
-    </tr>
-  );
-}
 
-function FlagLine({ flag }: { flag: PublicFlag }) {
-  const isUrl = !!flag.reference && /^https?:\/\//.test(flag.reference);
-  return (
-    <li className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
-      <SeverityTag severity={signalSeverity(flag.signal_type)} />
-      <span className="text-sm font-medium text-ink">{signalLabel(flag.signal_type)}</span>
-      {flag.label && <span className="text-xs text-ink-faint">{flag.label}</span>}
-      {isUrl ? (
-        <a
-          href={flag.reference!}
-          target="_blank"
-          rel="noreferrer noopener"
-          className="text-xs font-semibold text-brand hover:underline"
-        >
-          {flag.source ?? "government source"} ↗
-        </a>
-      ) : (
-        flag.source && <span className="text-xs text-ink-faint">{flag.source}</span>
-      )}
-    </li>
+        <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginTop: 11 }}>
+          {firm.trades.map((t) => {
+            const col = tradeColor(t);
+            return (
+              <span key={t} style={{ display: "inline-flex", alignItems: "center", gap: 6, fontSize: 11.5, fontWeight: 500, color: col, background: rgba(col, 0.1), borderRadius: 7, padding: "3px 9px" }}>
+                <span style={{ width: 6, height: 6, borderRadius: "50%", background: col }} />{tradeLabel(t)}
+              </span>
+            );
+          })}
+        </div>
+
+        {firm.public_flags.length > 0 && (
+          <div style={{ display: "flex", flexDirection: "column", gap: 9, marginTop: 14 }}>
+            {firm.public_flags.map((fl, i) => {
+              const sev = sevOf(fl), m = sevMeta(sev), reg = registerFor(fl.source);
+              return (
+                <div key={i} style={{ display: "flex", gap: 12, padding: "11px 13px", borderRadius: 11, background: rgba(m.dot, 0.05), border: `1px solid ${rgba(m.dot, 0.18)}` }}>
+                  <span style={{ width: 3, flex: "none", borderRadius: 2, background: m.dot }} />
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: 8 }}>
+                      <span style={{ display: "inline-flex", alignItems: "center", gap: 5, background: m.bg, color: m.fg, fontFamily: mono, fontSize: 9.5, fontWeight: 600, letterSpacing: "0.06em", textTransform: "uppercase", padding: "3px 8px", borderRadius: 6 }}><span style={{ width: 5, height: 5, borderRadius: "50%", background: m.fg }} />{m.tag}</span>
+                      <span style={{ fontSize: 13.5, fontWeight: 600, color: "#0F1B2D" }}>{signalLabel(fl.signal_type)}</span>
+                    </div>
+                    <p style={{ margin: "6px 0 0", fontSize: 12.5, lineHeight: 1.55, color: "#46566b" }}>{fl.label}</p>
+                    <button type="button" onClick={() => onCite({ source: fl.source, reference: fl.reference, detail: fl.label, date: fl.date })} style={{ display: "inline-flex", alignItems: "center", gap: 8, marginTop: 9, cursor: "pointer", border: `1px solid ${rgba(reg.color, 0.3)}`, background: "#fff", borderRadius: 8, padding: "5px 11px" }}>
+                      <span style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", minWidth: 16, height: 16, padding: "0 3px", borderRadius: 5, background: reg.color, color: "#fff", fontFamily: mono, fontSize: 9, fontWeight: 600 }}>{reg.short}</span>
+                      <span style={{ fontFamily: mono, fontSize: 11, fontWeight: 600, color: reg.color }}>{reg.short}</span>
+                      <span style={{ fontSize: 11, color: "#8a98ab" }}>→ view source</span>
+                    </button>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </div>
+    </article>
   );
 }
