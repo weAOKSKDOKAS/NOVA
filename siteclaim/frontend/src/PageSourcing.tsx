@@ -96,7 +96,7 @@ export function PageSourcing({
     setScope(null); setShortlist(null); setApprovals({}); setDispatch(null); setLevelled(null); setLevelStale(false); setRecommendation(null); setAward(null);
   }
 
-  const covTotal = coverage?.total_firms ?? 134, covFlagged = coverage?.flagged_firms ?? 46;
+  const covTotal = coverage?.total_firms ?? 149, covFlagged = coverage?.flagged_firms ?? 47;
 
   return (
     <main style={{ maxWidth: 1220, margin: "0 auto", padding: "30px 30px 80px" }}>

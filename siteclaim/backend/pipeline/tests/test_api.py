@@ -104,10 +104,10 @@ def test_scenarios_are_deterministic_on_repeat():
 
 def test_firms_returns_only_real_provenance_with_working_sources():
     firms = client.get("/firms").json()
-    assert len(firms) == 134
+    assert len(firms) == 149
     assert all(not f["firm_id"].startswith("F-") for f in firms)  # never the illustrative demo firms
     flagged = [f for f in firms if f["public_flags"]]
-    assert len(flagged) == 46
+    assert len(flagged) == 47
     # every flag carries a citable government-source URL, verifiable on screen
     refs = [fl["reference"] for f in flagged for fl in f["public_flags"]]
     assert refs and all(r and r.startswith("http") for r in refs)
@@ -118,10 +118,10 @@ def test_firms_returns_only_real_provenance_with_working_sources():
 
 def test_coverage_counts_only_real_provenance_firms():
     cov = client.get("/coverage").json()
-    # the claim counts ONLY the real registry scrape, not the 16 illustrative firms
+    # the claim counts ONLY the real registry scrape, not the illustrative firms
     assert cov["provenance"] == "public_register"
-    assert cov["total_firms"] == 134
-    assert cov["flagged_firms"] == 46
+    assert cov["total_firms"] == 149
+    assert cov["flagged_firms"] == 47
     # only the real flag types appear — the demo-only adjudication / distress filing
     # (whose references are illustrative placeholders) are excluded from the claim
     assert set(cov["flags_by_type"]) == {"debarment", "safety_prosecution", "winding_up"}
