@@ -44,6 +44,19 @@ def _grounding_evidence(firm: FirmProfile) -> list[Evidence]:
     return evidence
 
 
+
+def _award_relevance(firm: FirmProfile) -> float:
+    """A modest, deterministic match feature for a firm assessed by its public award
+    record rather than a held closeout report. Recent, repeated public awards score a
+    little higher; always capped below a strong closeout match so firms with assessed
+    closeout history still surface first when both are present."""
+    if not firm.award_history:
+        return 0.0
+    years = [int(a.split(":", 1)[0]) for a in firm.award_history if a.split(":", 1)[0].strip().isdigit()]
+    recency = (max(years) - 2023) * 0.02 if years else 0.0
+    return min(0.40 + 0.03 * min(len(firm.award_history), 3) + recency, 0.58)
+
+
 def cross_reference(
     conn: sqlite3.Connection, trade: str, scope_query: str, k: int | None = None
 ) -> list[Candidate]:
@@ -65,7 +78,7 @@ def cross_reference(
         Candidate(
             firm=firm,
             trade=trade,
-            match_score=scores.get(firm.firm_id, 0.0),
+            match_score=(scores[firm.firm_id] if firm.firm_id in scores else _award_relevance(firm)),
             evidence=_grounding_evidence(firm),
             risk_flags=score_firm(firm),
         )

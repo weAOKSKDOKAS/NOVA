@@ -158,10 +158,17 @@ def eos_firm_ids(conn: sqlite3.Connection) -> set[str]:
 
 
 def shortlistable_firms_for_trade(conn: sqlite3.Connection, trade: str) -> list[FirmProfile]:
-    """Firms in ``trade`` that have an assessable EOS closeout record — the only
-    firms eligible for the per-tender shortlist."""
+    """Firms in ``trade`` the platform can actually assess — either by a closeout
+    report it holds (an assessable EOS record) or by a public award record on the
+    register. Award-bearing firms are real-provenance registry firms, so this lets
+    the shortlist surface real firms evidenced by public awards, not only firms with
+    a private closeout report. The unassessable remainder stays discovery/coverage."""
     assessable = eos_firm_ids(conn)
-    return [firm for firm in firms_for_trade(conn, trade) if firm.firm_id in assessable]
+    return [
+        firm
+        for firm in firms_for_trade(conn, trade)
+        if firm.firm_id in assessable or firm.award_history
+    ]
 
 
 _REAL = "public_register"

@@ -51,15 +51,21 @@ def test_no_eos_electrical_firm_is_silently_dropped(conn):
     assert "F-EL-01" in set(_ids(candidates))  # the flagged firm is present, just demoted
 
 
-def test_public_only_firms_are_in_db_but_never_shortlisted(conn):
-    # The wider public-record pool exists in the firms table (discovery/coverage) …
+def test_unassessable_firms_are_in_db_but_never_shortlisted(conn):
+    # A firm is shortlistable only if the platform can assess it — by a held closeout
+    # report OR a public award record on the register. Firms with neither stay in the
+    # discovery/coverage pool and never auto-enter a per-tender shortlist.
     assessable = store.eos_firm_ids(conn)
-    public_only = {f.firm_id for f in store.all_firms(conn)} - assessable
-    assert public_only  # the real scrape is present in the DB
-    # … but no public-only firm (no EOS) appears in any per-tender shortlist.
+    unassessable = {
+        f.firm_id
+        for f in store.all_firms(conn)
+        if f.firm_id not in assessable and not f.award_history
+    }
+    assert unassessable  # the bulk of the real scrape is present but not auto-shortlisted
     for trade in ("electrical", "mechanical_plumbing", "fire_services"):
         ids = {c.firm.firm_id for c in cross_reference(conn, trade, "scope summary")}
-        assert not (ids & public_only)
-    # and the electrical shortlist is exactly the four assessed demo firms, in order.
+        assert not (ids & unassessable)
+    # the electrical hero card stays exactly the four assessed demo firms, in order —
+    # no real registry firm floods it (no award-bearing firm carries the electrical trade).
     order = [c.firm.firm_id for c in cross_reference(conn, "electrical", ELECTRICAL_SCOPE_QUERY)]
     assert order == ["F-EL-02", "F-EL-04", "F-EL-03", "F-EL-01"]
