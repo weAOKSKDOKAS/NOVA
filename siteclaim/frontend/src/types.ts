@@ -165,6 +165,8 @@ export interface DemoCase extends DemoCaseSummary {
   scope_fixture: string;
   replies: BidReply[];
   rationale_fixture: string;
+  // Per-work-section rationale fixtures (trade -> fixture); drives per-section recommend.
+  rationale_by_trade: Record<string, string>;
 }
 
 export interface Health {

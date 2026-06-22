@@ -161,6 +161,7 @@ _DEMO_CASES = {
         "scope_fixture": SCOPE_FIXTURE,
         "replies_fixture": "cases/scenarios/clean_replies.json",
         "rationale_fixture": "cases/scenarios/clean_rationale.json",
+        "rationale_by_trade": {"joinery_fitting_out": "cases/scenarios/clean_rationale.json"},
     },
     "hero": {
         "name": "Hero — the cheapest bidder, flagged",
@@ -170,6 +171,7 @@ _DEMO_CASES = {
         "scope_fixture": SCOPE_FIXTURE,
         "replies_fixture": "cases/scenarios/hero_replies.json",
         "rationale_fixture": "cases/scenarios/hero_rationale.json",
+        "rationale_by_trade": {"electrical": "cases/scenarios/hero_rationale.json"},
     },
     "messy": {
         "name": "Messy — leveling changes the ranking",
@@ -179,6 +181,7 @@ _DEMO_CASES = {
         "scope_fixture": SCOPE_FIXTURE,
         "replies_fixture": REPLIES_FIXTURE,
         "rationale_fixture": RATIONALE_FIXTURE,
+        "rationale_by_trade": {"electrical": RATIONALE_FIXTURE},
     },
     "drainage": {
         "name": "Drainage field test — real HK tender, leveling decides",
@@ -188,6 +191,11 @@ _DEMO_CASES = {
         "scope_fixture": "cases/scenarios/drainage_scope.json",
         "replies_fixture": "cases/scenarios/drainage_replies.json",
         "rationale_fixture": "cases/scenarios/drainage_rationale.json",
+        "rationale_by_trade": {
+            "field_testing": "cases/scenarios/drainage_rationale.json",
+            "field_installations": "cases/scenarios/drainage_rationale_h.json",
+            "geophysical_survey": "cases/scenarios/drainage_rationale_j.json",
+        },
     },
 }
 
@@ -204,6 +212,9 @@ class DemoCase(DemoCaseSummary):
     scope_fixture: str
     replies: list[BidReply]
     rationale_fixture: str
+    # Per-work-section rationale fixtures (trade -> fixture). The wizard runs the
+    # recommendation once per section the bids cover and narrates each from here.
+    rationale_by_trade: dict[str, str] = Field(default_factory=dict)
 
 
 @app.get("/demo/cases", response_model=list[DemoCaseSummary])
@@ -228,6 +239,7 @@ def demo_case(case_id: str) -> DemoCase:
         scope_fixture=m["scope_fixture"],
         replies=load_demo_replies(m["replies_fixture"]),
         rationale_fixture=m["rationale_fixture"],
+        rationale_by_trade=m.get("rationale_by_trade", {}),
     )
 
 

@@ -456,5 +456,61 @@
       "https://www.devb.gov.hk/en/construction_sector_matters/contractors/supplier/index.html?category=&class=&group=&search=true"
     ],
     "display_sensitive": false
+  },
+  {
+    "firm_id": "sixense-limited-5d2c",
+    "name_en": "Sixense Limited",
+    "name_zh": null,
+    "registered_grade": "Geophysical survey & instrumentation specialist",
+    "registers": [
+      "ISO 9001:2015 (Cert. FS 57613)"
+    ],
+    "value_band": null,
+    "trades": [
+      "geophysical_survey",
+      "field_testing"
+    ],
+    "raw_category": "Geophysical Survey; Instrumentation & Monitoring",
+    "public_flags": [],
+    "award_history": [
+      {
+        "project": "Quotation for Geophysical Survey, Contract GE/2026/14 (via VSL Intrafor Hong Kong Ltd)",
+        "client": "VSL Intrafor Hong Kong Limited",
+        "year": 2026,
+        "source": "Sixense quotation ref. SIX/T26034/331-26 dated 17 Jun 2026"
+      }
+    ],
+    "confidence": "high",
+    "sources_used": [
+      "Sixense quotation ref. SIX/T26034/331-26 dated 17 Jun 2026 (Geophysical Survey, Rev.0)"
+    ],
+    "display_sensitive": false
+  },
+  {
+    "firm_id": "kai-wai-engineering-survey-and-geophysics-limited-3f7b",
+    "name_en": "Kai Wai Engineering Survey and Geophysics Limited",
+    "name_zh": "佳為工程勘察測繪有限公司",
+    "registered_grade": "Engineering survey & geophysics specialist",
+    "registers": [],
+    "value_band": null,
+    "trades": [
+      "field_installations",
+      "field_testing"
+    ],
+    "raw_category": "Engineering Survey & Geophysics; Field Installations",
+    "public_flags": [],
+    "award_history": [
+      {
+        "project": "Quotation for Field Installations (RFQ), Contract GE/2026/14",
+        "client": "Main contractor (RFQ)",
+        "year": 2026,
+        "source": "Field Installation (RFQ) Schedule-of-Rates offer, signed and chopped"
+      }
+    ],
+    "confidence": "high",
+    "sources_used": [
+      "Field Installation (RFQ) Schedule-of-Rates offer for Contract GE/2026/14 (signed/chopped)"
+    ],
+    "display_sensitive": false
   }
 ]

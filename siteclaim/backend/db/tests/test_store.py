@@ -50,7 +50,7 @@ def test_coverage_counts_only_real_provenance(conn):
     cov = store.coverage(conn)
     assert cov["provenance"] == "public_register"
     # the illustrative demo firms are excluded from the public-register claim
-    assert cov["total_firms"] == 149
+    assert cov["total_firms"] == 151
     assert cov["flagged_firms"] == 47
     # demo-only signal types (illustrative references) never appear in the claim
     assert "adjudication" not in cov["flags_by_type"]

@@ -18,23 +18,32 @@
     },
     {
       "trade": "Field Installations",
-      "scope_summary": "Field installations and instrumentation for the drainage field test (SR Section H): supply, install and monitor the test instruments, with data collection and CCTV operation.",
+      "scope_summary": "Field installations and instrumentation for the drainage field test (SR Section H14–H17, clause PS 7.286A–7.299A): supply and install each test instrument, the CCTV system, and the monitoring / data-transmission and CCTV operation over the test period.",
       "sor_items": [
-        {"item_ref": "H14", "description": "Supply and install instruments and monitoring for drainage field test (2D LiDAR sensor, ultrasonic level sensor, dual-tip conductivity probe, optical camera, velocimeter, flowmeter)", "unit": "No.", "qty": 6.0},
-        {"item_ref": "H15", "description": "Supply and install on-site instruments within HKSAR (incl. optical rain gauge)", "unit": "No.", "qty": 4.0},
-        {"item_ref": "H16", "description": "Monitoring, data collection and data transmission", "unit": "No.-Month", "qty": 24.0},
-        {"item_ref": "H17", "description": "Operation and maintenance of the Closed Circuit Television (CCTV)", "unit": "No.-Month", "qty": 12.0}
+        {"item_ref": "H14a", "description": "Supply & install 2-dimensional LiDAR sensor (PS 7.291A)", "unit": "No.", "qty": 1.0},
+        {"item_ref": "H14b", "description": "Supply & install ultrasonic level sensor (PS 7.292A)", "unit": "No.", "qty": 1.0},
+        {"item_ref": "H14c", "description": "Supply & install dual-tip conductivity probe (PS 7.293A)", "unit": "No.", "qty": 1.0},
+        {"item_ref": "H14d", "description": "Supply & install optical camera (PS 7.294A)", "unit": "No.", "qty": 1.0},
+        {"item_ref": "H14e", "description": "Supply & install velocimeter (PS 7.295A)", "unit": "No.", "qty": 1.0},
+        {"item_ref": "H14f", "description": "Supply & install flowmeter (PS 7.297A)", "unit": "No.", "qty": 1.0},
+        {"item_ref": "H15", "description": "Supply & install Closed Circuit Television (CCTV) system, one camera (PS 7.299A)", "unit": "No.", "qty": 1.0},
+        {"item_ref": "H16", "description": "Monitoring, data collection and data transmission from the instruments", "unit": "No.-Month", "qty": 24.0},
+        {"item_ref": "H17", "description": "Operation and maintenance of the CCTV (PB 150)", "unit": "No.-Month", "qty": 12.0}
       ],
       "source_refs": ["I-GE_2026_14_TSC-SR-01.pdf", "I-GE_2026_14_TSC-PS-S07-00.pdf", "I-GE_2026_14_TSC-MM-01.pdf"]
     },
     {
       "trade": "Geophysical Survey",
-      "scope_summary": "Borehole televiewer / geophysical survey (SR Section J): mobilise survey equipment, carry out land resistivity multi-channel and ground penetrating radar surveys, data interpretation, and final reporting.",
+      "scope_summary": "Geophysical survey (SR Section J5–J10, clause PS 7.301A–7.302A): mobilise and demobilise the land-resistivity and ground-penetrating-radar equipment, carry out the surveys, interpret the data, and deliver the final report.",
       "sor_items": [
-        {"item_ref": "J5", "description": "Mobilise and demobilise geophysical survey equipment (land resistivity; ground penetrating radar)", "unit": "No.", "qty": 2.0},
-        {"item_ref": "J6", "description": "Carry out land resistivity multi-channel survey (by measurement spacing)", "unit": "Point", "qty": 120.0},
-        {"item_ref": "J7", "description": "Carry out ground penetrating radar survey", "unit": "m", "qty": 800.0},
-        {"item_ref": "J8", "description": "Extra over J6–J7 for data interpretation", "unit": "Point", "qty": 120.0},
+        {"item_ref": "J5a", "description": "Mobilise/demobilise land resistivity multi-channel survey equipment (PS 7.301A)", "unit": "No.", "qty": 1.0},
+        {"item_ref": "J5b", "description": "Mobilise/demobilise ground penetrating radar survey equipment (PS 7.302A)", "unit": "No.", "qty": 1.0},
+        {"item_ref": "J6a", "description": "Land resistivity survey, measurement spacing >5m but ≤10m (PS 7.301A)", "unit": "Point", "qty": 60.0},
+        {"item_ref": "J6b", "description": "Land resistivity survey, measurement spacing >2m but ≤5m (PS 7.301A)", "unit": "Point", "qty": 40.0},
+        {"item_ref": "J6c", "description": "Land resistivity survey, measurement spacing ≤2m (PS 7.301A)", "unit": "Point", "qty": 20.0},
+        {"item_ref": "J7", "description": "Carry out ground penetrating radar survey (PS 7.302A)", "unit": "m", "qty": 800.0},
+        {"item_ref": "J8a", "description": "Extra over for data interpretation — land resistivity survey (PS 7.301A)", "unit": "Point", "qty": 120.0},
+        {"item_ref": "J8b", "description": "Extra over for data interpretation — ground penetrating radar survey (PS 7.302A)", "unit": "m", "qty": 800.0},
         {"item_ref": "J9", "description": "Provide set of two copies of the Final Report including CD-ROM", "unit": "Set", "qty": 1.0},
         {"item_ref": "J10", "description": "Provide additional copies of the Final Report", "unit": "No.", "qty": 3.0}
       ],

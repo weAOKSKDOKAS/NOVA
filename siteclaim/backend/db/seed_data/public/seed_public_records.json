@@ -441,5 +441,16 @@
       }
     ],
     "award_history": []
+  },
+  {
+    "firm_id": "tender-scheduled-rates",
+    "name_en": "Tender scheduled rates (benchmark)",
+    "name_zh": null,
+    "registered_grade": "Schedule of Rates — Contract GE/2026/14",
+    "registers": [],
+    "value_band": null,
+    "trades": [],
+    "public_flags": [],
+    "award_history": []
   }
 ]

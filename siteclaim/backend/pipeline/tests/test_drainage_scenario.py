@@ -22,9 +22,15 @@ _SCOPE_FIXTURE = "cases/scenarios/drainage_scope.json"
 _REPLIES_FIXTURE = "cases/scenarios/drainage_replies.json"
 _RATIONALE_FIXTURE = "cases/scenarios/drainage_rationale.json"
 
-# the two clean bidders are now real, award-bearing registry firms; GI-1 stays fictional
+# the section bidders are real, award-bearing registry firms; GI-1 stays fictional.
+# Field testing (G): Gold Ram / DrilTech / the cautionary GI-1.
 GOLD = "gold-ram-engineering-development-limited-9bbd"
 DRIL = "driltech-ground-engineering-limited-a721"
+# Field installations (H): Kai Wai. Geophysical survey (J): Sixense. Both real,
+# priced against the tender's own scheduled rates (the benchmark "bid").
+KAIWAI = "kai-wai-engineering-survey-and-geophysics-limited-3f7b"
+SIXENSE = "sixense-limited-5d2c"
+BENCH = "tender-scheduled-rates"
 
 
 @pytest.fixture(scope="module")
@@ -115,13 +121,54 @@ def test_normalized_totals_put_every_bid_on_the_same_scope_basis(levelled):
     assert by[DRIL].normalized_total == 1133150.0
 
 
-def test_all_three_gi_sections_are_levelled(levelled):
+def test_all_three_gi_sections_are_levelled_with_real_bidders(levelled):
     # the tender's three work sections (G/H/J) are each levelled, not just field testing
     trades = {b.trade for b in levelled}
     assert trades == {"field_testing", "field_installations", "geophysical_survey"}
-    # every clean firm submitted a full package quote across all three sections
-    for firm in (GOLD, DRIL):
-        assert {b.trade for b in levelled if b.firm_id == firm} == trades
+    bidders = lambda t: {b.firm_id for b in levelled if b.trade == t}  # noqa: E731
+    # field testing: the two real GI contractors plus the cautionary fictional firm
+    assert bidders("field_testing") == {GOLD, DRIL, "F-GI-01"}
+    # field installations: the real Kai Wai offer, leveled against the tender benchmark
+    assert bidders("field_installations") == {KAIWAI, BENCH}
+    # geophysical survey: the real Sixense offer, leveled against the tender benchmark
+    assert bidders("geophysical_survey") == {SIXENSE, BENCH}
+
+
+def test_conductivity_probe_is_the_one_line_above_benchmark(levelled):
+    # H14c: the real bidder's dual-tip conductivity probe is the outlier above the
+    # tender scheduled rate (30,000 vs 13,000) — it must be visible per line item
+    reps = load_demo_replies(_REPLIES_FIXTURE)
+    kw = next(r for r in reps if r.firm_id == KAIWAI and r.trade == "field_installations")
+    bench = next(r for r in reps if r.firm_id == BENCH and r.trade == "field_installations")
+    kw_c = next(li for li in kw.line_items if li.item_ref == "H14c").rate
+    bench_c = next(li for li in bench.line_items if li.item_ref == "H14c").rate
+    assert kw_c == 30000.0 and bench_c == 13000.0 and kw_c > bench_c
+    # and every other Kai Wai instrument line is at or below the benchmark
+    bench_rate = {li.item_ref: li.rate for li in bench.line_items}
+    above = [li.item_ref for li in kw.line_items if li.rate is not None and li.rate > bench_rate[li.item_ref]]
+    assert above == ["H14c"]
+
+
+def test_recommendation_runs_per_section_with_a_different_winner_each(levelled, conn):
+    wins = {}
+    for trade in ("field_testing", "field_installations", "geophysical_survey"):
+        rec = recommend(levelled, trade, conn=conn)
+        wins[trade] = rec.recommended_firm_id
+        # the tender benchmark is never the recommended firm (it is a baseline, not a bid)
+        assert rec.recommended_firm_id != BENCH
+    assert wins == {"field_testing": GOLD, "field_installations": KAIWAI, "geophysical_survey": SIXENSE}
+    assert len(set(wins.values())) == 3  # a different real firm wins each section
+
+
+def test_leveling_names_resolve_from_the_db_profile(levelled, conn):
+    # name consistency: the firm shown in leveling is the DB profile of the replied
+    # firm, so it matches the name a user saw at shortlist/dispatch
+    for b in levelled:
+        profile = store.firm_profile(conn, b.firm_id)
+        assert profile is not None and b.firm_name == profile.name
+    # the real section bidders are the firms the shortlist would surface for that trade
+    assert SIXENSE in {f.firm_id for f in store.shortlistable_firms_for_trade(conn, "geophysical_survey")}
+    assert KAIWAI in {f.firm_id for f in store.shortlistable_firms_for_trade(conn, "field_installations")}
 
 
 def test_leveling_ranks_the_real_winner_first_by_normalized_total(levelled):

@@ -37,6 +37,7 @@ export function PageSourcing({
   const [scopeFixture, setScopeFixture] = useState<string | null>(null);
   const [replies, setReplies] = useState<BidReply[]>([]);
   const [rationaleFixture, setRationaleFixture] = useState<string | null>(null);
+  const [rationaleByTrade, setRationaleByTrade] = useState<Record<string, string>>({});
   const [scope, setScope] = useState<ScopePackages | null>(null);
   const [shortlist, setShortlist] = useState<ShortlistSet | null>(null);
   const [approvals, setApprovals] = useState<Record<string, string[]>>({});
@@ -45,8 +46,8 @@ export function PageSourcing({
   const [phase, setPhase] = useState<"idle" | "sending" | "collecting">("idle");
   const [levelled, setLevelled] = useState<LevelledBid[] | null>(null);
   const [levelStale, setLevelStale] = useState(false);
-  const [recommendation, setRecommendation] = useState<Recommendation | null>(null);
-  const [award, setAward] = useState<string | null>(null);
+  const [recommendations, setRecommendations] = useState<Recommendation[]>([]);
+  const [awards, setAwards] = useState<Record<string, string | null>>({});
   const [barReveal, setBarReveal] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -62,14 +63,14 @@ export function PageSourcing({
     if (keep < 2) { setShortlist(null); setApprovals({}); }
     if (keep < 3) { setDispatch(null); setDispatchSent(false); }
     if (keep < 4) { setLevelled(null); setLevelStale(false); }
-    if (keep < 5) setRecommendation(null);
+    if (keep < 5) { setRecommendations([]); setAwards({}); }
     setMaxReached((m) => Math.min(m, keep));
   }
   const goTo = (n: number) => { if (n <= maxReached) setStep(n); };
 
   const pickDemo = (id: string) => run(async () => {
     const src = await api.demoCase(id);
-    setCaseId(id); setHeroTrade(src.hero_trade); setTender(src.tender); setScopeFixture(src.scope_fixture); setReplies(src.replies); setRationaleFixture(src.rationale_fixture);
+    setCaseId(id); setHeroTrade(src.hero_trade); setTender(src.tender); setScopeFixture(src.scope_fixture); setReplies(src.replies); setRationaleFixture(src.rationale_fixture); setRationaleByTrade(src.rationale_by_trade ?? {});
     setScope(null); invalidateAfter(1);
   });
   const runIngest = () => run(async () => { if (!tender) return; setScope(await api.ingest(tender, scopeFixture)); invalidateAfter(1); });
@@ -94,13 +95,27 @@ export function PageSourcing({
   const runLevelAfterCollect = () => run(async () => { setLevelled(await api.level(replies, scope)); setLevelStale(false); advance(4); setPhase("idle"); });
   function editRate(firmId: string, ref: string, rate: number | null) {
     setReplies((cur) => cur.map((r) => r.firm_id !== firmId ? r : { ...r, line_items: r.line_items.map((l) => l.item_ref !== ref ? l : { ...l, rate, amount: rate == null ? null : l.qty * rate }) }));
-    setLevelStale(true); setRecommendation(null); setMaxReached((m) => Math.min(m, 4));
+    setLevelStale(true); setRecommendations([]); setAwards({}); setMaxReached((m) => Math.min(m, 4));
   }
   const recompute = () => run(async () => { setLevelled(await api.level(replies, scope)); setLevelStale(false); });
-  const goRecommend = () => run(async () => { if (!levelled) return; const r = await api.recommend(levelled, heroTrade, rationaleFixture); setRecommendation(r); setAward(r.recommended_firm_id); advance(5); });
+  // Per work section: run the recommendation once per trade the bids cover (hero
+  // trade first), each narrated from its own rationale fixture when one exists.
+  const goRecommend = () => run(async () => {
+    if (!levelled) return;
+    const trades = Array.from(new Set(levelled.map((b) => b.trade)))
+      .sort((a, b) => (a === heroTrade ? -1 : b === heroTrade ? 1 : a.localeCompare(b)));
+    const recs = await Promise.all(
+      trades.map((t) => api.recommend(levelled, t, rationaleByTrade[t] ?? (t === heroTrade ? rationaleFixture : null))),
+    );
+    setRecommendations(recs);
+    const aw: Record<string, string | null> = {};
+    for (const r of recs) aw[r.trade] = r.recommended_firm_id;
+    setAwards(aw); advance(5);
+  });
   function reset() {
     setStep(1); setMaxReached(1); setCaseId(null); setTender(null); setScopeFixture(null); setReplies([]); setRationaleFixture(null);
-    setScope(null); setShortlist(null); setApprovals({}); setDispatch(null); setDispatchSent(false); setPhase("idle"); setLevelled(null); setLevelStale(false); setRecommendation(null); setAward(null);
+    setRationaleByTrade({});
+    setScope(null); setShortlist(null); setApprovals({}); setDispatch(null); setDispatchSent(false); setPhase("idle"); setLevelled(null); setLevelStale(false); setRecommendations([]); setAwards({});
   }
 
   const covTotal = coverage?.total_firms ?? 149, covFlagged = coverage?.flagged_firms ?? 47;
@@ -118,7 +133,7 @@ export function PageSourcing({
           {step === 2 && shortlist && <StepShortlist {...{ shortlist, heroTrade, covTotal, covFlagged, loading, cite, onBack: () => goTo(1), onNext: () => advance(3), onLevel: startLevel }} />}
           {step === 3 && shortlist && <StepDispatch {...{ shortlist, approvals, dispatch, dispatchSent, loading, toggleApprove, prepareDispatch, editBundle, confirmSend, onBack: () => goTo(2), onNext: startLevel }} />}
           {step === 4 && levelled && <StepLevel {...{ levelled, replies, heroTrade, levelStale, loading, editRate, recompute, onBack: () => goTo(3), onNext: goRecommend }} />}
-          {step === 5 && recommendation && <StepRecommend {...{ recommendation, award, barReveal, cite, setAward, onBack: () => goTo(4), onReset: reset }} />}
+          {step === 5 && recommendations.length > 0 && <StepRecommend {...{ recommendations, awards, heroTrade, barReveal, cite, setAward: (t: string, id: string) => setAwards((a) => ({ ...a, [t]: id })), onBack: () => goTo(4), onReset: reset }} />}
           </>}
         </div>
       </div>
@@ -373,7 +388,7 @@ function FlagPanel({ flag, sev, cite }: { flag: { label: string; rule_ref: strin
 // ----------------------------------------------------------------------------
 function sendingSteps(d: DispatchSet): string[] {
   const firms = Array.from(new Set(d.bundles.map((b) => b.firm_name)));
-  return ["Composing enquiry emails", "Attaching each firm's trade document bundle", ...firms.map((f) => `Sent \u2192 ${f}`), "Mock outbox updated"];
+  return ["Composing enquiry emails", "Attaching each firm's trade document bundle", ...firms.map((f) => `Sent → ${f}`), "Mock outbox updated"];
 }
 
 function collectingSteps(rs: BidReply[]): string[] {
@@ -415,7 +430,7 @@ function ProcessingOverlay({ kind, steps, onDone }: { kind: "sending" | "collect
           return (
             <li key={idx} className={state === "pending" ? undefined : "ssStep"} style={{ display: "flex", alignItems: "center", gap: 11, padding: "9px 24px", opacity: state === "pending" ? 0.32 : 1 }}>
               <span style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: 20, height: 20, flex: "none", borderRadius: "50%", border: `1.5px solid ${state === "done" ? accent : "rgba(15,27,45,0.2)"}`, background: state === "done" ? accent : "#fff", color: "#fff", fontSize: 11 }}>
-                {state === "done" ? "\u2713" : state === "active" ? <span className="ssDot" style={{ width: 6, height: 6, borderRadius: "50%", background: accent }} /> : null}
+                {state === "done" ? "✓" : state === "active" ? <span className="ssDot" style={{ width: 6, height: 6, borderRadius: "50%", background: accent }} /> : null}
               </span>
               <span style={{ fontSize: 13.5, color: state === "done" ? INK : SOFT, fontWeight: state === "active" ? 600 : 400 }}>{label}</span>
             </li>
@@ -439,9 +454,9 @@ function StepDispatch({ shortlist, approvals, dispatch, dispatchSent, loading, t
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
       <div>
-        {kicker("Step 03 \u00b7 Dispatch")}
+        {kicker("Step 03 · Dispatch")}
         <h1 style={h1Sx}>Dispatch document bundles</h1>
-        <p style={leadSx}>Approve which firms to invite (the human gate). Each firm receives only its trade's documents and a composed enquiry email \u2014 review and edit any email before it goes to the mock outbox.</p>
+        <p style={leadSx}>Approve which firms to invite (the human gate). Each firm receives only its trade's documents and a composed enquiry email — review and edit any email before it goes to the mock outbox.</p>
       </div>
 
       {!dispatch && trades.map((t) => (
@@ -466,14 +481,14 @@ function StepDispatch({ shortlist, approvals, dispatch, dispatchSent, loading, t
       {!dispatch && (
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12 }}>
           <span style={{ fontSize: 13.5, color: SOFT }}>{approved} firm{approved === 1 ? "" : "s"} approved.</span>
-          <button type="button" onClick={prepareDispatch} disabled={approved === 0 || loading} style={primaryBtn(approved > 0)}>Prepare enquiry emails \u2192</button>
+          <button type="button" onClick={prepareDispatch} disabled={approved === 0 || loading} style={primaryBtn(approved > 0)}>Prepare enquiry emails →</button>
         </div>
       )}
 
       {dispatch && (
         <div className="ssRise" style={{ ...cardSx, overflow: "hidden" }}>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "14px 19px", borderBottom: "1px solid #eef1f6", background: drafting ? "linear-gradient(90deg,rgba(31,111,235,0.07),transparent)" : "linear-gradient(90deg,rgba(46,165,106,0.08),transparent)" }}>
-            <h2 style={{ margin: 0, fontSize: 14.5, fontWeight: 600, color: INK }}>{drafting ? "Draft enquiries \u2014 review & edit" : "Mock outbox"}</h2>
+            <h2 style={{ margin: 0, fontSize: 14.5, fontWeight: 600, color: INK }}>{drafting ? "Draft enquiries — review & edit" : "Mock outbox"}</h2>
             <span style={{ background: drafting ? rgba(BLUE, 0.12) : rgba("#2EA56A", 0.12), color: drafting ? BLUE : "#2EA56A", fontSize: 11, fontWeight: 600, padding: "4px 11px", borderRadius: 999 }}>{dispatch.bundles.length} {drafting ? "drafted" : "sent"}</span>
           </div>
           <ul style={{ margin: 0, padding: 0, listStyle: "none" }}>
@@ -507,15 +522,15 @@ function StepDispatch({ shortlist, approvals, dispatch, dispatchSent, loading, t
           </ul>
           {drafting && (
             <div style={{ display: "flex", alignItems: "center", justifyContent: "flex-end", gap: 12, padding: "14px 19px", borderTop: "1px solid #eef1f6" }}>
-              <button type="button" onClick={confirmSend} disabled={loading} style={primaryBtn(true)}>Send to approved firms (mock) \u2192</button>
+              <button type="button" onClick={confirmSend} disabled={loading} style={primaryBtn(true)}>Send to approved firms (mock) →</button>
             </div>
           )}
         </div>
       )}
 
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, paddingTop: 4 }}>
-        <button type="button" onClick={onBack} style={ghostBtn}>\u2190 Back</button>
-        <button type="button" onClick={onNext} disabled={!dispatchSent || loading} style={primaryBtn(dispatchSent)}>Level the bids \u2192</button>
+        <button type="button" onClick={onBack} style={ghostBtn}>← Back</button>
+        <button type="button" onClick={onNext} disabled={!dispatchSent || loading} style={primaryBtn(dispatchSent)}>Level the bids →</button>
       </div>
     </div>
   );
@@ -548,9 +563,9 @@ function StepLevel({ levelled, replies, heroTrade, levelStale, loading, editRate
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 22 }}>
       <div>
-        {kicker("Step 04 \u00b7 Level")}
+        {kicker("Step 04 · Level")}
         <h1 style={h1Sx}>Level the bids on a like-for-like basis</h1>
-        <p style={leadSx}>The rules engine recomputes every amount as qty \u00d7 rate, flags arithmetic errors, treats a missing rate or provisional sum as a scope gap, and keeps exclusions non-comparable. Each work section is leveled separately. Edit a rate and recompute to see the ranking move.</p>
+        <p style={leadSx}>The rules engine recomputes every amount as qty × rate, flags arithmetic errors, treats a missing rate or provisional sum as a scope gap, and keeps exclusions non-comparable. Each work section is leveled separately. Edit a rate and recompute to see the ranking move.</p>
       </div>
 
       {tradesOrder.map((trade) => {
@@ -598,7 +613,7 @@ function StepLevel({ levelled, replies, heroTrade, levelStale, loading, editRate
             </div>
 
             <div className="ssx" style={{ ...cardSx, overflowX: "auto" }}>
-              <h3 style={{ margin: 0, padding: "12px 19px", borderBottom: "1px solid #eef1f6", fontFamily: MONO, fontSize: 10.5, fontWeight: 600, letterSpacing: "0.1em", textTransform: "uppercase", color: SOFT }}>Rates by item \u2014 edit a rate to re-level</h3>
+              <h3 style={{ margin: 0, padding: "12px 19px", borderBottom: "1px solid #eef1f6", fontFamily: MONO, fontSize: 10.5, fontWeight: 600, letterSpacing: "0.1em", textTransform: "uppercase", color: SOFT }}>Rates by item — edit a rate to re-level</h3>
               <table style={{ width: "100%", minWidth: 680, borderCollapse: "collapse" }}>
                 <thead><tr style={{ borderBottom: "1px solid #eef1f6" }}><th style={th}>Item</th>{reps.map((r) => <th key={r.firm_id} style={{ ...thr, textTransform: "none" }}>{nameOf.get(r.firm_id) ?? r.firm_id}</th>)}</tr></thead>
                 <tbody>
@@ -612,7 +627,7 @@ function StepLevel({ levelled, replies, heroTrade, levelStale, loading, editRate
                         const l = line(r.firm_id, ref); const amt = l && l.rate != null ? l.qty * l.rate : null; const gap = l != null && l.rate == null;
                         return (
                           <td key={r.firm_id} style={{ padding: "10px 17px", textAlign: "right", verticalAlign: "top" }}>
-                            <input type="number" placeholder={gap ? "\u2014" : ""} value={l?.rate ?? ""} onChange={(e) => editRate(r.firm_id, ref, e.target.value === "" ? null : Number(e.target.value))} style={{ width: 106, border: `1px solid ${gap ? rgba("#D99513", 0.55) : "rgba(15,27,45,0.12)"}`, borderRadius: 8, background: gap ? rgba("#D99513", 0.06) : "#fff", padding: "7px 9px", textAlign: "right", fontFamily: MONO, fontVariantNumeric: "tabular-nums", fontSize: 12, color: INK, outline: "none" }} />
+                            <input type="number" placeholder={gap ? "—" : ""} value={l?.rate ?? ""} onChange={(e) => editRate(r.firm_id, ref, e.target.value === "" ? null : Number(e.target.value))} style={{ width: 106, border: `1px solid ${gap ? rgba("#D99513", 0.55) : "rgba(15,27,45,0.12)"}`, borderRadius: 8, background: gap ? rgba("#D99513", 0.06) : "#fff", padding: "7px 9px", textAlign: "right", fontFamily: MONO, fontVariantNumeric: "tabular-nums", fontSize: 12, color: INK, outline: "none" }} />
                             <div style={{ fontFamily: MONO, fontSize: 11, color: gap ? "#B7791F" : FAINT, fontWeight: gap ? 600 : 400, marginTop: 3 }}>{amt != null ? hkd(amt) : "scope gap"}</div>
                           </td>
                         );
@@ -632,7 +647,7 @@ function StepLevel({ levelled, replies, heroTrade, levelStale, loading, editRate
 
       {levelStale && (
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, border: `1px solid ${rgba("#D99513", 0.35)}`, background: rgba("#D99513", 0.08), borderRadius: 12, padding: "13px 17px" }}>
-          <span style={{ fontSize: 13.5, color: INK }}>\u26a0 A rate changed \u2014 the corrected totals are stale.</span>
+          <span style={{ fontSize: 13.5, color: INK }}>⚠ A rate changed — the corrected totals are stale.</span>
           <button type="button" onClick={recompute} style={{ background: BLUE, border: "none", color: "#fff", borderRadius: 9, padding: "8px 16px", fontSize: 13.5, fontWeight: 600, cursor: "pointer" }}>Recompute</button>
         </div>
       )}
@@ -641,8 +656,8 @@ function StepLevel({ levelled, replies, heroTrade, levelStale, loading, editRate
         <CalloutCol title="Arithmetic corrections" color="#E5484D">
           {levelled.flatMap((b) => b.arithmetic_findings.map((f, i) => (
             <li key={`${b.firm_id}-${b.trade}-${i}`} style={{ padding: "8px 0", borderBottom: "1px solid #f3f5f9" }}>
-              <span style={{ fontSize: 12.5, fontWeight: 600, color: INK }}>{nameOf.get(b.firm_id)}</span> <span style={{ fontFamily: MONO, fontSize: 11, color: FAINT }}>\u00b7 {f.location}</span>
-              <div style={{ fontSize: 11.5, color: SOFT, lineHeight: 1.5, marginTop: 2 }}>{f.issue} \u2192 {hkd(f.corrected_value)}</div>
+              <span style={{ fontSize: 12.5, fontWeight: 600, color: INK }}>{nameOf.get(b.firm_id)}</span> <span style={{ fontFamily: MONO, fontSize: 11, color: FAINT }}>· {f.location}</span>
+              <div style={{ fontSize: 11.5, color: SOFT, lineHeight: 1.5, marginTop: 2 }}>{f.issue} → {hkd(f.corrected_value)}</div>
             </li>
           )))}
         </CalloutCol>
@@ -665,18 +680,40 @@ function StepLevel({ levelled, replies, heroTrade, levelStale, loading, editRate
       </div>
 
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, paddingTop: 4 }}>
-        <button type="button" onClick={onBack} style={ghostBtn}>\u2190 Back</button>
-        <a href={api.levelingXlsxUrl()} style={{ ...ghostBtn, textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 8 }}>\u2913 Download Excel</a>
-        <button type="button" onClick={onNext} disabled={levelStale || loading} style={primaryBtn(!levelStale)}>Recommend an award \u2192</button>
+        <button type="button" onClick={onBack} style={ghostBtn}>← Back</button>
+        <a href={api.levelingXlsxUrl()} style={{ ...ghostBtn, textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 8 }}>⤓ Download Excel</a>
+        <button type="button" onClick={onNext} disabled={levelStale || loading} style={primaryBtn(!levelStale)}>Recommend an award →</button>
       </div>
     </div>
   );
 }
 
-function StepRecommend({ recommendation, award, barReveal, cite, setAward, onBack, onReset }: {
-  recommendation: Recommendation; award: string | null; barReveal: boolean; cite: Cite; setAward: (id: string) => void; onBack: () => void; onReset: () => void;
+function StepRecommend({ recommendations, awards, heroTrade, barReveal, cite, setAward, onBack, onReset }: {
+  recommendations: Recommendation[]; awards: Record<string, string | null>; heroTrade: string; barReveal: boolean; cite: Cite;
+  setAward: (trade: string, id: string) => void; onBack: () => void; onReset: () => void;
 }) {
-  const rec = recommendation;
+  const multi = recommendations.length > 1;
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 26 }}>
+      <div>
+        {kicker("Step 05 · Recommend")}
+        <h1 style={h1Sx}>The risk-adjusted recommendation{multi ? " · per work section" : ""}</h1>
+        <p style={leadSx}>The engine ranks each section by corrected price but reads every firm against the database — a firm with a fatal flag is recommended against regardless of price. Where a tender benchmark is shown it is the scheduled-rate baseline, not a competing bid. The rationale is narrated; the engine never chooses the winner.</p>
+      </div>
+      {recommendations.map((rec) => (
+        <RecommendSection key={rec.trade} rec={rec} isHero={rec.trade === heroTrade} multi={multi} award={awards[rec.trade] ?? null} onAward={(id) => setAward(rec.trade, id)} barReveal={barReveal} cite={cite} />
+      ))}
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, paddingTop: 4 }}>
+        <button type="button" onClick={onBack} style={ghostBtn}>← Back</button>
+        <button type="button" onClick={onReset} style={ghostBtn}>Start over</button>
+      </div>
+    </div>
+  );
+}
+
+function RecommendSection({ rec, isHero, multi, award, onAward, barReveal, cite }: {
+  rec: Recommendation; isHero: boolean; multi: boolean; award: string | null; onAward: (id: string) => void; barReveal: boolean; cite: Cite;
+}) {
   const winner = rec.ranked.find((r) => r.firm_id === rec.recommended_firm_id);
   const against = rec.ranked.find((r) => r.recommended_against);
   const band = rec.historical_band;
@@ -688,15 +725,17 @@ function StepRecommend({ recommendation, award, barReveal, cite, setAward, onBac
   }).sort((a, b) => a.value - b.value);
   const awardRow = rec.ranked.find((r) => r.firm_id === award); const overriding = !!awardRow?.recommended_against;
   const pct = (v: number) => `${((v / maxVal) * 100).toFixed(2)}%`;
+  const sectionWrap: React.CSSProperties = multi ? { border: "1px solid rgba(15,27,45,0.08)", borderRadius: 18, padding: 20 } : {};
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
-      <div>
-        {kicker("Step 05 · Recommend")}
-        <h1 style={h1Sx}>The risk-adjusted recommendation</h1>
-        <p style={leadSx}>The engine ranks by corrected price but reads each firm against the database. A firm with a fatal flag is recommended against regardless of price. The rationale is narrated — the engine never chooses the winner.</p>
-      </div>
-
+    <div style={{ display: "flex", flexDirection: "column", gap: 18, ...sectionWrap }}>
+      {multi && (
+        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+          <span style={{ width: 12, height: 12, borderRadius: "50%", background: tradeColor(rec.trade) }} />
+          <h2 style={{ margin: 0, fontFamily: DISPLAY, fontSize: 20, fontWeight: 700, color: INK }}>{tradeLabel(rec.trade)}</h2>
+          {isHero && <span style={{ background: rgba(BLUE, 0.1), color: BLUE, fontFamily: MONO, fontSize: 10, fontWeight: 600, letterSpacing: "0.06em", textTransform: "uppercase", padding: "3px 9px", borderRadius: 999 }}>Hero scope</span>}
+        </div>
+      )}
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
         {winner && (
           <div style={{ border: `1px solid ${rgba("#2EA56A", 0.35)}`, background: "linear-gradient(160deg,rgba(46,165,106,0.10),rgba(46,165,106,0.02))", borderRadius: 16, padding: 18 }}>
@@ -723,11 +762,10 @@ function StepRecommend({ recommendation, award, barReveal, cite, setAward, onBac
         </div>
       )}
 
-      {/* chart */}
       <div style={{ ...cardSx, overflow: "hidden" }}>
         <div style={{ padding: "14px 19px", borderBottom: "1px solid #eef1f6" }}>
-          <h2 style={{ margin: 0, fontSize: 14.5, fontWeight: 600, color: INK }}>Bid distribution &amp; historical band</h2>
-          <p style={{ margin: "4px 0 0", fontSize: 12, color: FAINT }}>Corrected totals; the shaded region is the historical band (low–high), the dashed line the median.</p>
+          <h3 style={{ margin: 0, fontSize: 14.5, fontWeight: 600, color: INK }}>Bid distribution{band ? " & historical band" : ""}</h3>
+          <p style={{ margin: "4px 0 0", fontSize: 12, color: FAINT }}>Corrected totals on the same measured quantities.{band ? " Shaded region is the historical band (low–high), dashed line the median." : ""}</p>
         </div>
         <div style={{ padding: "24px 19px 18px" }}>
           <div style={{ position: "relative" }}>
@@ -753,9 +791,8 @@ function StepRecommend({ recommendation, award, barReveal, cite, setAward, onBac
         </div>
       </div>
 
-      {/* ranked */}
       <div style={{ ...cardSx, overflow: "hidden" }}>
-        <h2 style={{ margin: 0, padding: "14px 19px", borderBottom: "1px solid #eef1f6", fontFamily: MONO, fontSize: 10.5, fontWeight: 600, letterSpacing: "0.1em", textTransform: "uppercase", color: SOFT }}>Ranked — clean firms first, flagged firms demoted</h2>
+        <h3 style={{ margin: 0, padding: "14px 19px", borderBottom: "1px solid #eef1f6", fontFamily: MONO, fontSize: 10.5, fontWeight: 600, letterSpacing: "0.1em", textTransform: "uppercase", color: SOFT }}>Ranked — clean firms first, flagged firms demoted</h3>
         <ol style={{ margin: 0, padding: 0, listStyle: "none" }}>
           {rec.ranked.map((r, i) => (
             <li key={r.firm_id} style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: 10, padding: "14px 19px", borderBottom: "1px solid #eef1f6", background: r.recommended_against ? rgba("#E5484D", 0.04) : "transparent" }}>
@@ -770,22 +807,20 @@ function StepRecommend({ recommendation, award, barReveal, cite, setAward, onBac
         </ol>
       </div>
 
-      {/* rationale */}
       <div style={{ ...cardSx, padding: 19 }}>
-        <h2 style={{ margin: "0 0 11px", fontFamily: MONO, fontSize: 10.5, fontWeight: 600, letterSpacing: "0.1em", textTransform: "uppercase", color: SOFT }}>Rationale — narrated, not decided</h2>
+        <h3 style={{ margin: "0 0 11px", fontFamily: MONO, fontSize: 10.5, fontWeight: 600, letterSpacing: "0.1em", textTransform: "uppercase", color: SOFT }}>Rationale — narrated, not decided</h3>
         <blockquote style={{ margin: 0, borderLeft: "3px solid #6E56CF", background: "linear-gradient(120deg,rgba(110,86,207,0.06),rgba(31,111,235,0.04))", borderRadius: "0 11px 11px 0", padding: "15px 17px", fontSize: 14, lineHeight: 1.7, color: "#1d2c40" }}>{rec.rationale}</blockquote>
       </div>
 
-      {/* award */}
       <div style={{ ...cardSx, padding: 19 }}>
-        <h2 style={{ margin: 0, fontSize: 14.5, fontWeight: 600, color: INK }}>Award — the human decision</h2>
+        <h3 style={{ margin: 0, fontSize: 14.5, fontWeight: 600, color: INK }}>Award — the human decision</h3>
         <p style={{ margin: "5px 0 14px", fontSize: 12.5, color: FAINT }}>The recommendation is decision support. Select the firm to award — overriding onto a flagged firm is recorded.</p>
         <div style={{ display: "flex", flexDirection: "column", gap: 9 }}>
           {rec.ranked.map((r) => {
             const on = award === r.firm_id;
             return (
               <label key={r.firm_id} style={{ display: "flex", alignItems: "center", gap: 11, border: `1.5px solid ${on ? BLUE : "rgba(15,27,45,0.12)"}`, background: on ? rgba(BLUE, 0.05) : "#fff", borderRadius: 12, padding: "12px 15px", cursor: "pointer" }}>
-                <input type="radio" name="award" checked={on} onChange={() => setAward(r.firm_id)} style={{ width: 17, height: 17, accentColor: BLUE, cursor: "pointer" }} />
+                <input type="radio" name={`award-${rec.trade}`} checked={on} onChange={() => onAward(r.firm_id)} style={{ width: 17, height: 17, accentColor: BLUE, cursor: "pointer" }} />
                 <span style={{ fontSize: 14, fontWeight: 500, color: INK }}>{r.firm_name}</span>
                 <span style={{ fontFamily: MONO, fontSize: 12, color: FAINT }}>{hkd(r.corrected_total)}</span>
                 {r.recommended_against && <span style={{ marginLeft: "auto", background: rgba("#E5484D", 0.1), color: "#E5484D", fontSize: 11, fontWeight: 600, padding: "2px 9px", borderRadius: 999 }}>flagged</span>}
@@ -796,11 +831,6 @@ function StepRecommend({ recommendation, award, barReveal, cite, setAward, onBac
         <div style={{ marginTop: 14, borderRadius: 11, padding: "12px 15px", fontSize: 13, fontWeight: 500, background: overriding ? rgba("#E5484D", 0.1) : rgba("#2EA56A", 0.1), color: overriding ? "#E5484D" : "#1a8a56" }}>
           {overriding ? `⚠ Override recorded: awarding ${awardRow!.firm_name}, which the engine recommends against.` : awardRow ? `✓ Award recorded: ${awardRow.firm_name} (${hkd(awardRow.corrected_total)}).` : "Select a firm to award."}
         </div>
-      </div>
-
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, paddingTop: 4 }}>
-        <button type="button" onClick={onBack} style={ghostBtn}>← Back</button>
-        <button type="button" onClick={onReset} style={ghostBtn}>Start over</button>
       </div>
     </div>
   );
