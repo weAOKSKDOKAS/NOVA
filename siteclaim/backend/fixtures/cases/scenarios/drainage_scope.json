@@ -3,7 +3,7 @@
   "packages": [
     {
       "trade": "Field Testing",
-      "scope_summary": "Drainage field test — manufacture, mobilise and set up the test rig, carry out the test at each location, supply water, provide and remove freeboard, and drainage modification (demolition and U-channel), measured per the Method of Measurement.",
+      "scope_summary": "Drainage field test (SR Section G): manufacture, mobilise and set up the test rig, carry out the test at each location, supply water, provide and remove freeboard, and drainage modification (demolition and channel construction), measured per the Method of Measurement.",
       "sor_items": [
         {"item_ref": "G11", "description": "Manufacture the set up of drainage field test", "unit": "Item", "qty": 1.0},
         {"item_ref": "G12", "description": "Mobilise full set of drainage field test set up on land", "unit": "No.", "qty": 4.0},
@@ -17,20 +17,26 @@
       "source_refs": ["I-GE_2026_14_TSC-SR-01.pdf", "I-GE_2026_14_TSC-PS-S07-00.pdf", "I-GE_2026_14_TSC-MM-01.pdf", "AECOM Tender Clarification No.1.pdf"]
     },
     {
-      "trade": "Drilling",
-      "scope_summary": "Rotary drilling in soil and rock and provision of borehole casing, to the scheduled depths.",
+      "trade": "Field Installations",
+      "scope_summary": "Field installations and instrumentation for the drainage field test (SR Section H): supply, install and monitor the test instruments, with data collection and CCTV operation.",
       "sor_items": [
-        {"item_ref": "E1", "description": "Rotary drilling in soil and rock", "unit": "m", "qty": 600.0},
-        {"item_ref": "E2", "description": "Provision and installation of borehole casing", "unit": "m", "qty": 200.0}
+        {"item_ref": "H14", "description": "Supply and install instruments and monitoring for drainage field test (2D LiDAR sensor, ultrasonic level sensor, dual-tip conductivity probe, optical camera, velocimeter, flowmeter)", "unit": "No.", "qty": 6.0},
+        {"item_ref": "H15", "description": "Supply and install on-site instruments within HKSAR (incl. optical rain gauge)", "unit": "No.", "qty": 4.0},
+        {"item_ref": "H16", "description": "Monitoring, data collection and data transmission", "unit": "No.-Month", "qty": 24.0},
+        {"item_ref": "H17", "description": "Operation and maintenance of the Closed Circuit Television (CCTV)", "unit": "No.-Month", "qty": 12.0}
       ],
-      "source_refs": ["I-GE_2026_14_TSC-SR-01.pdf", "I-GE_2026_14_TSC-MM-01.pdf"]
+      "source_refs": ["I-GE_2026_14_TSC-SR-01.pdf", "I-GE_2026_14_TSC-PS-S07-00.pdf", "I-GE_2026_14_TSC-MM-01.pdf"]
     },
     {
-      "trade": "Sampling",
-      "scope_summary": "Undisturbed and disturbed sampling from drillholes, to the schedule.",
+      "trade": "Geophysical Survey",
+      "scope_summary": "Borehole televiewer / geophysical survey (SR Section J): mobilise survey equipment, carry out land resistivity multi-channel and ground penetrating radar surveys, data interpretation, and final reporting.",
       "sor_items": [
-        {"item_ref": "F1", "description": "Undisturbed sample (U76)", "unit": "No.", "qty": 80.0},
-        {"item_ref": "F2", "description": "Disturbed / bulk sample", "unit": "No.", "qty": 120.0}
+        {"item_ref": "J5", "description": "Mobilise and demobilise geophysical survey equipment (land resistivity; ground penetrating radar)", "unit": "No.", "qty": 2.0},
+        {"item_ref": "J6", "description": "Carry out land resistivity multi-channel survey (by measurement spacing)", "unit": "Point", "qty": 120.0},
+        {"item_ref": "J7", "description": "Carry out ground penetrating radar survey", "unit": "m", "qty": 800.0},
+        {"item_ref": "J8", "description": "Extra over J6–J7 for data interpretation", "unit": "Point", "qty": 120.0},
+        {"item_ref": "J9", "description": "Provide set of two copies of the Final Report including CD-ROM", "unit": "Set", "qty": 1.0},
+        {"item_ref": "J10", "description": "Provide additional copies of the Final Report", "unit": "No.", "qty": 3.0}
       ],
       "source_refs": ["I-GE_2026_14_TSC-SR-01.pdf", "I-GE_2026_14_TSC-MM-01.pdf"]
     }

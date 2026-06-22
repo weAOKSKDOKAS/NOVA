@@ -181,16 +181,13 @@ export function PageDatabase({
           <input value={q} onChange={(e) => setQ(e.target.value)} placeholder={`Search ${total} firms — name, English or 中文…`} style={{ flex: 1, border: "none", outline: "none", background: "transparent", fontSize: 14, color: "#0F1B2D", height: "100%" }} />
           <span style={{ fontFamily: mono, fontSize: 11, color: "#8a98ab" }}>{rows.length}/{firms.length}</span>
         </div>
-        <div style={{ display: "flex", flexWrap: "wrap", gap: 7 }}>
-          <button type="button" onClick={() => setTrade("all")} style={{ border: `1px solid ${trade === "all" ? "#0F1B2D" : "rgba(15,27,45,0.14)"}`, background: trade === "all" ? "#0F1B2D" : "#fff", color: trade === "all" ? "#fff" : "#46566b", fontSize: 12.5, fontWeight: 500, padding: "8px 13px", borderRadius: 9, cursor: "pointer" }}>All trades</button>
-          {trades.map((t) => {
-            const col = tradeColor(t), on = trade === t;
-            return (
-              <button key={t} type="button" onClick={() => setTrade(on ? "all" : t)} style={{ display: "inline-flex", alignItems: "center", gap: 6, border: `1px solid ${on ? col : rgba(col, 0.25)}`, background: on ? col : rgba(col, 0.08), color: on ? "#fff" : col, fontSize: 12.5, fontWeight: 500, padding: "8px 13px", borderRadius: 9, cursor: "pointer" }}>
-                <span style={{ width: 7, height: 7, borderRadius: "50%", background: on ? "#fff" : col }} />{tradeLabel(t)}
-              </button>
-            );
-          })}
+        <div style={{ position: "relative", display: "inline-flex", alignItems: "center", gap: 9, height: 46, padding: "0 12px", background: "#fff", border: `1px solid ${trade === "all" ? "rgba(15,27,45,0.10)" : rgba(tradeColor(trade), 0.4)}`, borderRadius: 12, boxShadow: "0 6px 18px -14px rgba(15,27,45,0.4)" }}>
+          <span style={{ width: 8, height: 8, borderRadius: "50%", flex: "none", background: trade === "all" ? "#8a98ab" : tradeColor(trade) }} />
+          <select value={trade} onChange={(e) => setTrade(e.target.value)} aria-label="Filter by trade" style={{ appearance: "none", WebkitAppearance: "none", border: "none", outline: "none", background: "transparent", fontFamily: "inherit", fontSize: 13.5, fontWeight: 500, color: "#0F1B2D", height: "100%", paddingRight: 16, cursor: "pointer" }}>
+            <option value="all">All trades</option>
+            {trades.map((t) => <option key={t} value={t}>{tradeLabel(t)}</option>)}
+          </select>
+          <span style={{ position: "absolute", right: 12, pointerEvents: "none", color: "#8a98ab", fontSize: 10 }}>▾</span>
         </div>
         <button type="button" onClick={() => setFlaggedOnly((v) => !v)} style={{ display: "inline-flex", alignItems: "center", gap: 8, height: 38, background: flaggedOnly ? rgba("#E5484D", 0.08) : "#fff", border: `1px solid ${flaggedOnly ? rgba("#E5484D", 0.4) : "rgba(15,27,45,0.14)"}`, borderRadius: 9, padding: "0 14px", fontSize: 12.5, fontWeight: 600, color: flaggedOnly ? "#E5484D" : "#46566b", cursor: "pointer" }}>
           <span style={{ width: 8, height: 8, borderRadius: "50%", background: "#E5484D" }} />Flagged only

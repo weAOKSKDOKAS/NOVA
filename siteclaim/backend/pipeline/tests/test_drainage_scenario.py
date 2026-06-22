@@ -46,7 +46,9 @@ def test_ingest_splits_the_civil_tender_by_work_section():
     scope = ingest_tender(tender, demo_fixture=_SCOPE_FIXTURE)
     trades = [p.trade for p in scope.packages]
     # the generic taxonomy normalises the civil work sections to canonical keys
-    assert trades == ["field_testing", "drilling", "sampling"]
+    # (field_installations) and keeps a non-canonical section under its slug
+    # (geophysical_survey) — never an electrical/building trade
+    assert trades == ["field_testing", "field_installations", "geophysical_survey"]
     field = next(p for p in scope.packages if p.trade == "field_testing")
     assert [i.item_ref for i in field.sor_items] == ["G11", "G12", "G13", "G14", "G15", "G16", "G17a", "G17b"]
 
