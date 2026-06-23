@@ -348,7 +348,9 @@ class LevelRequest(BaseModel):
 def post_level(req: LevelRequest) -> list[LevelledBid]:
     replies = req.replies or load_demo_replies(req.demo_fixture)
     levelled = level_bids(replies, req.scope)
-    export_leveling_xlsx(levelled, replies, path=OUT_PATH)  # refresh the downloadable Excel
+    export_leveling_xlsx(  # refresh the downloadable adjudication workbook
+        levelled, replies, path=OUT_PATH, project_name=req.scope.project_name if req.scope else "",
+    )
     return levelled
 
 
