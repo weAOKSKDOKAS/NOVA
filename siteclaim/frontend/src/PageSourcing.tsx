@@ -3,7 +3,7 @@ import { api } from "./api";
 import { useCite } from "./cite";
 import { hkd, registerFor, rgba, tradeColor, tradeLabel } from "./theme";
 import type {
-  BidReply, Coverage, DispatchSet, LevelledBid, Recommendation, ScopePackages, ShortlistSet,
+  BidReply, Coverage, DispatchSet, FirmProfileFull, LevelledBid, Recommendation, ScopePackages, ShortlistSet,
 } from "./types";
 
 const MONO = "'Spline Sans Mono',monospace";
@@ -300,6 +300,8 @@ function StepShortlist({ shortlist, heroTrade, covTotal, covFlagged, loading, ci
 }) {
   const trades = Object.keys(shortlist.per_trade).sort((a, b) => (a === heroTrade ? -1 : b === heroTrade ? 1 : a.localeCompare(b)));
   const totalCandidates = Object.values(shortlist.per_trade).reduce((n, cs) => n + cs.length, 0);
+  const [selectedFirmId, setSelectedFirmId] = useState<string | null>(null);
+  const [hoveredId, setHoveredId] = useState<string | null>(null);
 
   // No firm in the discovery database does this tender's work sections (e.g. the
   // ground-investigation drainage scenario). Be honest rather than render a blank
@@ -332,6 +334,7 @@ function StepShortlist({ shortlist, heroTrade, covTotal, covFlagged, loading, ci
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+      {selectedFirmId && <FirmModal firmId={selectedFirmId} onClose={() => setSelectedFirmId(null)} />}
       <div>
         {kicker("Step 02 · Shortlist")}
         <h1 style={h1Sx}>Shortlist per trade — with cited evidence</h1>
@@ -356,23 +359,38 @@ function StepShortlist({ shortlist, heroTrade, covTotal, covFlagged, loading, ci
                 <span style={{ background: "#EEF2F7", color: SOFT, fontSize: 11, fontWeight: 500, padding: "3px 10px", borderRadius: 999 }}>{cands.length} firms</span>
               </div>
             </div>
-            <ol style={{ margin: 0, padding: 0, listStyle: "none" }}>
+            <div style={{ display: "flex", flexDirection: "column", gap: 10, padding: "14px 16px" }}>
               {cands.map((c, i) => {
                 const fatal = c.risk_flags.filter((f) => f.severity === "fatal"); const warn = c.risk_flags.filter((f) => f.severity !== "fatal");
                 const mb = c.match_score >= 0.7 ? "#2EA56A" : c.match_score >= 0.5 ? BLUE : FAINT;
+                const isIllustrative = c.firm.firm_id.startsWith("F-");
+                const isHov = hoveredId === c.firm.firm_id;
                 return (
-                  <li key={c.firm.firm_id} style={{ padding: "16px 19px", borderBottom: "1px solid #eef1f6", background: c.recommended_against ? rgba("#E5484D", 0.04) : "transparent" }}>
+                  <div
+                    key={c.firm.firm_id}
+                    onClick={() => setSelectedFirmId(c.firm.firm_id)}
+                    onMouseEnter={() => setHoveredId(c.firm.firm_id)}
+                    onMouseLeave={() => setHoveredId(null)}
+                    style={{
+                      border: `1px solid ${c.recommended_against ? rgba("#E5484D", 0.25) : isHov ? rgba(BLUE, 0.3) : "rgba(15,27,45,0.10)"}`,
+                      borderRadius: 13, padding: "14px 16px", cursor: "pointer",
+                      background: c.recommended_against ? rgba("#E5484D", 0.04) : isHov ? rgba(BLUE, 0.025) : "#fff",
+                      boxShadow: isHov ? `0 4px 16px -8px ${rgba(BLUE, 0.25)}` : "none",
+                      transition: "border-color 0.12s, background 0.12s, box-shadow 0.12s",
+                    }}
+                  >
                     <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: 10 }}>
                       <span style={{ display: "flex", alignItems: "center", justifyContent: "center", width: 26, height: 26, flex: "none", borderRadius: 9, border: `1px solid ${c.recommended_against ? rgba("#E5484D", 0.4) : "rgba(15,27,45,0.14)"}`, fontFamily: MONO, fontSize: 12, fontWeight: 600, color: c.recommended_against ? "#E5484D" : SOFT, background: c.recommended_against ? rgba("#E5484D", 0.08) : "#fff" }}>{i + 1}</span>
                       <span style={{ fontFamily: DISPLAY, fontSize: 16, fontWeight: 600, color: INK }}>{c.firm.name}</span>
                       <span style={{ fontFamily: MONO, fontSize: 11, color: FAINT }}>{c.firm.firm_id}</span>
+                      {isIllustrative && <span style={{ background: rgba("#D99513", 0.12), color: "#9a6a08", fontFamily: MONO, fontSize: 10, fontWeight: 600, letterSpacing: "0.05em", textTransform: "uppercase", padding: "2px 7px", borderRadius: 5 }}>Illustrative</span>}
                       <span style={{ display: "inline-flex", alignItems: "center", gap: 7 }}>
                         <span style={{ width: 64, height: 6, borderRadius: 3, background: "#EEF2F7", overflow: "hidden" }}><span style={{ display: "block", height: "100%", width: `${Math.round(c.match_score * 100)}%`, background: mb }} /></span>
                         <span style={{ fontFamily: MONO, fontSize: 11.5, fontWeight: 600, color: c.match_score >= 0.7 ? "#2EA56A" : c.match_score >= 0.5 ? BLUE : SOFT }}>{Math.round(c.match_score * 100)}%</span>
                       </span>
                       {i === 0 && !c.recommended_against && <span style={{ background: rgba("#2EA56A", 0.12), color: "#2EA56A", fontSize: 11, fontWeight: 600, padding: "2px 10px", borderRadius: 999 }}>✓ Top pick</span>}
                       {c.recommended_against && <span style={{ display: "inline-flex", alignItems: "center", gap: 5, background: "#E5484D", color: "#fff", fontSize: 11, fontWeight: 700, padding: "3px 11px", borderRadius: 999, whiteSpace: "nowrap", boxShadow: "0 6px 16px -8px rgba(229,72,77,0.8)" }}>⛔ Recommend against</span>}
-                      <span style={{ marginLeft: "auto", fontSize: 11.5, color: FAINT }}>{c.firm.registered_grade} · {formatBand(c.firm.value_band)}</span>
+                      <span style={{ marginLeft: "auto", fontSize: 11.5, color: FAINT }}>{[c.firm.registered_grade, c.firm.value_band ? formatBand(c.firm.value_band) : ""].filter(Boolean).join(" · ")}</span>
                     </div>
                     {c.firm.closeout_summary && <p style={{ margin: "10px 0 0", fontSize: 12.5, lineHeight: 1.55, color: SOFT }}>{c.firm.closeout_summary}</p>}
                     {fatal.length > 0 && (
@@ -385,10 +403,10 @@ function StepShortlist({ shortlist, heroTrade, covTotal, covFlagged, loading, ci
                       </div>
                     )}
                     {warn.length > 0 && <div style={{ marginTop: 11 }}>{warn.map((fl, fi) => <FlagPanel key={fi} flag={fl} sev="warning" cite={cite} />)}</div>}
-                  </li>
+                  </div>
                 );
               })}
-            </ol>
+            </div>
           </div>
         );
       })}
@@ -421,6 +439,173 @@ function FlagPanel({ flag, sev, cite }: { flag: { label: string; rule_ref: strin
         ))}
       </div>
     </div>
+  );
+}
+
+// ----------------------------------------------------------------------------
+function FirmModal({ firmId, onClose }: { firmId: string; onClose: () => void }) {
+  const [firm, setFirm] = useState<FirmProfileFull | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [err, setErr] = useState<string | null>(null);
+
+  useEffect(() => {
+    let live = true;
+    setLoading(true); setErr(null); setFirm(null);
+    api.firmById(firmId)
+      .then((f) => { if (live) { setFirm(f); setLoading(false); } })
+      .catch((e) => { if (live) { setErr(e instanceof Error ? e.message : String(e)); setLoading(false); } });
+    return () => { live = false; };
+  }, [firmId]);
+
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => { if (e.key === "Escape") onClose(); };
+    document.addEventListener("keydown", handler);
+    return () => document.removeEventListener("keydown", handler);
+  }, [onClose]);
+
+  const isIllustrative = firm?.provenance === "illustrative";
+  const shownEmail = (email: string) =>
+    email && email.includes("@") && !email.includes("[email") ? email : null;
+
+  return (
+    <>
+      <div onClick={onClose} style={{ position: "fixed", inset: 0, background: "rgba(15,27,45,0.55)", backdropFilter: "blur(2px)", zIndex: 1000 }} />
+      <div style={{ position: "fixed", top: "50%", left: "50%", transform: "translate(-50%,-50%)", width: "min(720px,94vw)", maxHeight: "88vh", overflowY: "auto", zIndex: 1001, background: "#fff", borderRadius: 20, boxShadow: "0 24px 60px -16px rgba(15,27,45,0.45)" }}>
+        {/* sticky header */}
+        <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 12, padding: "20px 22px 16px", borderBottom: "1px solid #eef1f6", position: "sticky", top: 0, background: "#fff", zIndex: 1 }}>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            {loading && <div style={{ fontSize: 14, color: FAINT }}>Loading…</div>}
+            {!loading && err && <div style={{ fontSize: 14, color: "#E5484D" }}>{err}</div>}
+            {!loading && firm && (
+              <>
+                <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: 8, marginBottom: 4 }}>
+                  <h2 style={{ margin: 0, fontFamily: DISPLAY, fontSize: 20, fontWeight: 700, color: INK }}>{firm.name_en}</h2>
+                  {isIllustrative && <span style={{ background: rgba("#D99513", 0.15), color: "#9a6a08", fontFamily: MONO, fontSize: 10, fontWeight: 600, letterSpacing: "0.06em", textTransform: "uppercase", padding: "3px 8px", borderRadius: 6 }}>Illustrative</span>}
+                  {firm.public_flags.length > 0 && <span style={{ background: rgba("#E5484D", 0.1), color: "#E5484D", fontSize: 11, fontWeight: 600, padding: "3px 10px", borderRadius: 999 }}>⚠ Compliance flags</span>}
+                </div>
+                <div style={{ fontFamily: MONO, fontSize: 11, color: FAINT }}>{[firm.registered_grade, firm.value_band ? formatBand(firm.value_band) : ""].filter(Boolean).join(" · ")}</div>
+              </>
+            )}
+          </div>
+          <button type="button" onClick={onClose} style={{ border: "none", background: "transparent", cursor: "pointer", fontSize: 20, color: FAINT, lineHeight: 1, padding: 4, marginTop: -2, flexShrink: 0 }}>✕</button>
+        </div>
+
+        {!loading && firm && (
+          <div style={{ padding: "18px 22px 26px", display: "flex", flexDirection: "column", gap: 22 }}>
+            {/* Illustrative disclaimer */}
+            {isIllustrative && (
+              <div style={{ border: `1px solid ${rgba("#D99513", 0.3)}`, background: rgba("#D99513", 0.07), borderRadius: 11, padding: "11px 15px", fontSize: 13, color: "#9a6a08", lineHeight: 1.55 }}>
+                <strong>Illustrative firm.</strong> This entry is a fictional demo stub, not a real registered subcontractor. It appears in the shortlist to demonstrate how the risk-screening system works.
+              </div>
+            )}
+
+            {/* What they do */}
+            <section>
+              <div style={{ fontFamily: MONO, fontSize: 10.5, letterSpacing: "0.1em", textTransform: "uppercase", color: FAINT, fontWeight: 600, marginBottom: 10 }}>What they do</div>
+              {firm.description
+                ? <p style={{ margin: 0, fontSize: 13.5, lineHeight: 1.65, color: SOFT }}>{firm.description}</p>
+                : <p style={{ margin: 0, fontSize: 13, color: FAINT, fontStyle: "italic" }}>No description on file.</p>}
+              {firm.registered_trades.length > 0 && (
+                <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginTop: 12 }}>
+                  {firm.registered_trades.map((rt, i) => (
+                    <span key={i} style={{ display: "inline-flex", alignItems: "center", gap: 5, fontSize: 12, color: INK, background: "#EEF2F7", borderRadius: 7, padding: "4px 10px" }}>
+                      {rt.code && <span style={{ fontFamily: MONO, fontSize: 10.5, color: FAINT }}>{rt.code}</span>}
+                      {rt.specialty || rt.group}
+                    </span>
+                  ))}
+                </div>
+              )}
+            </section>
+
+            {/* Track record */}
+            <section>
+              <div style={{ fontFamily: MONO, fontSize: 10.5, letterSpacing: "0.1em", textTransform: "uppercase", color: FAINT, fontWeight: 600, marginBottom: 10 }}>Track record</div>
+              {firm.award_history.length > 0 ? (
+                <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                  {firm.award_history.map((a, i) => (
+                    <div key={i} style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 12, padding: "10px 13px", border: "1px solid #eef1f6", borderRadius: 10, background: "#f9fbfc" }}>
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <div style={{ fontSize: 13, fontWeight: 500, color: INK }}>{a.project}</div>
+                        {a.client && <div style={{ fontSize: 12, color: SOFT, marginTop: 2 }}>{a.client}</div>}
+                      </div>
+                      <div style={{ display: "flex", alignItems: "center", gap: 8, flexShrink: 0 }}>
+                        {a.year && <span style={{ fontFamily: MONO, fontSize: 11.5, color: FAINT }}>{a.year}</span>}
+                        {a.source && a.source.startsWith("http") && (
+                          <a href={a.source} target="_blank" rel="noopener noreferrer" style={{ display: "inline-flex", alignItems: "center", gap: 4, fontSize: 11, color: BLUE, textDecoration: "none", border: `1px solid ${rgba(BLUE, 0.25)}`, borderRadius: 7, padding: "3px 8px" }}>↗ source</a>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p style={{ margin: 0, fontSize: 13, color: FAINT, fontStyle: "italic" }}>No public award history.</p>
+              )}
+            </section>
+
+            {/* Compliance */}
+            {firm.public_flags.length > 0 && (
+              <section>
+                <div style={{ fontFamily: MONO, fontSize: 10.5, letterSpacing: "0.1em", textTransform: "uppercase", color: FAINT, fontWeight: 600, marginBottom: 10 }}>Compliance</div>
+                {isIllustrative && (
+                  <div style={{ fontSize: 12, color: "#9a6a08", background: rgba("#D99513", 0.08), border: `1px solid ${rgba("#D99513", 0.2)}`, borderRadius: 8, padding: "7px 11px", marginBottom: 10 }}>
+                    The flags below are illustrative example data and are not cited to real government records.
+                  </div>
+                )}
+                <div style={{ display: "flex", flexDirection: "column", gap: 9 }}>
+                  {firm.public_flags.map((fl, i) => {
+                    const isSevere = ["winding_up", "debarment"].includes(fl.signal_type);
+                    return (
+                      <div key={i} style={{ border: `1px solid ${isSevere ? rgba("#E5484D", 0.3) : rgba("#D99513", 0.3)}`, background: isSevere ? rgba("#E5484D", 0.04) : rgba("#D99513", 0.04), borderRadius: 11, padding: "12px 14px" }}>
+                        <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: 8, marginBottom: 6 }}>
+                          <span style={{ fontFamily: MONO, fontSize: 10, fontWeight: 600, letterSpacing: "0.05em", textTransform: "uppercase", color: isSevere ? "#E5484D" : "#9a6a08", background: isSevere ? rgba("#E5484D", 0.12) : rgba("#D99513", 0.14), padding: "2px 7px", borderRadius: 5 }}>{fl.signal_type.replace(/_/g, " ")}</span>
+                          <span style={{ fontSize: 13.5, fontWeight: 600, color: INK }}>{fl.label}</span>
+                          {fl.date && <span style={{ fontFamily: MONO, fontSize: 11, color: FAINT }}>{fl.date}</span>}
+                        </div>
+                        <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: 8 }}>
+                          {fl.source && <span style={{ fontSize: 12, color: SOFT }}>{fl.source}</span>}
+                          {!isIllustrative && fl.reference && fl.reference.startsWith("http") && (
+                            <a href={fl.reference} target="_blank" rel="noopener noreferrer" style={{ display: "inline-flex", alignItems: "center", gap: 4, fontSize: 11, color: BLUE, textDecoration: "none", border: `1px solid ${rgba(BLUE, 0.25)}`, borderRadius: 7, padding: "3px 8px" }}>↗ source</a>
+                          )}
+                          {isIllustrative && <span style={{ fontSize: 11.5, color: FAINT, fontStyle: "italic" }}>not cited to a real government record</span>}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </section>
+            )}
+
+            {/* Registration */}
+            <section>
+              <div style={{ fontFamily: MONO, fontSize: 10.5, letterSpacing: "0.1em", textTransform: "uppercase", color: FAINT, fontWeight: 600, marginBottom: 10 }}>Registration</div>
+              <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                {firm.registers.length > 0 ? (
+                  <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+                    {firm.registers.map((r, i) => (
+                      <span key={i} style={{ fontSize: 12, color: INK, background: rgba(BLUE, 0.08), borderRadius: 7, padding: "4px 10px" }}>{r}</span>
+                    ))}
+                  </div>
+                ) : (
+                  <span style={{ fontSize: 13, color: FAINT, fontStyle: "italic" }}>No register entries.</span>
+                )}
+                {firm.reg_date && (
+                  <div style={{ fontSize: 13, color: SOFT }}>
+                    <span style={{ color: FAINT }}>Registered: </span>{firm.reg_date}
+                    {firm.expiry_date && <span style={{ marginLeft: 14 }}><span style={{ color: FAINT }}>Expires: </span>{firm.expiry_date}</span>}
+                  </div>
+                )}
+                {shownEmail(firm.enquiry_email) && (
+                  <div style={{ fontSize: 13, color: SOFT }}>
+                    <span style={{ color: FAINT }}>Enquiry: </span>
+                    <a href={`mailto:${shownEmail(firm.enquiry_email)!}`} style={{ color: BLUE, textDecoration: "none" }}>{shownEmail(firm.enquiry_email)}</a>
+                  </div>
+                )}
+              </div>
+            </section>
+          </div>
+        )}
+      </div>
+    </>
   );
 }
 

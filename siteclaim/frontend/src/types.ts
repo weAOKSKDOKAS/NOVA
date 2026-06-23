@@ -216,6 +216,33 @@ export interface FirmsPage {
   offset: number;
 }
 
+// Full firm profile returned by GET /firms/{firm_id} — used by the shortlist card modal.
+export interface AwardHistoryItem {
+  project: string;
+  client: string | null;
+  year: number | null;
+  source: string | null;
+}
+
+export interface FirmProfileFull {
+  firm_id: string;
+  name_en: string;
+  name_zh: string | null;
+  registered_grade: string;
+  value_band: string;
+  registers: string[];
+  trades: string[];
+  registered_trades: RegisteredTrade[];
+  description: string;
+  enquiry_email: string;
+  br_no: string;
+  reg_date: string;
+  expiry_date: string;
+  public_flags: PublicFlag[];
+  award_history: AwardHistoryItem[];
+  provenance: string;
+}
+
 // Coverage of the real-provenance registry scrape only (the illustrative demo
 // firms are excluded from this claim).
 export interface Coverage {

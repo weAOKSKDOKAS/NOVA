@@ -5,6 +5,7 @@ import type {
   DemoCaseSummary,
   DispatchSet,
   FirmsPage,
+  FirmProfileFull,
   Health,
   LevelledBid,
   Recommendation,
@@ -87,5 +88,6 @@ export const api = {
   recommend: (levelled: LevelledBid[], trade: string, rationaleFixture: string | null) =>
     post<Recommendation>("/recommend", { levelled, trade, demo_fixture: rationaleFixture }),
 
+  firmById: (id: string) => get<FirmProfileFull>("/firms/" + encodeURIComponent(id)),
   levelingXlsxUrl: () => BASE + "/leveling.xlsx",
 };

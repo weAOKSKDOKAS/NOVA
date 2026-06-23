@@ -292,6 +292,50 @@ def paged_firms(
     }
 
 
+def firm_full_by_id(conn: sqlite3.Connection, firm_id: str) -> dict | None:
+    """Full firm profile for the detail modal — all columns plus award history with
+    source URLs and public flags with citation references."""
+    row = conn.execute("SELECT * FROM firms WHERE firm_id = ?", (firm_id,)).fetchone()
+    if row is None:
+        return None
+    flags = conn.execute(
+        "SELECT signal_type, label, date, source, reference FROM public_flags "
+        "WHERE firm_id = ? ORDER BY signal_type",
+        (firm_id,),
+    ).fetchall()
+    awards = conn.execute(
+        "SELECT project, client, year, source FROM award_history "
+        "WHERE firm_id = ? ORDER BY year DESC",
+        (firm_id,),
+    ).fetchall()
+    return {
+        "firm_id": row["firm_id"],
+        "name_en": row["name_en"],
+        "name_zh": row["name_zh"],
+        "registered_grade": row["registered_grade"] or "",
+        "value_band": row["value_band"] or "",
+        "registers": _json_list(row["registers"]),
+        "trades": _json_list(row["trades"]),
+        "registered_trades": _json_list(row["registered_trades"]),
+        "description": row["description"] or "",
+        "enquiry_email": row["enquiry_email"] or "",
+        "br_no": row["br_no"] or "",
+        "reg_date": row["reg_date"] or "",
+        "expiry_date": row["expiry_date"] or "",
+        "public_flags": [
+            {"signal_type": fl["signal_type"], "label": fl["label"],
+             "date": fl["date"], "source": fl["source"], "reference": fl["reference"]}
+            for fl in flags
+        ],
+        "award_history": [
+            {"project": aw["project"] or "", "client": aw["client"],
+             "year": aw["year"], "source": aw["source"]}
+            for aw in awards
+        ],
+        "provenance": row["provenance"],
+    }
+
+
 def real_firms(conn: sqlite3.Connection) -> list[dict]:
     """All real-provenance registry firms (used by tests / internal callers). The API
     serves :func:`paged_firms` instead — never load the full register in the client."""

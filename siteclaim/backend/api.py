@@ -121,6 +121,32 @@ class FirmsPage(BaseModel):
     offset: int
 
 
+class AwardHistoryOut(BaseModel):
+    project: str = ""
+    client: str | None = None
+    year: int | None = None
+    source: str | None = None
+
+
+class FirmFullOut(BaseModel):
+    firm_id: str
+    name_en: str
+    name_zh: str | None = None
+    registered_grade: str = ""
+    value_band: str = ""
+    registers: list[str] = Field(default_factory=list)
+    trades: list[str] = Field(default_factory=list)
+    registered_trades: list[RegisteredTradeOut] = Field(default_factory=list)
+    description: str = ""
+    enquiry_email: str = ""
+    br_no: str = ""
+    reg_date: str = ""
+    expiry_date: str = ""
+    public_flags: list[PublicFlagOut] = Field(default_factory=list)
+    award_history: list[AwardHistoryOut] = Field(default_factory=list)
+    provenance: str = ""
+
+
 _FIRM_PAGE_SIZES = {10, 25, 50, 100}
 
 
@@ -137,6 +163,20 @@ def firms(limit: int = 25, offset: int = 0, q: str = "", sort: str = "name") -> 
         return store.paged_firms(conn, limit=limit, offset=offset, q=q, sort=sort)
     finally:
         conn.close()
+
+
+@app.get("/firms/{firm_id}", response_model=FirmFullOut)
+def firm_detail(firm_id: str) -> dict:
+    """Full firm profile for the shortlist card modal — all DB columns, award history
+    with source URLs, and public flags with citation references."""
+    conn = store.get_connection()
+    try:
+        result = store.firm_full_by_id(conn, firm_id)
+    finally:
+        conn.close()
+    if result is None:
+        raise HTTPException(status_code=404, detail=f"Firm {firm_id!r} not found.")
+    return result
 
 
 # ---------------------------------------------------------------------------

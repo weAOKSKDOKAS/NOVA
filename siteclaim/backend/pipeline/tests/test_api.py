@@ -105,7 +105,7 @@ def test_scenarios_are_deterministic_on_repeat():
 def test_firms_is_a_paginated_register_with_real_emails():
     page = client.get("/firms").json()
     assert set(page) == {"items", "total", "limit", "offset"}
-    assert page["total"] == 1411 and page["limit"] == 25 and page["offset"] == 0
+    assert page["total"] == 1410 and page["limit"] == 25 and page["offset"] == 0
     assert len(page["items"]) == 25  # server-side page, not the whole register
     # never the illustrative demo firms or the benchmark row
     assert all(not it["firm_id"].startswith("F-") for it in page["items"])
@@ -149,10 +149,10 @@ def test_coverage_counts_only_real_provenance_firms():
     # the claim counts the real CIC register (~1,366) plus the enforcement/offer
     # overlay — never the illustrative firms or the benchmark row
     assert cov["provenance"] == "public_register"
-    assert cov["total_firms"] == 1411
+    assert cov["total_firms"] == 1410
     assert cov["flagged_firms"] == 47
     # the headline composition: CIC register + enforcement/offer overlay
-    assert cov["register_count"] == 1366
+    assert cov["register_count"] == 1365
     assert cov["overlay_count"] == 45
     assert cov["flagged_count"] == 47
     assert cov["register_count"] + cov["overlay_count"] == cov["total_firms"]

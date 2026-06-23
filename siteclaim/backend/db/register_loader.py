@@ -137,6 +137,9 @@ def _empty_extras() -> dict:
     return {"public_flags": [], "award_history": [], "projects": [], "report_text": [], "closeout_summary": ""}
 
 
+_JUNK_NAMES = {"(company name not in english)"}
+
+
 def load_csv_register(path: Path) -> list[dict]:
     """Read the register CSV into unified firm dicts (provenance ``public_register``)."""
     if not path.is_file():
@@ -146,7 +149,7 @@ def load_csv_register(path: Path) -> list[dict]:
     with path.open(encoding="utf-8-sig", newline="") as fh:
         for row in csv.DictReader(fh):
             name = (row.get("Company Name") or "").strip()
-            if not name:
+            if not name or name.lower() in _JUNK_NAMES:
                 continue
             br = (row.get("Business Registration No.") or "").strip()
             if br and br in seen_br:  # dedupe by Business Registration No.
