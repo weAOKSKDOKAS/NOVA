@@ -94,7 +94,13 @@ export function PageSourcing({
   const editBundle = (firmId: string, trade: string, patch: Partial<{ email_subject: string; email_body: string }>) =>
     setDispatch((d) => (d ? { ...d, bundles: d.bundles.map((b) => (b.firm_id === firmId && b.trade === trade ? { ...b, ...patch } : b)) } : d));
   const confirmSend = () => setPhase("sending");
-  const onSendComplete = () => { setDispatchSent(true); setPhase("idle"); };
+  // After the sending animation, actually send: POST the approved (edited) bundles
+  // with send=true. The server records the mock outbox and, if N8N_WEBHOOK_URL is set,
+  // hands them to n8n which creates the Gmail drafts (status -> drafted_gmail).
+  const onSendComplete = () => run(async () => {
+    if (dispatch) setDispatch(await api.dispatch({ dispatch, project_name: scope?.project_name ?? "", send: true }));
+    setDispatchSent(true); setPhase("idle");
+  });
   const startLevel = () => setPhase("collecting");
   const runLevelAfterCollect = () => run(async () => { setLevelled(await api.level(replies, scope)); setLevelStale(false); advance(4); setPhase("idle"); });
   function editRate(firmId: string, ref: string, rate: number | null) {
@@ -483,6 +489,9 @@ function StepDispatch({ shortlist, approvals, dispatch, dispatchSent, loading, t
   const trades = Object.keys(shortlist.per_trade);
   const approved = Object.values(approvals).reduce((n, ids) => n + ids.length, 0);
   const drafting = !!dispatch && !dispatchSent;
+  // n8n created the Gmail drafts (webhook configured); otherwise it's the mock outbox.
+  const gmail = !drafting && !!dispatch?.bundles.some((b) => b.status === "drafted_gmail");
+  const TEAL = "#0FB5A6";
   const labelSx: React.CSSProperties = { display: "block", fontFamily: MONO, fontSize: 10, letterSpacing: "0.06em", textTransform: "uppercase", color: FAINT, marginBottom: 4 };
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
@@ -520,9 +529,9 @@ function StepDispatch({ shortlist, approvals, dispatch, dispatchSent, loading, t
 
       {dispatch && (
         <div className="ssRise" style={{ ...cardSx, overflow: "hidden" }}>
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "14px 19px", borderBottom: "1px solid #eef1f6", background: drafting ? "linear-gradient(90deg,rgba(31,111,235,0.07),transparent)" : "linear-gradient(90deg,rgba(46,165,106,0.08),transparent)" }}>
-            <h2 style={{ margin: 0, fontSize: 14.5, fontWeight: 600, color: INK }}>{drafting ? "Draft enquiries — review & edit" : "Mock outbox"}</h2>
-            <span style={{ background: drafting ? rgba(BLUE, 0.12) : rgba("#2EA56A", 0.12), color: drafting ? BLUE : "#2EA56A", fontSize: 11, fontWeight: 600, padding: "4px 11px", borderRadius: 999 }}>{dispatch.bundles.length} {drafting ? "drafted" : "sent"}</span>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "14px 19px", borderBottom: "1px solid #eef1f6", background: drafting ? "linear-gradient(90deg,rgba(31,111,235,0.07),transparent)" : gmail ? "linear-gradient(90deg,rgba(15,181,166,0.10),transparent)" : "linear-gradient(90deg,rgba(46,165,106,0.08),transparent)" }}>
+            <h2 style={{ margin: 0, fontSize: 14.5, fontWeight: 600, color: INK }}>{drafting ? "Draft enquiries — review & edit" : gmail ? "Drafts created in Gmail ✓" : "Mock outbox"}</h2>
+            <span style={{ background: drafting ? rgba(BLUE, 0.12) : gmail ? rgba(TEAL, 0.14) : rgba("#2EA56A", 0.12), color: drafting ? BLUE : gmail ? TEAL : "#2EA56A", fontSize: 11, fontWeight: 600, padding: "4px 11px", borderRadius: 999 }}>{dispatch.bundles.length} {drafting ? "drafted" : gmail ? "in Gmail" : "sent"}</span>
           </div>
           <ul style={{ margin: 0, padding: 0, listStyle: "none" }}>
             {dispatch.bundles.map((b) => (
@@ -531,7 +540,7 @@ function StepDispatch({ shortlist, approvals, dispatch, dispatchSent, loading, t
                   <span style={{ fontSize: 14, fontWeight: 600, color: INK }}>{b.firm_name}</span>
                   <span style={{ fontFamily: MONO, fontSize: 11, color: FAINT }}>{b.firm_id}</span>
                   <span style={{ background: rgba(BLUE, 0.1), color: BLUE, fontSize: 11, fontWeight: 500, padding: "3px 9px", borderRadius: 999 }}>{tradeLabel(b.trade)}</span>
-                  <span style={{ marginLeft: "auto", background: drafting ? rgba("#8a98ab", 0.16) : rgba("#2EA56A", 0.12), color: drafting ? SOFT : "#2EA56A", fontSize: 11, fontWeight: 600, padding: "3px 11px", borderRadius: 999 }}>{drafting ? "Draft" : "Sent (mock)"}</span>
+                  <span style={{ marginLeft: "auto", background: drafting ? rgba("#8a98ab", 0.16) : b.status === "drafted_gmail" ? rgba(TEAL, 0.14) : rgba("#2EA56A", 0.12), color: drafting ? SOFT : b.status === "drafted_gmail" ? TEAL : "#2EA56A", fontSize: 11, fontWeight: 600, padding: "3px 11px", borderRadius: 999 }}>{drafting ? "Draft" : b.status === "drafted_gmail" ? "Draft in Gmail" : "Sent (mock)"}</span>
                 </div>
                 <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: 7, marginTop: 11 }}>
                   <span style={{ fontSize: 12, fontWeight: 500, color: SOFT }}>Enclosed:</span>

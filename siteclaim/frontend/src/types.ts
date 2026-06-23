@@ -2,7 +2,7 @@
 // SiteSource numeric fields (qty, rate, totals, match_score) serialise as JSON numbers.
 
 export type Severity = "fatal" | "warning" | "info";
-export type DispatchStatus = "drafted" | "approved" | "sent_mock";
+export type DispatchStatus = "drafted" | "approved" | "sent_mock" | "drafted_gmail";
 // grade | award_history | safety_prosecution | winding_up | debarment | adjudication | distress_filing | closeout_performance | pricing
 export type SignalType = string;
 

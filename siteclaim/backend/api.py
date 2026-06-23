@@ -23,6 +23,7 @@ from pipeline.llm_client import demo_mode  # noqa: E402
 from pipeline.stage_01_ingest.ingest import ingest_tender  # noqa: E402
 from pipeline.stage_02_shortlist.shortlist import shortlist  # noqa: E402
 from pipeline.stage_03_dispatch.dispatch import build_dispatch  # noqa: E402
+from pipeline.stage_03_dispatch.n8n import draft_via_n8n  # noqa: E402
 from pipeline.stage_04_level.export_xlsx import OUT_PATH, export_leveling_xlsx  # noqa: E402
 from pipeline.stage_04_level.level import level_bids, load_demo_replies  # noqa: E402
 from pipeline.stage_05_recommend.recommend import recommend  # noqa: E402
@@ -31,6 +32,7 @@ from db.outbox import send_mock  # noqa: E402
 from schemas.models import (  # noqa: E402
     BidReply,
     DispatchSet,
+    DispatchStatus,
     DocType,
     LevelledBid,
     Recommendation,
@@ -318,21 +320,43 @@ def post_shortlist(req: ShortlistRequest) -> ShortlistSet:
 # Stage 03 — dispatch
 # ---------------------------------------------------------------------------
 class DispatchRequest(BaseModel):
-    shortlist: ShortlistSet
+    shortlist: ShortlistSet | None = None
     approvals: dict[str, list[str]] = Field(default_factory=dict)
     scope: ScopePackages | None = None
     project_name: str = ""
+    # When the wizard sends the approved (possibly edited) bundles back to send them,
+    # it passes them here so the webhook draft carries the user's edits verbatim.
+    dispatch: DispatchSet | None = None
     send: bool = False
     demo_fixture: str | None = DISPATCH_FIXTURE
 
 
+def _project_code(project_name: str) -> str:
+    return (project_name or "").split(" — ")[0].strip() or "GE/2026/14"
+
+
 @app.post("/dispatch", response_model=DispatchSet)
 def post_dispatch(req: DispatchRequest) -> DispatchSet:
-    dispatch = build_dispatch(
-        req.shortlist, req.approvals, demo_fixture=req.demo_fixture,
-        scope=req.scope, project_name=req.project_name,
-    )
-    return send_mock(dispatch) if req.send else dispatch
+    if req.dispatch is not None:
+        dispatch = req.dispatch
+    elif req.shortlist is not None:
+        dispatch = build_dispatch(
+            req.shortlist, req.approvals, demo_fixture=req.demo_fixture,
+            scope=req.scope, project_name=req.project_name,
+        )
+    else:
+        dispatch = DispatchSet()
+    if not req.send:
+        return dispatch
+
+    # Record to the mock outbox (always), then best-effort hand the bundles to n8n,
+    # which creates the Gmail drafts. The webhook never breaks the endpoint.
+    sent = send_mock(dispatch)
+    if draft_via_n8n(sent, project=_project_code(req.project_name)):
+        sent = DispatchSet(
+            bundles=[b.model_copy(update={"status": DispatchStatus.DRAFTED_GMAIL}) for b in sent.bundles]
+        )
+    return sent
 
 
 # ---------------------------------------------------------------------------

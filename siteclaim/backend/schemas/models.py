@@ -65,6 +65,7 @@ class DispatchStatus(str, Enum):
     DRAFTED = "drafted"
     APPROVED = "approved"
     SENT_MOCK = "sent_mock"
+    DRAFTED_GMAIL = "drafted_gmail"  # the bundles were POSTed to n8n, which created Gmail drafts
 
 
 # ---------------------------------------------------------------------------

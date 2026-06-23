@@ -42,11 +42,14 @@ function post<T>(path: string, body: unknown): Promise<T> {
 }
 
 export interface DispatchRequest {
-  shortlist: ShortlistSet;
-  approvals: Record<string, string[]>;
-  scope: ScopePackages | null;
-  project_name: string;
-  send: boolean;
+  shortlist?: ShortlistSet;
+  approvals?: Record<string, string[]>;
+  scope?: ScopePackages | null;
+  project_name?: string;
+  // The approved (possibly edited) bundles to actually send — passed on the send=true
+  // call so the Gmail draft carries the user's edits verbatim.
+  dispatch?: DispatchSet;
+  send?: boolean;
 }
 
 export const api = {
