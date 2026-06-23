@@ -375,12 +375,15 @@ function StepShortlist({ shortlist, heroTrade, covTotal, covFlagged, loading, ci
                 <span style={{ background: "#EEF2F7", color: SOFT, fontSize: 11, fontWeight: 500, padding: "3px 10px", borderRadius: 999 }}>{cands.length} firms</span>
               </div>
             </div>
-            <div style={{ display: "flex", flexDirection: "column", gap: 10, padding: "14px 16px" }}>
+            <div style={{ display: "flex", flexDirection: "column", gap: 12, padding: "16px 18px" }}>
               {cands.map((c, i) => {
                 const fatal = c.risk_flags.filter((f) => f.severity === "fatal"); const warn = c.risk_flags.filter((f) => f.severity !== "fatal");
+                const against = c.recommended_against;
+                const pct = Math.round(c.match_score * 100);
                 const mb = c.match_score >= 0.7 ? "#2EA56A" : c.match_score >= 0.5 ? BLUE : FAINT;
                 const isIllustrative = c.firm.firm_id.startsWith("F-");
                 const isHov = hoveredId === c.firm.firm_id;
+                const meta = [c.firm.registered_grade, c.firm.value_band ? formatBand(c.firm.value_band) : ""].filter(Boolean).join(" · ");
                 return (
                   <div
                     key={c.firm.firm_id}
@@ -388,31 +391,37 @@ function StepShortlist({ shortlist, heroTrade, covTotal, covFlagged, loading, ci
                     onMouseEnter={() => setHoveredId(c.firm.firm_id)}
                     onMouseLeave={() => setHoveredId(null)}
                     style={{
-                      border: `1px solid ${c.recommended_against ? rgba("#E5484D", 0.25) : isHov ? rgba(BLUE, 0.3) : "rgba(15,27,45,0.10)"}`,
-                      borderRadius: 13, padding: "14px 16px", cursor: "pointer",
-                      background: c.recommended_against ? rgba("#E5484D", 0.04) : isHov ? rgba(BLUE, 0.025) : "#fff",
-                      boxShadow: isHov ? `0 4px 16px -8px ${rgba(BLUE, 0.25)}` : "none",
-                      transition: "border-color 0.12s, background 0.12s, box-shadow 0.12s",
+                      border: `1px solid ${against ? rgba("#E5484D", 0.28) : isHov ? rgba(BLUE, 0.35) : "rgba(15,27,45,0.09)"}`,
+                      borderRadius: 14, padding: "16px 18px", cursor: "pointer",
+                      background: against ? rgba("#E5484D", 0.035) : "#fff",
+                      boxShadow: isHov ? `0 8px 24px -14px ${rgba(INK, 0.5)}` : "0 1px 2px rgba(15,27,45,0.03)",
+                      transition: "border-color 0.13s, box-shadow 0.13s",
                     }}
                   >
-                    <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: 10 }}>
-                      <span style={{ display: "flex", alignItems: "center", justifyContent: "center", width: 26, height: 26, flex: "none", borderRadius: 9, border: `1px solid ${c.recommended_against ? rgba("#E5484D", 0.4) : "rgba(15,27,45,0.14)"}`, fontFamily: MONO, fontSize: 12, fontWeight: 600, color: c.recommended_against ? "#E5484D" : SOFT, background: c.recommended_against ? rgba("#E5484D", 0.08) : "#fff" }}>{i + 1}</span>
-                      <span style={{ fontFamily: DISPLAY, fontSize: 16, fontWeight: 600, color: INK }}>{c.firm.name}</span>
-                      <span style={{ fontFamily: MONO, fontSize: 11, color: FAINT }}>{c.firm.firm_id}</span>
-                      {isIllustrative && <span style={{ background: rgba("#D99513", 0.12), color: "#9a6a08", fontFamily: MONO, fontSize: 10, fontWeight: 600, letterSpacing: "0.05em", textTransform: "uppercase", padding: "2px 7px", borderRadius: 5 }}>Illustrative</span>}
-                      <span style={{ display: "inline-flex", alignItems: "center", gap: 7 }}>
-                        <span style={{ width: 64, height: 6, borderRadius: 3, background: "#EEF2F7", overflow: "hidden" }}><span style={{ display: "block", height: "100%", width: `${Math.round(c.match_score * 100)}%`, background: mb }} /></span>
-                        <span style={{ fontFamily: MONO, fontSize: 11.5, fontWeight: 600, color: c.match_score >= 0.7 ? "#2EA56A" : c.match_score >= 0.5 ? BLUE : SOFT }}>{Math.round(c.match_score * 100)}%</span>
-                      </span>
-                      {i === 0 && !c.recommended_against && <span style={{ background: rgba("#2EA56A", 0.12), color: "#2EA56A", fontSize: 11, fontWeight: 600, padding: "2px 10px", borderRadius: 999 }}>✓ Top pick</span>}
-                      {c.recommended_against && <span style={{ display: "inline-flex", alignItems: "center", gap: 5, background: "#E5484D", color: "#fff", fontSize: 11, fontWeight: 700, padding: "3px 11px", borderRadius: 999, whiteSpace: "nowrap", boxShadow: "0 6px 16px -8px rgba(229,72,77,0.8)" }}>⛔ Recommend against</span>}
-                      <span style={{ marginLeft: "auto", fontSize: 11.5, color: FAINT }}>{[c.firm.registered_grade, c.firm.value_band ? formatBand(c.firm.value_band) : ""].filter(Boolean).join(" · ")}</span>
+                    <div style={{ display: "flex", alignItems: "flex-start", gap: 14 }}>
+                      <span style={{ display: "flex", alignItems: "center", justifyContent: "center", width: 24, height: 24, flex: "none", marginTop: 2, borderRadius: 8, fontFamily: MONO, fontSize: 11.5, fontWeight: 600, color: against ? "#E5484D" : FAINT, background: against ? rgba("#E5484D", 0.08) : "#f3f5f9" }}>{i + 1}</span>
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: 9 }}>
+                          <span style={{ fontFamily: DISPLAY, fontSize: 16.5, fontWeight: 700, color: INK, lineHeight: 1.25 }}>{c.firm.name}</span>
+                          {isIllustrative && <span style={{ background: rgba("#D99513", 0.12), color: "#9a6a08", fontFamily: MONO, fontSize: 9.5, fontWeight: 600, letterSpacing: "0.05em", textTransform: "uppercase", padding: "2px 7px", borderRadius: 5 }}>Illustrative</span>}
+                          {i === 0 && !against && <span style={{ display: "inline-flex", alignItems: "center", gap: 4, background: rgba("#2EA56A", 0.1), color: "#1F8A52", fontSize: 10.5, fontWeight: 600, letterSpacing: "0.02em", padding: "2px 9px", borderRadius: 999 }}>✓ Top pick</span>}
+                          {against && <span style={{ display: "inline-flex", alignItems: "center", gap: 5, background: rgba("#E5484D", 0.1), color: "#E5484D", fontSize: 10.5, fontWeight: 700, padding: "2px 9px", borderRadius: 999, whiteSpace: "nowrap" }}>⛔ Recommend against</span>}
+                        </div>
+                        {meta && <div style={{ fontSize: 11.5, color: FAINT, marginTop: 4 }}>{meta}</div>}
+                      </div>
+                      <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 4, flexShrink: 0 }}>
+                        <span style={{ fontFamily: MONO, fontSize: 9, letterSpacing: "0.09em", textTransform: "uppercase", color: FAINT, fontWeight: 600 }}>Match</span>
+                        <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
+                          <span style={{ width: 54, height: 6, borderRadius: 3, background: "#EEF2F7", overflow: "hidden" }}><span style={{ display: "block", height: "100%", width: `${pct}%`, background: mb }} /></span>
+                          <span style={{ fontFamily: MONO, fontSize: 12.5, fontWeight: 700, color: mb, fontVariantNumeric: "tabular-nums" }}>{pct}%</span>
+                        </div>
+                      </div>
                     </div>
                     {c.firm.closeout_summary
-                      ? <p style={{ margin: "10px 0 0", fontSize: 12.5, lineHeight: 1.55, color: SOFT }}>{c.firm.closeout_summary}</p>
-                      : c.firm.description && <p style={{ margin: "10px 0 0", fontSize: 12, lineHeight: 1.55, color: FAINT }}>{c.firm.description}</p>}
+                      ? <p style={{ margin: "11px 0 0", fontSize: 12.5, lineHeight: 1.55, color: SOFT }}>{c.firm.closeout_summary}</p>
+                      : c.firm.description && <p style={{ margin: "11px 0 0", fontSize: 12, lineHeight: 1.55, color: FAINT }}>{c.firm.description}</p>}
                     {fatal.length > 0 && (
-                      <div style={{ marginTop: 12, border: `1px solid ${rgba("#E5484D", 0.3)}`, background: "linear-gradient(180deg,rgba(229,72,77,0.06),rgba(229,72,77,0.02))", borderRadius: 13, padding: 15 }}>
+                      <div style={{ marginTop: 13, border: `1px solid ${rgba("#E5484D", 0.3)}`, background: "linear-gradient(180deg,rgba(229,72,77,0.06),rgba(229,72,77,0.02))", borderRadius: 13, padding: 15 }}>
                         <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 11 }}>
                           <span style={{ fontSize: 15 }}>⛔</span>
                           <p style={{ margin: 0, fontFamily: MONO, fontSize: 10.5, fontWeight: 600, letterSpacing: "0.08em", textTransform: "uppercase", color: "#E5484D" }}>Disqualifying — do not award regardless of price</p>
@@ -461,6 +470,8 @@ function FlagPanel({ flag, sev, cite }: { flag: { label: string; rule_ref: strin
 }
 
 // ----------------------------------------------------------------------------
+const modalLabel: React.CSSProperties = { fontFamily: MONO, fontSize: 10.5, letterSpacing: "0.1em", textTransform: "uppercase", color: FAINT, fontWeight: 600, marginBottom: 10 };
+
 function FirmModal({ firmId, onClose }: { firmId: string; onClose: () => void }) {
   const [firm, setFirm] = useState<FirmProfileFull | null>(null);
   const [loading, setLoading] = useState(true);
@@ -517,28 +528,61 @@ function FirmModal({ firmId, onClose }: { firmId: string; onClose: () => void })
               </div>
             )}
 
-            {/* What they do */}
+            {/* Overview — the curated one-liner for known firms (register blurb otherwise) */}
+            {(firm.profile.overview || firm.description) && (
+              <section>
+                <div style={modalLabel}>Overview</div>
+                <p style={{ margin: 0, fontSize: 13.5, lineHeight: 1.65, color: SOFT }}>{firm.profile.overview || firm.description}</p>
+              </section>
+            )}
+
+            {/* What they do — curated services, else the firm's registered CIC specialties */}
+            {(firm.profile.services.length > 0 || firm.registered_trades.length > 0) && (
+              <section>
+                <div style={modalLabel}>What they do</div>
+                {firm.profile.services.length > 0 && (
+                  <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+                    {firm.profile.services.map((s, i) => (
+                      <span key={i} style={{ fontSize: 12, color: INK, background: rgba(BLUE, 0.07), border: `1px solid ${rgba(BLUE, 0.16)}`, borderRadius: 7, padding: "4px 10px" }}>{s}</span>
+                    ))}
+                  </div>
+                )}
+                {firm.registered_trades.length > 0 && (
+                  <>
+                    <div style={{ fontSize: 11, color: FAINT, margin: `${firm.profile.services.length > 0 ? 12 : 0}px 0 7px` }}>CIC-registered specialties</div>
+                    <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+                      {firm.registered_trades.map((rt, i) => (
+                        <span key={i} style={{ display: "inline-flex", alignItems: "center", gap: 5, fontSize: 12, color: INK, background: "#EEF2F7", borderRadius: 7, padding: "4px 10px" }}>
+                          {rt.code && <span style={{ fontFamily: MONO, fontSize: 10.5, color: FAINT }}>{rt.code}</span>}
+                          {rt.specialty || rt.group}
+                        </span>
+                      ))}
+                    </div>
+                  </>
+                )}
+              </section>
+            )}
+
+            {/* Track record — curated notable projects, then the cited government awards */}
+            {(firm.profile.notable_projects.length > 0 || firm.award_history.length > 0) && (
             <section>
-              <div style={{ fontFamily: MONO, fontSize: 10.5, letterSpacing: "0.1em", textTransform: "uppercase", color: FAINT, fontWeight: 600, marginBottom: 10 }}>What they do</div>
-              {firm.description
-                ? <p style={{ margin: 0, fontSize: 13.5, lineHeight: 1.65, color: SOFT }}>{firm.description}</p>
-                : <p style={{ margin: 0, fontSize: 13, color: FAINT, fontStyle: "italic" }}>No description on file.</p>}
-              {firm.registered_trades.length > 0 && (
-                <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginTop: 12 }}>
-                  {firm.registered_trades.map((rt, i) => (
-                    <span key={i} style={{ display: "inline-flex", alignItems: "center", gap: 5, fontSize: 12, color: INK, background: "#EEF2F7", borderRadius: 7, padding: "4px 10px" }}>
-                      {rt.code && <span style={{ fontFamily: MONO, fontSize: 10.5, color: FAINT }}>{rt.code}</span>}
-                      {rt.specialty || rt.group}
-                    </span>
+              <div style={modalLabel}>Track record</div>
+              {firm.profile.notable_projects.length > 0 && (
+                <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: firm.award_history.length > 0 ? 8 : 0 }}>
+                  {firm.profile.notable_projects.map((proj, i) => (
+                    <div key={i} style={{ display: "flex", alignItems: "flex-start", gap: 10, padding: "10px 13px", border: "1px solid #eef1f6", borderRadius: 10 }}>
+                      <span style={{ color: BLUE, fontSize: 13, lineHeight: 1.5, flexShrink: 0 }}>▹</span>
+                      <div style={{ flex: 1, minWidth: 0, fontSize: 13, lineHeight: 1.55, color: INK }}>
+                        {proj.title}
+                        {proj.source && proj.source.startsWith("http") && (
+                          <a href={proj.source} target="_blank" rel="noopener noreferrer" style={{ marginLeft: 8, fontSize: 11, color: BLUE, textDecoration: "none", whiteSpace: "nowrap" }}>↗ source</a>
+                        )}
+                      </div>
+                    </div>
                   ))}
                 </div>
               )}
-            </section>
-
-            {/* Track record */}
-            <section>
-              <div style={{ fontFamily: MONO, fontSize: 10.5, letterSpacing: "0.1em", textTransform: "uppercase", color: FAINT, fontWeight: 600, marginBottom: 10 }}>Track record</div>
-              {firm.award_history.length > 0 ? (
+              {firm.award_history.length > 0 && (
                 <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
                   {firm.award_history.map((a, i) => (
                     <div key={i} style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 12, padding: "10px 13px", border: "1px solid #eef1f6", borderRadius: 10, background: "#f9fbfc" }}>
@@ -555,20 +599,24 @@ function FirmModal({ firmId, onClose }: { firmId: string; onClose: () => void })
                     </div>
                   ))}
                 </div>
-              ) : (
-                <p style={{ margin: 0, fontSize: 13, color: FAINT, fontStyle: "italic" }}>No public award history.</p>
               )}
             </section>
+            )}
 
-            {/* Compliance */}
-            {firm.public_flags.length > 0 && (
-              <section>
-                <div style={{ fontFamily: MONO, fontSize: 10.5, letterSpacing: "0.1em", textTransform: "uppercase", color: FAINT, fontWeight: 600, marginBottom: 10 }}>Compliance</div>
-                {isIllustrative && (
+            {/* Compliance — always shown: cited flags, or a clean-screen statement */}
+            <section>
+                <div style={modalLabel}>Compliance</div>
+                {firm.public_flags.length === 0 && (
+                  <div style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 13, color: "#1F8A52", background: rgba("#2EA56A", 0.07), border: `1px solid ${rgba("#2EA56A", 0.22)}`, borderRadius: 10, padding: "10px 13px" }}>
+                    <span>✓</span> No enforcement records found in the registers checked.
+                  </div>
+                )}
+                {firm.public_flags.length > 0 && isIllustrative && (
                   <div style={{ fontSize: 12, color: "#9a6a08", background: rgba("#D99513", 0.08), border: `1px solid ${rgba("#D99513", 0.2)}`, borderRadius: 8, padding: "7px 11px", marginBottom: 10 }}>
                     The flags below are illustrative example data and are not cited to real government records.
                   </div>
                 )}
+                {firm.public_flags.length > 0 && (
                 <div style={{ display: "flex", flexDirection: "column", gap: 9 }}>
                   {firm.public_flags.map((fl, i) => {
                     const isSevere = ["winding_up", "debarment"].includes(fl.signal_type);
@@ -590,12 +638,31 @@ function FirmModal({ firmId, onClose }: { firmId: string; onClose: () => void })
                     );
                   })}
                 </div>
+                )}
+            </section>
+
+            {/* Credentials — accreditations, group/parent, staff, offices (curated firms) */}
+            {(firm.profile.accreditations.length > 0 || firm.profile.group_parent || firm.profile.staff_note || firm.profile.offices.length > 0) && (
+              <section>
+                <div style={modalLabel}>Credentials</div>
+                {firm.profile.accreditations.length > 0 && (
+                  <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginBottom: 10 }}>
+                    {firm.profile.accreditations.map((a, i) => (
+                      <span key={i} style={{ fontSize: 12, color: "#1F8A52", background: rgba("#2EA56A", 0.1), border: `1px solid ${rgba("#2EA56A", 0.22)}`, borderRadius: 7, padding: "4px 10px" }}>{a}</span>
+                    ))}
+                  </div>
+                )}
+                <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                  {firm.profile.group_parent && <div style={{ fontSize: 13, color: SOFT }}><span style={{ color: FAINT }}>Group / parent: </span>{firm.profile.group_parent}</div>}
+                  {firm.profile.staff_note && <div style={{ fontSize: 13, color: SOFT }}><span style={{ color: FAINT }}>Staff: </span>{firm.profile.staff_note}</div>}
+                  {firm.profile.offices.length > 0 && <div style={{ fontSize: 13, color: SOFT }}><span style={{ color: FAINT }}>Offices: </span>{firm.profile.offices.join(" · ")}</div>}
+                </div>
               </section>
             )}
 
             {/* Registration */}
             <section>
-              <div style={{ fontFamily: MONO, fontSize: 10.5, letterSpacing: "0.1em", textTransform: "uppercase", color: FAINT, fontWeight: 600, marginBottom: 10 }}>Registration</div>
+              <div style={modalLabel}>Registration</div>
               <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
                 {firm.registers.length > 0 ? (
                   <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
@@ -605,6 +672,9 @@ function FirmModal({ firmId, onClose }: { firmId: string; onClose: () => void })
                   </div>
                 ) : (
                   <span style={{ fontSize: 13, color: FAINT, fontStyle: "italic" }}>No register entries.</span>
+                )}
+                {firm.value_band && (
+                  <div style={{ fontSize: 13, color: SOFT }}><span style={{ color: FAINT }}>Value band: </span>{formatBand(firm.value_band)}</div>
                 )}
                 {firm.reg_date && (
                   <div style={{ fontSize: 13, color: SOFT }}>

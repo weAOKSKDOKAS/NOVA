@@ -151,11 +151,12 @@ def build_database(db_path: Path | str = DEFAULT_DB_PATH) -> dict:
         chunk_rows: list[tuple[str, int, str]] = []  # (firm_id, chunk_id, text)
         for firm in all_firms:
             fid = firm["firm_id"]
+            profile = firm.get("profile")
             conn.execute(
                 "INSERT INTO firms (firm_id, name_en, name_zh, registered_grade, value_band, registers, "
                 "trades, registered_trades, closeout_summary, description, enquiry_email, br_no, address, "
-                "phone, fax, reg_date, expiry_date, provenance) "
-                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                "phone, fax, reg_date, expiry_date, profile, provenance) "
+                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
                 (
                     fid,
                     firm["name_en"],
@@ -174,6 +175,7 @@ def build_database(db_path: Path | str = DEFAULT_DB_PATH) -> dict:
                     firm.get("fax", ""),
                     firm.get("reg_date", ""),
                     firm.get("expiry_date", ""),
+                    json.dumps(profile) if profile else None,
                     firm["provenance"],
                 ),
             )

@@ -35,6 +35,7 @@ CREATE TABLE firms (
     fax               TEXT,
     reg_date          TEXT,   -- Date of Registration
     expiry_date       TEXT,   -- Expiry Date of Current Registration
+    profile           TEXT,   -- JSON curated profile (overview, services, notable_projects, ...) for known firms
     provenance        TEXT NOT NULL DEFAULT 'illustrative'  -- 'public_register' (real) | 'illustrative' (demo)
 );
 CREATE INDEX idx_firms_provenance ON firms(provenance);

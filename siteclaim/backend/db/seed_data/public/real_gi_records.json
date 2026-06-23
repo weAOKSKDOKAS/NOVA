@@ -29,7 +29,40 @@
       "https://www.cedd.gov.hk/eng/tender-notices/contracts/contracts-awarded/index-id-2394.html",
       "https://www.devb.gov.hk/filemanager/en/content_187/Letter_to_contractors-Revised_Group_Tender_Limits_Probationary_Limits_and_Financial_Criteria_Jan_2021.pdf"
     ],
-    "display_sensitive": false
+    "display_sensitive": false,
+    "profile": {
+      "overview": "First international geotechnical specialist in Hong Kong, operating since 1973; part of the global Geo-data company Fugro N.V.",
+      "group_parent": "Fugro N.V. (global Geo-data company)",
+      "offices": [
+        "Fo Tan, Hong Kong"
+      ],
+      "services": [
+        "Land and marine site investigation",
+        "Geotechnical drilling",
+        "Cone penetration testing (CPT)",
+        "Laboratory testing",
+        "Instrumentation & real-time groundwater monitoring",
+        "Geophysical site characterisation",
+        "Slope engineering",
+        "BIM geotechnical modelling"
+      ],
+      "notable_projects": [
+        {
+          "title": "Hong Kong International Airport Three-Runway System (3RS) — land and marine site investigation (since 2011)"
+        },
+        {
+          "title": "Central Waters artificial islands — marine geotechnical and geophysical characterisation"
+        },
+        {
+          "title": "CEDD / GEO Landslip Prevention and Mitigation Programme"
+        }
+      ],
+      "accreditations": [
+        "HOKLAS 015 (Fugro Technical Services)",
+        "DEVB Group II — Ground Investigation Field Work"
+      ],
+      "staff_note": ""
+    }
   },
   {
     "firm_id": "lam-geotechnics-limited-1e4b",
@@ -133,7 +166,32 @@
       "https://www.cedd.gov.hk/filemanager/eng/content_37/lpm_activesite_eng.pdf",
       "https://www.devb.gov.hk/filemanager/en/content_187/Letter_to_contractors-Revised_Group_Tender_Limits_Probationary_Limits_and_Financial_Criteria_Jan_2021.pdf"
     ],
-    "display_sensitive": false
+    "display_sensitive": false,
+    "profile": {
+      "overview": "Founded 1996; member of the Chinney Kin Wing group. Drilling, site investigation and ground engineering for the Hong Kong public sector.",
+      "group_parent": "Chinney Kin Wing group",
+      "offices": [
+        "Cheung Sha Wan, Hong Kong"
+      ],
+      "services": [
+        "Drilling",
+        "Site investigation",
+        "Ground engineering"
+      ],
+      "notable_projects": [
+        {
+          "title": "CEDD NEC4 ground-investigation services framework (~HK$400m; highly commended, 2025 NEC Martin Barnes Awards)"
+        },
+        {
+          "title": "CEDD GI works, Northern New Territories (North) 2024–26 — drillholes, trial pits, groundwater monitoring, geophysical surveys, in-situ and laboratory tests"
+        }
+      ],
+      "accreditations": [
+        "Housing Authority list — bored/percussive piling and ground investigation",
+        "DEVB Group II"
+      ],
+      "staff_note": ""
+    }
   },
   {
     "firm_id": "gold-ram-engineering-development-limited-9bbd",
@@ -165,7 +223,29 @@
       "https://www.cedd.gov.hk/eng/tender-notices/contracts/contracts-awarded/index-id-2400.html",
       "https://www.devb.gov.hk/filemanager/en/content_187/Letter_to_contractors-Revised_Group_Tender_Limits_Probationary_Limits_and_Financial_Criteria_Jan_2021.pdf"
     ],
-    "display_sensitive": false
+    "display_sensitive": false,
+    "profile": {
+      "overview": "In Hong Kong since 1984 (renamed 1989); subsidiary of CIGIS (Ministry of Construction, PRC). BD-registered ground-investigation specialist contractor.",
+      "group_parent": "CIGIS (Ministry of Construction, PRC)",
+      "offices": [
+        "Hong Kong Plaza, Connaught Road West"
+      ],
+      "services": [
+        "Ground investigation",
+        "Laboratory testing"
+      ],
+      "notable_projects": [
+        {
+          "title": "CEDD Landslip Prevention and Mitigation Programme GI Term Contract (2025–2028), Contract 4 — GI and laboratory testing for ~60 government slopes/retaining walls and 3 natural hillside study areas; about 30 months from August 2025"
+        }
+      ],
+      "accreditations": [
+        "BD-registered GI specialist contractor",
+        "Housing Authority GI list",
+        "DEVB Group II"
+      ],
+      "staff_note": "90+ staff"
+    }
   },
   {
     "firm_id": "fugro-technical-services-limited-96d8",
@@ -266,7 +346,36 @@
       "https://www.housingauthority.gov.hk/en/common/pdf/business-partnerships/tenders/BP_Tender_Award_Nov_2024.pdf",
       "https://www.devb.gov.hk/filemanager/en/content_187/Letter_to_contractors-Revised_Group_Tender_Limits_Probationary_Limits_and_Financial_Criteria_Jan_2021.pdf"
     ],
-    "display_sensitive": false
+    "display_sensitive": false,
+    "profile": {
+      "overview": "HOKLAS-024 laboratory and ground-investigation contractor; main laboratory on Ko Shan Road, Hung Hom. Clients include CEDD, ASD, DSD, WSD and the Hong Kong Housing Authority.",
+      "group_parent": "",
+      "offices": [
+        "Main laboratory — Ko Shan Road, Hung Hom"
+      ],
+      "services": [
+        "Ground investigation",
+        "Laboratory soil and rock testing",
+        "Construction materials testing",
+        "Environmental testing",
+        "Calibration"
+      ],
+      "notable_projects": [
+        {
+          "title": "Express Rail Link Contract 810B — West Kowloon Terminus"
+        },
+        {
+          "title": "CEDD ground investigation (including GI for the Landslip Prevention and Mitigation Programme)"
+        }
+      ],
+      "accreditations": [
+        "HOKLAS 024",
+        "ISO 9001:2015",
+        "ISO 14001:2015",
+        "ISO 45001:2018"
+      ],
+      "staff_note": ""
+    }
   },
   {
     "firm_id": "soils-materials-engineering-company-limited-fab7",
@@ -484,7 +593,32 @@
     "sources_used": [
       "Sixense quotation ref. SIX/T26034/331-26 dated 17 Jun 2026 (Geophysical Survey, Rev.0)"
     ],
-    "display_sensitive": false
+    "display_sensitive": false,
+    "profile": {
+      "overview": "About 25 years in Hong Kong in geotechnical and structural instrumentation and monitoring; part of Soletanche Freyssinet / VINCI (formerly Sol Data).",
+      "group_parent": "Soletanche Freyssinet / VINCI",
+      "offices": [
+        "Kwun Tong, Hong Kong"
+      ],
+      "services": [
+        "Instrumentation and automated monitoring (Cyclops automated total station, automatic vibration monitoring, GNSS deformation)",
+        "Geophysics: cross-hole and surface seismic and electric tomography",
+        "Ground penetrating radar (GPR)",
+        "Hydrogeophysics"
+      ],
+      "notable_projects": [
+        {
+          "title": "Major contributor to Hong Kong rail and tunnelling monitoring"
+        },
+        {
+          "title": "Introduced GNSS monitoring on the HK Airport Three-Runway System (3RS), setting a new reclamation-monitoring standard"
+        }
+      ],
+      "accreditations": [
+        "HOKLAS 130 (formerly Sol Data)"
+      ],
+      "staff_note": ""
+    }
   },
   {
     "firm_id": "kai-wai-engineering-survey-and-geophysics-limited-3f7b",
@@ -511,6 +645,15 @@
     "sources_used": [
       "Field Installation (RFQ) Schedule-of-Rates offer for Contract GE/2026/14 (signed/chopped)"
     ],
-    "display_sensitive": false
+    "display_sensitive": false,
+    "profile": {
+      "overview": "Hong Kong engineering-survey and geophysics firm (佳為工程勘察測繪有限公司). Limited verifiable public corporate information beyond the register and its GE/2026/14 field-installations offer. Recommend standard pre-qualification checks before award.",
+      "group_parent": "",
+      "offices": [],
+      "services": [],
+      "notable_projects": [],
+      "accreditations": [],
+      "staff_note": ""
+    }
   }
 ]

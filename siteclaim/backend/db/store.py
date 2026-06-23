@@ -55,6 +55,16 @@ def _json_list(raw: Optional[str]) -> list:
         return []
 
 
+def _json_obj(raw: Optional[str]) -> dict:
+    if not raw:
+        return {}
+    try:
+        value = json.loads(raw)
+        return value if isinstance(value, dict) else {}
+    except (json.JSONDecodeError, TypeError):
+        return {}
+
+
 def _raw_flag(signal_type: SignalType, label: str, source: str, reference: str, snippet: str) -> RiskFlag:
     """A raw, unadjudicated signal. Severity INFO is a placeholder — the rules
     engine assigns the real severity from the rubric (see module docstring)."""
@@ -314,6 +324,7 @@ def firm_full_by_id(conn: sqlite3.Connection, firm_id: str) -> dict | None:
     row = conn.execute("SELECT * FROM firms WHERE firm_id = ?", (firm_id,)).fetchone()
     if row is None:
         return None
+    keys = _row_keys(row)
     flags = conn.execute(
         "SELECT signal_type, label, date, source, reference FROM public_flags "
         "WHERE firm_id = ? ORDER BY signal_type",
@@ -349,6 +360,9 @@ def firm_full_by_id(conn: sqlite3.Connection, firm_id: str) -> dict | None:
             for aw in awards
         ],
         "provenance": row["provenance"],
+        # The curated, verifiable profile (overview, services, notable projects, ...)
+        # for the firms that genuinely do these trades; empty for register-only firms.
+        "profile": _json_obj(row["profile"]) if "profile" in keys else {},
     }
 
 

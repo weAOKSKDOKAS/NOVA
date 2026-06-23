@@ -230,6 +230,23 @@ export interface AwardHistoryItem {
   source: string | null;
 }
 
+export interface NotableProject {
+  title: string;
+  source?: string | null;
+}
+
+// The curated, verifiable profile for a firm that genuinely does these trades.
+// Empty (all blank/[]) for register-only firms — the modal then shows register data only.
+export interface FirmCuratedProfile {
+  overview: string;
+  services: string[];
+  notable_projects: NotableProject[];
+  accreditations: string[];
+  group_parent: string;
+  staff_note: string;
+  offices: string[];
+}
+
 export interface FirmProfileFull {
   firm_id: string;
   name_en: string;
@@ -247,6 +264,7 @@ export interface FirmProfileFull {
   public_flags: PublicFlag[];
   award_history: AwardHistoryItem[];
   provenance: string;
+  profile: FirmCuratedProfile;
 }
 
 // Coverage of the real-provenance registry scrape only (the illustrative demo

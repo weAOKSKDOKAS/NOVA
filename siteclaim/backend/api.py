@@ -131,6 +131,24 @@ class AwardHistoryOut(BaseModel):
     source: str | None = None
 
 
+class NotableProjectOut(BaseModel):
+    title: str = ""
+    source: str | None = None
+
+
+class FirmProfileOut(BaseModel):
+    """The curated, verifiable profile for a firm that genuinely does these trades.
+    Empty for register-only firms (the modal then shows register data only)."""
+
+    overview: str = ""
+    services: list[str] = Field(default_factory=list)
+    notable_projects: list[NotableProjectOut] = Field(default_factory=list)
+    accreditations: list[str] = Field(default_factory=list)
+    group_parent: str = ""
+    staff_note: str = ""
+    offices: list[str] = Field(default_factory=list)
+
+
 class FirmFullOut(BaseModel):
     firm_id: str
     name_en: str
@@ -148,6 +166,7 @@ class FirmFullOut(BaseModel):
     public_flags: list[PublicFlagOut] = Field(default_factory=list)
     award_history: list[AwardHistoryOut] = Field(default_factory=list)
     provenance: str = ""
+    profile: FirmProfileOut = Field(default_factory=FirmProfileOut)
 
 
 _FIRM_PAGE_SIZES = {10, 25, 50, 100}
