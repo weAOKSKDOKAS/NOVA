@@ -221,6 +221,10 @@ export interface FirmsPage {
 export interface Coverage {
   total_firms: number;
   flagged_firms: number;
+  // headline composition: CIC-register firms + enforcement/offer overlay
+  register_count: number;
+  overlay_count: number;
+  flagged_count: number;
   flags_by_type: Record<string, number>;
   trades: string[];
   flag_sources: string[];

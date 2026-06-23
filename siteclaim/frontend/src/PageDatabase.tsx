@@ -11,6 +11,14 @@ const DISPLAY = "'Bricolage Grotesque',sans-serif";
 const PAGE_SIZES = [10, 25, 50, 100];
 const _MONTHS: Record<string, number> = { jan: 0, feb: 1, mar: 2, apr: 3, may: 4, jun: 5, jul: 6, aug: 7, sep: 8, oct: 9, nov: 10, dec: 11 };
 
+// Display-only: a usable enquiry e-mail, or null when it is blank, has no "@", or
+// is the source's "[email protected]" redaction. The stored value stays faithful.
+function shownEmail(email: string): string | null {
+  const e = (email || "").trim();
+  if (!e || !e.includes("@") || e.toLowerCase().includes("[email")) return null;
+  return e;
+}
+
 function parseRegDate(s: string): Date | null {
   const m = /(\d{1,2})\s+([A-Za-z]{3})\w*\s+(\d{4})/.exec(s || "");
   if (!m) return null;
@@ -135,17 +143,29 @@ export function PageDatabase({
           </div>
         </div>
 
-        <div style={{ position: "relative", zIndex: 2, display: "flex", flexWrap: "wrap", alignItems: "center", gap: 34, marginTop: 26, paddingTop: 22, borderTop: "1px solid rgba(159,180,214,0.18)" }}>
-          <Figure value={counts.firms} label="Registered subcontractors" color="#fff" />
-          <Figure value={counts.flagged} label="With an enforcement flag" color="#FF8E8E" underline />
-          <Figure value={counts.registers} label="Issuing registers cross-checked" color="#fff" />
-          <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: 9, marginLeft: "auto" }}>
-            {registerChips.map((r) => (
-              <button key={r.short} type="button" onClick={() => cite.open({ source: r.name, reference: r.home, detail: `${r.name} — cross-checked against all ${total.toLocaleString("en-HK")} registered firms; adverse records matched by company name and registration number.`, date: null })} style={{ display: "inline-flex", alignItems: "center", gap: 7, cursor: "pointer", background: "rgba(255,255,255,0.04)", border: `1px solid ${rgba(r.color, 0.4)}`, borderRadius: 8, padding: "6px 11px", fontSize: 11, color: "#dbe5f4" }}>
-                <span style={{ width: 7, height: 7, borderRadius: "50%", background: r.color }} />{r.short}
-              </button>
-            ))}
+        <div style={{ position: "relative", zIndex: 2, marginTop: 26, paddingTop: 22, borderTop: "1px solid rgba(159,180,214,0.18)" }}>
+          <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: 34 }}>
+            <Figure value={counts.firms} label="Subcontractors screened" color="#fff" />
+            <Figure value={counts.flagged} label="With an enforcement flag" color="#FF8E8E" underline />
+            <Figure value={counts.registers} label="Issuing registers cross-checked" color="#fff" />
+            <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: 9, marginLeft: "auto" }}>
+              {registerChips.map((r) => (
+                <button key={r.short} type="button" onClick={() => cite.open({ source: r.name, reference: r.home, detail: `${r.name} — cross-checked against all ${total.toLocaleString("en-HK")} screened firms; adverse records matched by company name and registration number.`, date: null })} style={{ display: "inline-flex", alignItems: "center", gap: 7, cursor: "pointer", background: "rgba(255,255,255,0.04)", border: `1px solid ${rgba(r.color, 0.4)}`, borderRadius: 8, padding: "6px 11px", fontSize: 11, color: "#dbe5f4" }}>
+                  <span style={{ width: 7, height: 7, borderRadius: "50%", background: r.color }} />{r.short}
+                </button>
+              ))}
+            </div>
           </div>
+          {/* self-explaining composition — answers "the CSV only has 1,366" before it's asked */}
+          {coverage && (
+            <p style={{ margin: "14px 0 0", fontSize: 12.5, lineHeight: 1.55, color: "#9fb4d6" }}>
+              <span style={{ color: "#cdd9ec", fontWeight: 600 }}>{coverage.register_count.toLocaleString("en-HK")}</span> on the CIC subcontractor register
+              <span style={{ opacity: 0.5 }}> · </span>
+              <span style={{ color: "#cdd9ec", fontWeight: 600 }}>{coverage.overlay_count.toLocaleString("en-HK")}</span> from enforcement &amp; offer records
+              <span style={{ opacity: 0.5 }}> · </span>
+              <span style={{ color: "#FFB3B3", fontWeight: 600 }}>{coverage.flagged_count}</span> flagged
+            </p>
+          )}
         </div>
       </section>
 
@@ -248,9 +268,12 @@ function FirmRow({ firm, onCite }: { firm: Firm; onCite: (c: { source: string | 
           {firm.name_zh && <span style={{ fontSize: 12, color: "#8a98ab" }}>{firm.name_zh}</span>}
         </div>
         <div style={{ fontSize: 12, color: "#5a6b80", marginTop: 3, lineHeight: 1.45, maxWidth: 440 }}>{firm.description}</div>
-        {firm.enquiry_email && (
-          <a href={`mailto:${firm.enquiry_email}`} style={{ display: "inline-flex", alignItems: "center", gap: 5, marginTop: 5, fontFamily: MONO, fontSize: 11, color: "#1F6FEB", textDecoration: "none" }}>✉ {firm.enquiry_email}</a>
-        )}
+        {(() => {
+          const email = shownEmail(firm.enquiry_email);
+          return email
+            ? <a href={`mailto:${email}`} style={{ display: "inline-flex", alignItems: "center", gap: 5, marginTop: 5, fontFamily: MONO, fontSize: 11, color: "#1F6FEB", textDecoration: "none" }}>✉ {email}</a>
+            : <span style={{ display: "inline-flex", alignItems: "center", gap: 5, marginTop: 5, fontFamily: MONO, fontSize: 11, color: "#a8b3c2", fontStyle: "italic" }}>✉ email not listed</span>;
+        })()}
       </td>
       <td style={{ padding: "13px 18px", verticalAlign: "top" }}>
         <div style={{ display: "flex", flexWrap: "wrap", gap: 5, maxWidth: 280 }}>

@@ -187,6 +187,13 @@ def coverage(conn: sqlite3.Connection) -> dict:
     demo firms (fabricated, placeholder references) are deliberately excluded, so the
     'sourced from official registers … linked to its government source' claim holds."""
     total = conn.execute("SELECT COUNT(*) AS n FROM firms WHERE provenance = ?", (_REAL,)).fetchone()["n"]
+    # The CIC-register firms carry a Business Registration No.; the overlay rows
+    # (enforcement/offer records not on the register) do not — so the headline can
+    # state its composition rather than read as a bare total.
+    register_count = conn.execute(
+        "SELECT COUNT(*) AS n FROM firms WHERE provenance = ? AND br_no IS NOT NULL AND br_no != ''",
+        (_REAL,),
+    ).fetchone()["n"]
     flagged = conn.execute(
         "SELECT COUNT(DISTINCT pf.firm_id) AS n FROM public_flags pf "
         "JOIN firms f ON f.firm_id = pf.firm_id WHERE f.provenance = ?",
@@ -216,6 +223,9 @@ def coverage(conn: sqlite3.Connection) -> dict:
     return {
         "total_firms": int(total),
         "flagged_firms": int(flagged),
+        "register_count": int(register_count),
+        "overlay_count": int(total) - int(register_count),
+        "flagged_count": int(flagged),
         "flags_by_type": flags_by_type,
         "trades": sorted(trades),
         "flag_sources": flag_sources,

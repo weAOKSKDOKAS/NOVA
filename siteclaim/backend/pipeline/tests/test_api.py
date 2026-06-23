@@ -151,6 +151,11 @@ def test_coverage_counts_only_real_provenance_firms():
     assert cov["provenance"] == "public_register"
     assert cov["total_firms"] == 1411
     assert cov["flagged_firms"] == 47
+    # the headline composition: CIC register + enforcement/offer overlay
+    assert cov["register_count"] == 1366
+    assert cov["overlay_count"] == 45
+    assert cov["flagged_count"] == 47
+    assert cov["register_count"] + cov["overlay_count"] == cov["total_firms"]
     # only the real flag types appear — the demo-only adjudication / distress filing
     # (whose references are illustrative placeholders) are excluded from the claim
     assert set(cov["flags_by_type"]) == {"debarment", "safety_prosecution", "winding_up"}
