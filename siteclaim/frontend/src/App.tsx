@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { api } from "./api";
 import { Header, type Page } from "./components";
 import { CiteProvider } from "./cite";
-import type { Coverage, DemoCaseSummary } from "./types";
+import type { Coverage } from "./types";
 import { PageDatabase } from "./PageDatabase";
 import { PageSourcing } from "./PageSourcing";
 
@@ -13,12 +13,10 @@ export default function App() {
   // NOT loaded here — PageDatabase fetches it one server-side page at a time.
   const [demoMode, setDemoMode] = useState(true);
   const [coverage, setCoverage] = useState<Coverage | null>(null);
-  const [demoCases, setDemoCases] = useState<DemoCaseSummary[]>([]);
 
   useEffect(() => {
     api.health().then((h) => setDemoMode(h.demo_mode)).catch(() => {});
     api.coverage().then(setCoverage).catch(() => {});
-    api.demoCases().then(setDemoCases).catch(() => {});
   }, []);
 
   // Distinct issuing registers behind the flags (from /coverage, header figure).
@@ -32,7 +30,7 @@ export default function App() {
           <PageDatabase active={page === "database"} coverage={coverage} registers={registers} />
         </div>
         <div style={{ display: page === "sourcing" ? "block" : "none" }}>
-          <PageSourcing demoMode={demoMode} demoCases={demoCases} coverage={coverage} />
+          <PageSourcing demoMode={demoMode} coverage={coverage} />
         </div>
       </div>
     </CiteProvider>

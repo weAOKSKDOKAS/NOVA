@@ -285,13 +285,14 @@ def post_ingest(req: IngestRequest) -> ScopePackages:
 @app.post("/ingest-upload", response_model=ScopePackages)
 async def post_ingest_upload(files: list[UploadFile] = File(...)) -> ScopePackages:
     """Ingest live tender documents (PDF/image). In DEMO_MODE the upload is accepted
-    but the baked scope fixture is returned (no model, no network)."""
+    but the baked GE/2026/14 drainage scope is returned (no model, no network) — every
+    uploaded tender routes to the drainage field-investigation scenario for the demo."""
     tender = TenderPackage(
         project_name="Uploaded tender",
         documents=[TenderDocument(doc_type=DocType.SCHEDULE_OF_RATES, filename=f.filename or "upload") for f in files],
     )
     if demo_mode():
-        return ingest_tender(tender, demo_fixture=SCOPE_FIXTURE)
+        return ingest_tender(tender, demo_fixture="cases/scenarios/drainage_scope.json")
     images: list[str] = []
     for upload in files:
         try:

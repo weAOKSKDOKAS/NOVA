@@ -1,9 +1,9 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { api } from "./api";
 import { useCite } from "./cite";
 import { hkd, registerFor, rgba, tradeColor, tradeLabel } from "./theme";
 import type {
-  BidReply, Coverage, DemoCaseSummary, DispatchSet, LevelledBid, Recommendation, ScopePackages, ShortlistSet, TenderPackage,
+  BidReply, Coverage, DispatchSet, LevelledBid, Recommendation, ScopePackages, ShortlistSet,
 } from "./types";
 
 const MONO = "'Spline Sans Mono',monospace";
@@ -23,18 +23,16 @@ function formatBand(b: string): string {
 type Cite = (c: { source: string | null; reference: string | null; detail: string; date?: string | null }) => void;
 
 export function PageSourcing({
-  demoMode, demoCases, coverage,
+  demoMode, coverage,
 }: {
-  demoMode: boolean; demoCases: DemoCaseSummary[]; coverage: Coverage | null;
+  demoMode: boolean; coverage: Coverage | null;
 }) {
   const cite = useCite().open;
 
   const [step, setStep] = useState(1);
   const [maxReached, setMaxReached] = useState(1);
-  const [caseId, setCaseId] = useState<string | null>(null);
   const [heroTrade, setHeroTrade] = useState("electrical");
-  const [tender, setTender] = useState<TenderPackage | null>(null);
-  const [scopeFixture, setScopeFixture] = useState<string | null>(null);
+  const [uploadedNames, setUploadedNames] = useState<string[]>([]);
   const [replies, setReplies] = useState<BidReply[]>([]);
   const [rationaleFixture, setRationaleFixture] = useState<string | null>(null);
   const [rationaleByTrade, setRationaleByTrade] = useState<Record<string, string>>({});
@@ -68,12 +66,18 @@ export function PageSourcing({
   }
   const goTo = (n: number) => { if (n <= maxReached) setStep(n); };
 
-  const pickDemo = (id: string) => run(async () => {
-    const src = await api.demoCase(id);
-    setCaseId(id); setHeroTrade(src.hero_trade); setTender(src.tender); setScopeFixture(src.scope_fixture); setReplies(src.replies); setRationaleFixture(src.rationale_fixture); setRationaleByTrade(src.rationale_by_trade ?? {});
-    setScope(null); invalidateAfter(1);
+  // Upload any tender document(s); in the demo every upload routes to the GE/2026/14
+  // drainage field-investigation tender. We load that case (for the downstream
+  // replies/rationale/heroTrade) and ingest the uploaded files through the real
+  // upload endpoint (which returns the drainage scope in DEMO_MODE).
+  const runUpload = (files: File[]) => run(async () => {
+    if (!files.length) return;
+    const src = await api.demoCase("drainage");
+    setHeroTrade(src.hero_trade);
+    setReplies(src.replies); setRationaleFixture(src.rationale_fixture); setRationaleByTrade(src.rationale_by_trade ?? {});
+    invalidateAfter(1); setUploadedNames(files.map((f) => f.name));
+    setScope(await api.ingestUpload(files));
   });
-  const runIngest = () => run(async () => { if (!tender) return; setScope(await api.ingest(tender, scopeFixture)); invalidateAfter(1); });
   const goShortlist = () => run(async () => {
     if (!scope) return;
     const res = await api.shortlist(scope);
@@ -113,7 +117,7 @@ export function PageSourcing({
     setAwards(aw); advance(5);
   });
   function reset() {
-    setStep(1); setMaxReached(1); setCaseId(null); setTender(null); setScopeFixture(null); setReplies([]); setRationaleFixture(null);
+    setStep(1); setMaxReached(1); setUploadedNames([]); setReplies([]); setRationaleFixture(null);
     setRationaleByTrade({});
     setScope(null); setShortlist(null); setApprovals({}); setDispatch(null); setDispatchSent(false); setPhase("idle"); setLevelled(null); setLevelStale(false); setRecommendations([]); setAwards({});
   }
@@ -129,7 +133,7 @@ export function PageSourcing({
           {phase === "sending" && dispatch && <ProcessingOverlay kind="sending" steps={sendingSteps(dispatch)} onDone={onSendComplete} />}
           {phase === "collecting" && <ProcessingOverlay kind="collecting" steps={collectingSteps(replies)} onDone={runLevelAfterCollect} />}
           {phase === "idle" && <>
-          {step === 1 && <StepIngest {...{ demoMode, demoCases, caseId, scope, loading, pickDemo, runIngest, goShortlist }} />}
+          {step === 1 && <StepIngest {...{ demoMode, scope, loading, uploadedNames, runUpload, goShortlist }} />}
           {step === 2 && shortlist && <StepShortlist {...{ shortlist, heroTrade, covTotal, covFlagged, loading, cite, onBack: () => goTo(1), onNext: () => advance(3), onLevel: startLevel }} />}
           {step === 3 && shortlist && <StepDispatch {...{ shortlist, approvals, dispatch, dispatchSent, loading, toggleApprove, prepareDispatch, editBundle, confirmSend, onBack: () => goTo(2), onNext: startLevel }} />}
           {step === 4 && levelled && <StepLevel {...{ levelled, replies, heroTrade, levelStale, loading, editRate, recompute, onBack: () => goTo(3), onNext: goRecommend }} />}
@@ -179,42 +183,71 @@ function Stepper({ step, maxReached, goTo, covTotal, covFlagged }: { step: numbe
 }
 
 // ----------------------------------------------------------------------------
-function StepIngest({ demoMode, demoCases, caseId, scope, loading, pickDemo, runIngest, goShortlist }: {
-  demoMode: boolean; demoCases: DemoCaseSummary[]; caseId: string | null; scope: ScopePackages | null; loading: boolean;
-  pickDemo: (id: string) => void; runIngest: () => void; goShortlist: () => void;
+function StepIngest({ demoMode, scope, loading, uploadedNames, runUpload, goShortlist }: {
+  demoMode: boolean; scope: ScopePackages | null; loading: boolean; uploadedNames: string[];
+  runUpload: (files: File[]) => void; goShortlist: () => void;
 }) {
+  const [files, setFiles] = useState<File[]>([]);
+  const [dragOver, setDragOver] = useState(false);
+  const inputRef = useRef<HTMLInputElement>(null);
+  const accept = ".pdf,.png,.jpg,.jpeg,.webp,image/*";
+  const take = (list: FileList | null) => { if (list && list.length) setFiles((cur) => [...cur, ...Array.from(list)]); };
+
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 22 }}>
       <div>
         {kicker("Step 01 · Ingest")}
-        <h1 style={h1Sx}>Ingest the tender, split by trade</h1>
-        <p style={leadSx}>Choose a demo tender or upload the four documents. The engine reads them and splits the work into one package per trade; the rules engine validates each trade against the taxonomy.</p>
+        <h1 style={h1Sx}>Upload the tender documents</h1>
+        <p style={leadSx}>Drop in the tender package — Method of Measurement, Particular Specification, Schedule of Rates (PDF or images). SiteSource ingests it and splits the work by section, then validates each section against the taxonomy.{demoMode ? " In this demo the upload is routed to the prepared GE/2026/14 ground-investigation tender." : ""}</p>
       </div>
-      <div style={{ ...cardSx, padding: 22 }}>
-        <label style={{ display: "block", fontSize: 14, fontWeight: 600, color: INK, marginBottom: 3 }}>Choose a scenario</label>
-        <p style={{ margin: "0 0 16px", fontSize: 12.5, color: FAINT }}>{demoMode ? "Demo mode is offline — each scenario runs the whole pipeline against the seeded database and reproduces identically." : "Prepared scenarios."}</p>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 13 }}>
-          {demoCases.map((d) => {
-            const on = caseId === d.id, col = tradeColor(d.hero_trade);
-            return (
-              <button key={d.id} type="button" onClick={() => pickDemo(d.id)} style={{ position: "relative", display: "flex", flexDirection: "column", textAlign: "left", border: `1.5px solid ${on ? BLUE : "rgba(15,27,45,0.12)"}`, background: on ? rgba(BLUE, 0.06) : "#fff", borderRadius: 13, padding: 16, cursor: "pointer" }}>
-                <span style={{ display: "inline-flex", width: 30, height: 30, alignItems: "center", justifyContent: "center", borderRadius: 9, background: col, color: "#fff", fontFamily: DISPLAY, fontWeight: 700, fontSize: 14, marginBottom: 11 }}>{d.name[0]}</span>
-                <span style={{ fontSize: 13.5, fontWeight: 600, color: on ? BLUE : INK }}>{d.name}</span>
-                <span style={{ fontSize: 12, lineHeight: 1.5, color: SOFT, marginTop: 6 }}>{d.blurb}</span>
-                <span style={{ fontFamily: MONO, fontSize: 9.5, letterSpacing: "0.06em", textTransform: "uppercase", color: FAINT, marginTop: 12 }}>Hero trade · {tradeLabel(d.hero_trade)}</span>
-              </button>
-            );
-          })}
-        </div>
-        <div style={{ display: "flex", alignItems: "center", gap: 11, marginTop: 16, padding: 14, border: "1.5px dashed #c4cfdc", borderRadius: 12, background: "#f6f9fc", fontSize: 13, color: FAINT }}>
-          <span style={{ fontSize: 16 }}>⤒</span> Or upload the four tender documents (PDF, JPEG, PNG) for live extraction
-        </div>
-      </div>
-      <div style={{ display: "flex", justifyContent: "flex-end" }}>
-        <button type="button" onClick={runIngest} disabled={!caseId || loading} style={primaryBtn(!!caseId)}>Split the tender →</button>
-      </div>
+
+      {!scope && (
+        <>
+          <div
+            onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
+            onDragLeave={() => setDragOver(false)}
+            onDrop={(e) => { e.preventDefault(); setDragOver(false); take(e.dataTransfer.files); }}
+            onClick={() => inputRef.current?.click()}
+            style={{ ...cardSx, cursor: "pointer", border: `2px dashed ${dragOver ? BLUE : "rgba(15,27,45,0.18)"}`, background: dragOver ? rgba(BLUE, 0.05) : "#fbfcfe", boxShadow: "none", padding: "40px 24px", display: "flex", flexDirection: "column", alignItems: "center", textAlign: "center", gap: 10 }}
+          >
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "center", width: 52, height: 52, borderRadius: 14, background: rgba(BLUE, 0.1), color: BLUE, fontSize: 24 }}>⤒</div>
+            <div style={{ fontSize: 15, fontWeight: 600, color: INK }}>Drag &amp; drop tender documents here</div>
+            <div style={{ fontSize: 12.5, color: FAINT }}>PDF, PNG or JPEG · or <span style={{ color: BLUE, fontWeight: 600 }}>browse files</span></div>
+            <input ref={inputRef} type="file" multiple accept={accept} onChange={(e) => { take(e.target.files); e.target.value = ""; }} style={{ display: "none" }} />
+          </div>
+
+          {files.length > 0 && (
+            <div style={{ ...cardSx, padding: 16 }}>
+              <div style={{ fontFamily: MONO, fontSize: 10.5, letterSpacing: "0.08em", textTransform: "uppercase", color: FAINT, marginBottom: 10 }}>{files.length} file{files.length === 1 ? "" : "s"} selected</div>
+              <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                {files.map((f, i) => (
+                  <div key={`${f.name}-${i}`} style={{ display: "flex", alignItems: "center", gap: 10, padding: "9px 12px", border: "1px solid #eef1f6", borderRadius: 10, background: "#f8fafc" }}>
+                    <span style={{ fontSize: 15 }}>📄</span>
+                    <span style={{ flex: 1, minWidth: 0, fontSize: 13, color: INK, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{f.name}</span>
+                    <span style={{ fontFamily: MONO, fontSize: 11, color: FAINT }}>{(f.size / 1024).toFixed(0)} KB</span>
+                    <button type="button" onClick={() => setFiles((cur) => cur.filter((_, j) => j !== i))} style={{ border: "none", background: "transparent", color: FAINT, fontSize: 15, cursor: "pointer", lineHeight: 1 }}>✕</button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12 }}>
+            <span style={{ fontSize: 13, color: SOFT }}>{loading ? "Ingesting tender documents…" : files.length ? `${files.length} document${files.length === 1 ? "" : "s"} ready to ingest.` : "Add at least one document to begin."}</span>
+            <button type="button" onClick={() => runUpload(files)} disabled={!files.length || loading} style={primaryBtn(!!files.length && !loading)}>Ingest tender →</button>
+          </div>
+        </>
+      )}
+
       {scope && (
         <>
+          {uploadedNames.length > 0 && (
+            <div className="ssRise" style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: 9, border: `1px solid ${rgba("#2EA56A", 0.3)}`, background: rgba("#2EA56A", 0.06), borderRadius: 12, padding: "11px 15px" }}>
+              <span style={{ display: "inline-flex", alignItems: "center", gap: 6, fontFamily: MONO, fontSize: 10.5, fontWeight: 600, letterSpacing: "0.06em", textTransform: "uppercase", color: "#1a8a56" }}><span style={{ fontSize: 13 }}>✓</span> Ingested</span>
+              {uploadedNames.map((n) => <span key={n} style={{ display: "inline-flex", alignItems: "center", gap: 5, fontFamily: MONO, fontSize: 11.5, color: INK, background: "#fff", border: "1px solid #e7edf4", borderRadius: 7, padding: "3px 9px" }}>📄 {n}</span>)}
+              <span style={{ fontSize: 12, color: SOFT }}>· routed to the GE/2026/14 ground-investigation tender</span>
+            </div>
+          )}
           <div className="ssRise" style={{ ...cardSx, overflow: "hidden" }}>
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "15px 20px", borderBottom: "1px solid #eef1f6", background: "linear-gradient(90deg,rgba(31,111,235,0.06),transparent)" }}>
               <h2 style={{ margin: 0, fontSize: 14.5, fontWeight: 600, color: INK }}>{scope.project_name}</h2>
