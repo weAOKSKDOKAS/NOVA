@@ -161,6 +161,11 @@ class FirmProfile(BaseModel):
     # reads to draft the enquiry; description is the short factual blurb.
     enquiry_email: str = ""
     description: str = ""
+    # The raw registered specialties ({code, group, specialty}) and registration date
+    # from the CIC register, kept so the shortlist scorer can tell an exact specialty
+    # match from an incidental (GI-expanded) one. Empty for non-register firms.
+    registered_trades: list[dict] = Field(default_factory=list)
+    reg_date: str = ""
 
 
 class Candidate(BaseModel):

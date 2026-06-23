@@ -109,6 +109,58 @@ def test_other_gi_subtrades_are_populated_from_the_register(scope, conn):
     assert all(not c.firm.firm_id.startswith("F-") for c in sl["geophysical_survey"])
 
 
+def test_field_testing_excludes_the_survey_and_geophysics_firms(scope, conn):
+    # Kai Wai and Sixense are survey/geophysics firms, not testing labs — they must
+    # not appear under field testing (their trades no longer carry it).
+    ft = {c.firm.firm_id for c in shortlist(scope, conn=conn).per_trade["field_testing"]}
+    assert KAIWAI not in ft and SIXENSE not in ft
+    # and the trade tag itself is gone from their fused profiles
+    assert "field_testing" not in store.firm_profile(conn, KAIWAI).trades
+    assert "field_testing" not in store.firm_profile(conn, SIXENSE).trades
+
+
+def test_geophysical_survey_is_a_small_genuine_pool_not_every_gi_firm(scope, conn):
+    geo_ids = {f.firm_id for f in store.firms_for_trade(conn, "geophysical_survey")}
+    gi_ids = {f.firm_id for f in store.firms_for_trade(conn, "field_testing")}
+    # the genuine geophysical specialists are present …
+    assert {KAIWAI, SIXENSE, FUGRO} <= geo_ids
+    # … but a pure ground-investigation contractor (no geophysical specialty) is NOT,
+    # and the geophysical pool is a small fraction of the GI field-work pool.
+    assert DRIL not in geo_ids and GOLD not in geo_ids
+    assert len(geo_ids) < len(gi_ids) / 5
+
+
+def test_register_gi_firms_surface_in_field_testing_and_installations(scope, conn):
+    register = store.register_firm_ids(conn)
+    sl = shortlist(scope, conn=conn).per_trade
+    for section in ("field_testing", "field_installations"):
+        ids = [c.firm.firm_id for c in sl[section]]
+        assert any(fid in register for fid in ids)  # the real register pool surfaces
+        assert len(ids) <= 16  # capped to a readable section shortlist
+
+
+def test_road_drainage_firms_do_not_leak_into_the_gi_sections(conn):
+    drainage_only = {
+        f.firm_id for f in store.firms_for_trade(conn, "drainage_works")
+    } - {
+        f.firm_id
+        for t in ("field_testing", "field_installations", "geophysical_survey")
+        for f in store.firms_for_trade(conn, t)
+    }
+    assert len(drainage_only) > 100  # the register carries a large road-drainage pool
+    for section in ("field_testing", "field_installations", "geophysical_survey"):
+        ids = {f.firm_id for f in store.firms_for_trade(conn, section)}
+        assert not (ids & drainage_only)
+
+
+def test_match_scores_vary_within_a_section(scope, conn):
+    # the score is meaningful now (specialty directness + evidence), not a flat band:
+    # a section shows several distinct match percentages, not one clustered value.
+    cands = shortlist(scope, conn=conn).per_trade["field_testing"]
+    distinct = {round(c.match_score * 100) for c in cands}
+    assert len(distinct) >= 4
+
+
 def test_gi1_has_two_scope_gaps_water_and_freeboard(levelled):
     gi1 = _by_firm(levelled)["F-GI-01"]
     gap_refs = {g.split(" ")[0] for g in gi1.scope_gaps}

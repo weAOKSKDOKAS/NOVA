@@ -9,9 +9,9 @@
     ],
     "value_band": "Group II, contracts/sub-contracts of unlimited value",
     "trades": [
-      "field_installations",
       "field_testing",
-      "ground_investigation"
+      "field_installations",
+      "geophysical_survey"
     ],
     "raw_category": "Ground Investigation Field Work",
     "public_flags": [],
@@ -468,7 +468,7 @@
     "value_band": null,
     "trades": [
       "geophysical_survey",
-      "field_testing"
+      "field_installations"
     ],
     "raw_category": "Geophysical Survey; Instrumentation & Monitoring",
     "public_flags": [],
@@ -494,8 +494,8 @@
     "registers": [],
     "value_band": null,
     "trades": [
-      "field_installations",
-      "field_testing"
+      "geophysical_survey",
+      "field_installations"
     ],
     "raw_category": "Engineering Survey & Geophysics; Field Installations",
     "public_flags": [],

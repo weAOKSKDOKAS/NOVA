@@ -59,6 +59,9 @@ export interface FirmProfile {
   public_flags: RiskFlag[];
   closeout_summary: string;
   award_history: string[];
+  // factual CIC-register blurb (trades + registration); shown for register-only
+  // firms that carry no held closeout report.
+  description: string;
 }
 
 export interface Candidate {

@@ -392,7 +392,9 @@ function StepShortlist({ shortlist, heroTrade, covTotal, covFlagged, loading, ci
                       {c.recommended_against && <span style={{ display: "inline-flex", alignItems: "center", gap: 5, background: "#E5484D", color: "#fff", fontSize: 11, fontWeight: 700, padding: "3px 11px", borderRadius: 999, whiteSpace: "nowrap", boxShadow: "0 6px 16px -8px rgba(229,72,77,0.8)" }}>⛔ Recommend against</span>}
                       <span style={{ marginLeft: "auto", fontSize: 11.5, color: FAINT }}>{[c.firm.registered_grade, c.firm.value_band ? formatBand(c.firm.value_band) : ""].filter(Boolean).join(" · ")}</span>
                     </div>
-                    {c.firm.closeout_summary && <p style={{ margin: "10px 0 0", fontSize: 12.5, lineHeight: 1.55, color: SOFT }}>{c.firm.closeout_summary}</p>}
+                    {c.firm.closeout_summary
+                      ? <p style={{ margin: "10px 0 0", fontSize: 12.5, lineHeight: 1.55, color: SOFT }}>{c.firm.closeout_summary}</p>
+                      : c.firm.description && <p style={{ margin: "10px 0 0", fontSize: 12, lineHeight: 1.55, color: FAINT }}>{c.firm.description}</p>}
                     {fatal.length > 0 && (
                       <div style={{ marginTop: 12, border: `1px solid ${rgba("#E5484D", 0.3)}`, background: "linear-gradient(180deg,rgba(229,72,77,0.06),rgba(229,72,77,0.02))", borderRadius: 13, padding: 15 }}>
                         <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 11 }}>

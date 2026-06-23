@@ -137,6 +137,8 @@ def _firm_from_row(conn: sqlite3.Connection, row: sqlite3.Row) -> FirmProfile:
         award_history=_award_strings(conn, firm_id),
         enquiry_email=(row["enquiry_email"] or "") if "enquiry_email" in keys else "",
         description=(row["description"] or "") if "description" in keys else "",
+        registered_trades=_json_list(row["registered_trades"]) if "registered_trades" in keys else [],
+        reg_date=(row["reg_date"] or "") if "reg_date" in keys else "",
     )
 
 
@@ -164,17 +166,31 @@ def eos_firm_ids(conn: sqlite3.Connection) -> set[str]:
     return {row["firm_id"] for row in rows}
 
 
+def register_firm_ids(conn: sqlite3.Connection) -> set[str]:
+    """Firm ids drawn from the real CIC register (provenance ``public_register``) —
+    the genuine subcontractor pool, as opposed to the illustrative/benchmark rows."""
+    rows = conn.execute("SELECT firm_id FROM firms WHERE provenance = ?", (_REAL,)).fetchall()
+    return {row["firm_id"] for row in rows}
+
+
 def shortlistable_firms_for_trade(conn: sqlite3.Connection, trade: str) -> list[FirmProfile]:
-    """Firms in ``trade`` the platform can actually assess — either by a closeout
-    report it holds (an assessable EOS record) or by a public award record on the
-    register. Award-bearing firms are real-provenance registry firms, so this lets
-    the shortlist surface real firms evidenced by public awards, not only firms with
-    a private closeout report. The unassessable remainder stays discovery/coverage."""
+    """Firms in ``trade`` the platform surfaces for a per-tender shortlist. Three
+    kinds qualify, so the genuine register pool is not hidden behind the private
+    closeout archive:
+
+    * firms with an **assessable EOS closeout** report we hold,
+    * firms with a **public award** record, and
+    * any **trade-matched firm on the real CIC register**.
+
+    Only the illustrative/benchmark rows that are neither assessed nor on the register
+    are withheld. The match scoring and the per-section cap that keep this readable are
+    applied downstream in :func:`db.cross_reference.cross_reference`."""
     assessable = eos_firm_ids(conn)
+    register = register_firm_ids(conn)
     return [
         firm
         for firm in firms_for_trade(conn, trade)
-        if firm.firm_id in assessable or firm.award_history
+        if firm.firm_id in assessable or firm.award_history or firm.firm_id in register
     ]
 
 

@@ -65,28 +65,62 @@ def _slug(name: str) -> str:
 
 
 def expand_trades(canon: set[str]) -> set[str]:
-    """A ground-investigation firm is discoverable across the drainage sub-trades."""
+    """A ground-investigation firm does the GI *field work* — field testing and field
+    installations — so it is discoverable across those two sub-trades. Geophysical
+    survey is **not** implied by ground investigation: it comes only from a genuine
+    geophysical specialty (see :func:`_canonical_for`), so the geophysical pool stays
+    the firms that actually do that work rather than every GI contractor."""
     canon = set(canon)
     if "ground_investigation" in canon:
-        canon |= {"field_testing", "field_installations", "geophysical_survey"}
+        canon |= {"field_testing", "field_installations"}
     return canon
 
 
 def _canonical_for(group: str, specialty: str) -> set[str]:
+    """Map one registered "group :: specialty" onto the platform taxonomy. The
+    specialty drives the mapping so each firm lands in the sections it genuinely does:
+    geophysical methods -> geophysical_survey; GI field work -> ground_investigation
+    (then field testing + installations via :func:`expand_trades`); soil/rock and
+    materials testing -> field_testing; drainage/sewer -> a *separate* drainage_works
+    trade; geotechnical works -> its own geotechnical_works trade. None of drainage or
+    geotechnical works is routed into the three GI sections."""
     g, s = group.strip().lower(), specialty.strip().lower()
     out: set[str] = set()
     base = _GROUP_CANONICAL.get(g)
     if base:
         out.add(base)
+    # genuine geophysical methods -> geophysical_survey (and ONLY these)
+    if any(k in s for k in ("geophys", "penetrating radar", "gpr", "resistivity", "seismic", "televiewer")):
+        out.add("geophysical_survey")
+    # ground investigation field work -> field testing + field installations (via expand)
     if "ground investigation" in s:
         out.add("ground_investigation")
+    # laboratory / in-situ testing -> field testing
+    if any(k in s for k in (
+        "soil and rock testing", "construction materials testing", "materials testing",
+        "loading test", "pile loading test",
+    )):
+        out.add("field_testing")
+    # drainage / sewer -> its own trade, never a GI section
     if "road drainage" in s or "sewer" in s or "drainage" in s:
         out.add("drainage_works")
-    if any(k in s for k in ("geophys", "penetrating radar", "gpr", "resistivity", "televiewer")):
-        out.add("geophysical_survey")
+    # geotechnical works -> its own trade (do NOT auto-route into the GI sections)
+    if "geotechnical works" in s:
+        out.add("geotechnical_works")
     if not out:  # fall back to the taxonomy normaliser, then a general-civil default
         n = _normalize_trade(group) or _normalize_trade(specialty)
         out.add(n or "external_works")
+    return out
+
+
+def direct_trades(registered: list[dict]) -> set[str]:
+    """The canonical trades a firm's **registered specialties** map to *directly*,
+    before the ground-investigation discovery expansion. Used by the shortlist scorer
+    to tell an exact specialty match (e.g. a materials-testing lab in field_testing)
+    from an incidental one (a GI contractor surfaced in field_testing via expansion)."""
+    out: set[str] = set()
+    for rt in registered or []:
+        out |= _canonical_for(rt.get("group", ""), rt.get("specialty", ""))
     return out
 
 
