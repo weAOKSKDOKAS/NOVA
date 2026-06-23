@@ -21,28 +21,36 @@ import pytest
 from db import seed, store
 from pipeline.stage_01_ingest.ingest import ingest_tender
 from pipeline.stage_02_shortlist.shortlist import shortlist
-from pipeline.stage_04_level.level import level_bids, load_demo_replies
+from pipeline.stage_04_level.collect import build_replies_from_approvals, load_sor_templates
+from pipeline.stage_04_level.level import level_bids
 from pipeline.stage_05_recommend.recommend import recommend
 from schemas.models import DocType, Severity, TenderDocument, TenderPackage
 
 _SCOPE_FIXTURE = "cases/scenarios/drainage_scope.json"
-_REPLIES_FIXTURE = "cases/scenarios/drainage_replies.json"
-_RATIONALE_FIXTURE = "cases/scenarios/drainage_rationale.json"
+_SOR_FIXTURE = "cases/scenarios/drainage_sor.json"
 
-# the section bidders are real, award-bearing registry firms; GI-1 stays fictional.
-# Field testing (G): Gold Ram and the cautionary GI-1 (DrilTech stays an assessable
-# shortlist firm but is not taken to bid here).
+# Leveling is approval-driven: it shows whatever firms were approved in dispatch, over
+# the section's SoR template bank. Field testing (G) has no real SoR, so two illustrative
+# firms price over representative templates (one of which carries the arithmetic flip).
 GOLD = "gold-ram-engineering-development-limited-9bbd"
 DRIL = "driltech-ground-engineering-limited-a721"
 # Field installations (H): the real Kai Wai offer plus the representative competitor
 # Fugro. Geophysical survey (J): the real Sixense offer plus the representative
 # competitor Geotechnics. Every section is priced against the tender's own scheduled
-# rates (the benchmark "bid").
+# rates (the benchmark "bid"). GI-1 is never in the leveling — it stays in the shortlist
+# only, as the recommend-against example.
 KAIWAI = "kai-wai-engineering-survey-and-geophysics-limited-3f7b"
 FUGRO = "fugro-geotechnical-services-limited-af2a"
 SIXENSE = "sixense-limited-5d2c"
 GEOTECH = "geotechnics-concrete-engineering-hong-kong-limited-b412"
 BENCH = "tender-scheduled-rates"
+
+# A known approved set (as a human would pick at the dispatch gate) drives the leveling.
+_APPROVALS = {
+    "field_testing": [GOLD, DRIL],
+    "field_installations": [KAIWAI, FUGRO],
+    "geophysical_survey": [SIXENSE, GEOTECH],
+}
 
 
 @pytest.fixture(scope="module")
@@ -65,8 +73,15 @@ def scope():
 
 
 @pytest.fixture
-def levelled(conn):
-    return level_bids(load_demo_replies(_REPLIES_FIXTURE), conn=conn)
+def replies():
+    # the leveling replies are built from the approved firms over the SoR template bank
+    sor = load_sor_templates(_SOR_FIXTURE)
+    return build_replies_from_approvals(_APPROVALS, sor)
+
+
+@pytest.fixture
+def levelled(conn, replies):
+    return level_bids(replies, conn=conn)
 
 
 def _by_firm(levelled, trade="field_testing"):
@@ -161,11 +176,23 @@ def test_match_scores_vary_within_a_section(scope, conn):
     assert len(distinct) >= 4
 
 
-def test_gi1_has_two_scope_gaps_water_and_freeboard(levelled):
-    gi1 = _by_firm(levelled)["F-GI-01"]
-    gap_refs = {g.split(" ")[0] for g in gi1.scope_gaps}
-    assert gap_refs == {"G14", "G16"}
-    assert gi1.corrected_total == 1020590.0
+def test_field_testing_flip_is_an_arithmetic_discrepancy_not_a_scope_gap(levelled, replies):
+    # The flip is honest: the apparent-cheapest field-testing bid (lowest CLAIMED total)
+    # carries a line that does not extend, so once arithmetic is corrected it loses — and
+    # it leaves NO scope gap (every item is priced).
+    by = _by_firm(levelled)
+    flip = by[DRIL]
+    claimed = {r.firm_id: r.claimed_total for r in replies if r.trade == "field_testing"}
+    assert claimed[DRIL] == 1107690.0 and claimed[DRIL] < claimed[GOLD]  # apparent-cheapest
+    assert flip.scope_gaps == []  # not a scope gap
+    assert len(flip.arithmetic_findings) == 1
+    g13 = flip.arithmetic_findings[0]
+    assert g13.location == "line G13"
+    assert g13.corrected_value == 372000.0  # 12 x 31,000, not the stated 360,000
+    # corrected above the clean bid, so it loses once the arithmetic is fixed
+    assert flip.corrected_total == 1119690.0 > by[GOLD].corrected_total
+    # GI-1 is not in the leveling at all (it stays in the shortlist only)
+    assert "F-GI-01" not in by
 
 
 def test_competitor_has_one_arithmetic_correction_on_h16(levelled):
@@ -183,10 +210,10 @@ def test_competitor_has_one_arithmetic_correction_on_h16(levelled):
 
 def test_normalized_totals_put_every_bid_on_the_same_scope_basis(levelled):
     by = _by_firm(levelled, "field_testing")
-    assert by[GOLD].normalized_total == 1114790.0
-    # corrected (1,020,590) + peer water (G14, median of Gold 15,000 & benchmark
-    # 14,400 = 14,700) + peer freeboard (G16, median of 91,200 & 90,000 = 90,600)
-    assert by["F-GI-01"].normalized_total == 1125890.0
+    # both field-testing bids price the full scope, so each normalised sum equals its
+    # corrected sum (no scope gaps to add back); the clean bid stays below the flip bid
+    assert by[GOLD].normalized_total == 1114790.0 == by[GOLD].corrected_total
+    assert by[DRIL].normalized_total == 1119690.0 == by[DRIL].corrected_total
     # the benchmark prices the full scope, so its normalised sum equals its corrected
     assert by[BENCH].normalized_total == 1112990.0
 
@@ -196,19 +223,19 @@ def test_all_three_gi_sections_are_levelled_with_real_bidders(levelled):
     trades = {b.trade for b in levelled}
     assert trades == {"field_testing", "field_installations", "geophysical_survey"}
     bidders = lambda t: {b.firm_id for b in levelled if b.trade == t}  # noqa: E731
-    # every section is benchmark + exactly the two firms taken to bid
-    # field testing: Gold Ram and the cautionary fictional firm, against the benchmark
-    assert bidders("field_testing") == {BENCH, GOLD, "F-GI-01"}
+    # every section is the benchmark + exactly the two approved firms taken to bid
+    # field testing: the two approved illustrative firms, against the benchmark
+    assert bidders("field_testing") == {BENCH, GOLD, DRIL}
     # field installations: the real Kai Wai offer and the competitor Fugro
     assert bidders("field_installations") == {BENCH, KAIWAI, FUGRO}
     # geophysical survey: the real Sixense offer and the competitor Geotechnics
     assert bidders("geophysical_survey") == {BENCH, SIXENSE, GEOTECH}
 
 
-def test_conductivity_probe_is_the_one_line_above_benchmark(levelled):
+def test_conductivity_probe_is_the_one_line_above_benchmark(replies):
     # H14c: the real bidder's dual-tip conductivity probe is the outlier above the
     # tender scheduled rate (30,000 vs 13,000) — it must be visible per line item
-    reps = load_demo_replies(_REPLIES_FIXTURE)
+    reps = replies
     kw = next(r for r in reps if r.firm_id == KAIWAI and r.trade == "field_installations")
     bench = next(r for r in reps if r.firm_id == BENCH and r.trade == "field_installations")
     kw_c = next(li for li in kw.line_items if li.item_ref == "H14c").rate
@@ -242,24 +269,29 @@ def test_leveling_names_resolve_from_the_db_profile(levelled, conn):
     assert KAIWAI in {f.firm_id for f in store.shortlistable_firms_for_trade(conn, "field_installations")}
 
 
-def test_leveling_ranks_the_real_winner_first_by_normalized_total(levelled):
+def test_leveling_ranks_the_real_winner_first_by_normalized_total(levelled, replies):
     # rank the firms taken to bid (the benchmark is a baseline, not a tenderer)
     ft = [b for b in levelled if b.trade == "field_testing" and b.firm_id != BENCH]
     order = sorted(ft, key=lambda b: b.normalized_total)
-    assert [b.firm_id for b in order] == [GOLD, "F-GI-01"]
-    # the apparent-cheapest bid (GI-1, lowest corrected) is NOT the leveled winner
-    cheapest_corrected = min(ft, key=lambda b: b.corrected_total)
-    assert cheapest_corrected.firm_id == "F-GI-01"
-    assert order[0].firm_id != cheapest_corrected.firm_id
+    assert [b.firm_id for b in order] == [GOLD, DRIL]
+    # the apparent-cheapest bid (lowest CLAIMED total) is NOT the leveled winner — the
+    # flip resolves on the corrected/normalised total once its arithmetic is fixed
+    claimed = {r.firm_id: r.claimed_total for r in replies if r.trade == "field_testing"}
+    cheapest_claimed = min(claimed, key=claimed.get)
+    assert cheapest_claimed == DRIL
+    assert order[0].firm_id == GOLD != cheapest_claimed
 
 
-def test_recommend_picks_the_real_firm_against_the_flagged_gi1(levelled, conn):
-    rec = recommend(levelled, "field_testing", demo_fixture=_RATIONALE_FIXTURE, conn=conn)
-    # the recommendation lands on a real, register-resident GI contractor
+def test_recommend_picks_the_clean_winner_with_no_gi1_in_the_leveling(levelled, conn):
+    # The recommendation is narrated by the always-accurate deterministic template
+    # (no baked fixture), so it tracks whichever firms were approved.
+    rec = recommend(levelled, "field_testing", conn=conn)
+    # it lands on the clean bid (lowest corrected of the two approved firms)
     assert rec.recommended_firm_id == GOLD
-    gi1 = next(r for r in rec.ranked if r.firm_id == "F-GI-01")
-    assert gi1.recommended_against is True
-    assert "risk.safety_prosecutions" in gi1.reason
-    assert rec.historical_band is None
-    assert "1,114,790" in rec.rationale and "1,125,890" in rec.rationale
-    assert "safety-prosecution" in rec.rationale
+    # GI-1 is not part of the leveling/recommendation — it lives in the shortlist only
+    assert all(r.firm_id != "F-GI-01" for r in rec.ranked)
+    # no firm in the leveling carries a fatal flag, so none is recommended against here
+    assert all(not r.recommended_against for r in rec.ranked)
+    # the rationale names the recommended firm and its (corrected) price
+    assert rec.recommended_firm_id is not None
+    assert "Gold Ram" in rec.rationale and "1,114,790" in rec.rationale

@@ -34,6 +34,9 @@ export function PageSourcing({
   const [heroTrade, setHeroTrade] = useState("electrical");
   const [uploadedNames, setUploadedNames] = useState<string[]>([]);
   const [replies, setReplies] = useState<BidReply[]>([]);
+  // Set for approval-driven cases: the SoR template bank the leveling replies are built
+  // from (per the firms approved in dispatch). null => use the case's fixed replies.
+  const [sorFixture, setSorFixture] = useState<string | null>(null);
   const [rationaleFixture, setRationaleFixture] = useState<string | null>(null);
   const [rationaleByTrade, setRationaleByTrade] = useState<Record<string, string>>({});
   const [scope, setScope] = useState<ScopePackages | null>(null);
@@ -74,7 +77,7 @@ export function PageSourcing({
     if (!files.length) return;
     const src = await api.demoCase("drainage");
     setHeroTrade(src.hero_trade);
-    setReplies(src.replies); setRationaleFixture(src.rationale_fixture); setRationaleByTrade(src.rationale_by_trade ?? {});
+    setReplies(src.replies); setSorFixture(src.sor_fixture ?? null); setRationaleFixture(src.rationale_fixture); setRationaleByTrade(src.rationale_by_trade ?? {});
     invalidateAfter(1); setUploadedNames(files.map((f) => f.name));
     setScope(await api.ingestUpload(files));
   });
@@ -82,8 +85,14 @@ export function PageSourcing({
     if (!scope) return;
     const res = await api.shortlist(scope);
     setShortlist(res);
+    // default-approve the top two clean firms per section (benchmark + 2 firms is the
+    // leveling cap), so each section is taken to bid with a real comparison by default.
     const def: Record<string, string[]> = {};
-    for (const [t, cs] of Object.entries(res.per_trade)) { const p = cs.find((c) => !c.recommended_against) ?? cs[0]; if (p) def[t] = [p.firm.firm_id]; }
+    for (const [t, cs] of Object.entries(res.per_trade)) {
+      const clean = cs.filter((c) => !c.recommended_against);
+      const pick = (clean.length ? clean : cs).slice(0, 2).map((c) => c.firm.firm_id);
+      if (pick.length) def[t] = pick;
+    }
     setApprovals(def); advance(2);
   });
   function toggleApprove(t: string, id: string) {
@@ -102,7 +111,14 @@ export function PageSourcing({
     setDispatchSent(true); setPhase("idle");
   });
   const startLevel = () => setPhase("collecting");
-  const runLevelAfterCollect = () => run(async () => { setLevelled(await api.level(replies, scope)); setLevelStale(false); advance(4); setPhase("idle"); });
+  // Approval-driven: build the leveling replies from the firms approved in dispatch
+  // (so the columns equal the approved firms), then level. Falls back to the case's
+  // fixed replies when the scenario ships no SoR template bank.
+  const runLevelAfterCollect = () => run(async () => {
+    const built = sorFixture ? await api.collectReplies(approvals, sorFixture) : replies;
+    if (sorFixture) setReplies(built);
+    setLevelled(await api.level(built, scope)); setLevelStale(false); advance(4); setPhase("idle");
+  });
   function editRate(firmId: string, ref: string, rate: number | null) {
     setReplies((cur) => cur.map((r) => r.firm_id !== firmId ? r : { ...r, line_items: r.line_items.map((l) => l.item_ref !== ref ? l : { ...l, rate, amount: rate == null ? null : l.qty * rate }) }));
     setLevelStale(true); setRecommendations([]); setAwards({}); setMaxReached((m) => Math.min(m, 4));
@@ -123,7 +139,7 @@ export function PageSourcing({
     setAwards(aw); advance(5);
   });
   function reset() {
-    setStep(1); setMaxReached(1); setUploadedNames([]); setReplies([]); setRationaleFixture(null);
+    setStep(1); setMaxReached(1); setUploadedNames([]); setReplies([]); setSorFixture(null); setRationaleFixture(null);
     setRationaleByTrade({});
     setScope(null); setShortlist(null); setApprovals({}); setDispatch(null); setDispatchSent(false); setPhase("idle"); setLevelled(null); setLevelStale(false); setRecommendations([]); setAwards({});
   }
@@ -137,7 +153,7 @@ export function PageSourcing({
         <div style={{ minWidth: 0 }}>
           {error && <div style={{ marginBottom: 16, borderRadius: 12, border: "1px solid rgba(229,72,77,0.3)", background: rgba("#E5484D", 0.08), padding: "12px 15px", fontSize: 13.5, color: "#E5484D" }}>Something went wrong: {error}</div>}
           {phase === "sending" && dispatch && <ProcessingOverlay kind="sending" steps={sendingSteps(dispatch)} onDone={onSendComplete} />}
-          {phase === "collecting" && <ProcessingOverlay kind="collecting" steps={collectingSteps(replies)} onDone={runLevelAfterCollect} />}
+          {phase === "collecting" && <ProcessingOverlay kind="collecting" steps={collectingSteps(sorFixture ? Object.values(approvals).reduce((n, ids) => n + Math.min(ids.length, 2), 0) : new Set(replies.map((r) => r.firm_id)).size)} onDone={runLevelAfterCollect} />}
           {phase === "idle" && <>
           {step === 1 && <StepIngest {...{ demoMode, scope, loading, uploadedNames, runUpload, goShortlist }} />}
           {step === 2 && shortlist && <StepShortlist {...{ shortlist, heroTrade, covTotal, covFlagged, loading, cite, onBack: () => goTo(1), onNext: () => advance(3), onLevel: startLevel }} />}
@@ -617,8 +633,7 @@ function sendingSteps(d: DispatchSet): string[] {
   return ["Composing enquiry emails", "Attaching each firm's trade document bundle", ...firms.map((f) => `Sent → ${f}`), "Mock outbox updated"];
 }
 
-function collectingSteps(rs: BidReply[]): string[] {
-  const n = Array.from(new Set(rs.map((r) => r.firm_id))).length;
+function collectingSteps(n: number): string[] {
   return ["Fetching replies from the mock outbox", "Reading the returned Schedules of Rates (PDF)", `Extracting priced line items from ${n} repl${n === 1 ? "y" : "ies"}`, "Flagging arithmetic errors and scope gaps", "Normalising every bid onto one scope basis"];
 }
 

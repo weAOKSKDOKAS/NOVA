@@ -28,6 +28,7 @@ from pipeline.stage_03_dispatch.dispatch import build_dispatch  # noqa: E402
 from pipeline.stage_03_dispatch.n8n import draft_via_n8n  # noqa: E402
 from pipeline.stage_04_level.export_xlsx import OUT_PATH, export_leveling_xlsx  # noqa: E402
 from pipeline.stage_04_level.level import level_bids, load_demo_replies  # noqa: E402
+from pipeline.stage_04_level.collect import build_replies_from_approvals, load_sor_templates  # noqa: E402
 from pipeline.stage_05_recommend.recommend import recommend  # noqa: E402
 from db import store  # noqa: E402
 from db.outbox import send_mock  # noqa: E402
@@ -259,13 +260,15 @@ _DEMO_CASES = {
         "hero_trade": "field_testing",
         "tender": _DRAINAGE_TENDER,
         "scope_fixture": "cases/scenarios/drainage_scope.json",
-        "replies_fixture": "cases/scenarios/drainage_replies.json",
-        "rationale_fixture": "cases/scenarios/drainage_rationale.json",
-        "rationale_by_trade": {
-            "field_testing": "cases/scenarios/drainage_rationale.json",
-            "field_installations": "cases/scenarios/drainage_rationale_h.json",
-            "geophysical_survey": "cases/scenarios/drainage_rationale_j.json",
-        },
+        # Approval-driven: the leveling bids are built from the firms approved in
+        # dispatch over this SoR template bank, so the Level columns always equal the
+        # approved firms (no fixed replies list, no GI-1 in the leveling).
+        "sor_fixture": "cases/scenarios/drainage_sor.json",
+        "replies_fixture": None,
+        # Recommendation is narrated by the always-accurate deterministic template
+        # (no baked fixture), so it tracks whichever firms were approved.
+        "rationale_fixture": "",
+        "rationale_by_trade": {},
     },
 }
 
@@ -285,6 +288,9 @@ class DemoCase(DemoCaseSummary):
     # Per-work-section rationale fixtures (trade -> fixture). The wizard runs the
     # recommendation once per section the bids cover and narrates each from here.
     rationale_by_trade: dict[str, str] = Field(default_factory=dict)
+    # Approval-driven cases ship a SoR template bank instead of a fixed replies list:
+    # the wizard builds the leveling replies from the approved firms via /collect-replies.
+    sor_fixture: str | None = None
 
 
 @app.get("/demo/cases", response_model=list[DemoCaseSummary])
@@ -300,6 +306,7 @@ def demo_case(case_id: str) -> DemoCase:
     m = _DEMO_CASES.get(case_id)
     if m is None:
         raise HTTPException(status_code=404, detail=f"Unknown demo case {case_id!r}.")
+    replies_fixture = m.get("replies_fixture")
     return DemoCase(
         id=case_id,
         name=m["name"],
@@ -307,9 +314,12 @@ def demo_case(case_id: str) -> DemoCase:
         blurb=m["blurb"],
         tender=m["tender"],
         scope_fixture=m["scope_fixture"],
-        replies=load_demo_replies(m["replies_fixture"]),
+        # Approval-driven cases carry no fixed replies; the wizard builds them from the
+        # approved firms over the SoR template bank.
+        replies=load_demo_replies(replies_fixture) if replies_fixture else [],
         rationale_fixture=m["rationale_fixture"],
         rationale_by_trade=m.get("rationale_by_trade", {}),
+        sor_fixture=m.get("sor_fixture"),
     )
 
 
@@ -417,6 +427,21 @@ def post_dispatch(req: DispatchRequest) -> DispatchSet:
 # ---------------------------------------------------------------------------
 # Stage 04 — level (+ Excel export)
 # ---------------------------------------------------------------------------
+class CollectRequest(BaseModel):
+    """Build the leveling replies from the firms approved in dispatch."""
+
+    approvals: dict[str, list[str]] = Field(default_factory=dict)
+    sor_fixture: str
+
+
+@app.post("/collect-replies", response_model=list[BidReply])
+def post_collect_replies(req: CollectRequest) -> list[BidReply]:
+    """Return the approval-driven leveling replies: per section, the tender scheduled
+    rates (benchmark) plus the approved firms over their pinned/representative SoR."""
+    sor = load_sor_templates(req.sor_fixture)
+    return build_replies_from_approvals(req.approvals, sor)
+
+
 class LevelRequest(BaseModel):
     replies: list[BidReply] = Field(default_factory=list)
     scope: ScopePackages | None = None

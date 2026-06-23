@@ -84,6 +84,10 @@ export const api = {
 
   shortlist: (scope: ScopePackages) => post<ShortlistSet>("/shortlist", { scope }),
   dispatch: (req: DispatchRequest) => post<DispatchSet>("/dispatch", req),
+  // Build the leveling replies from the firms approved in dispatch (approval-driven
+  // cases ship a SoR template bank instead of a fixed replies list).
+  collectReplies: (approvals: Record<string, string[]>, sorFixture: string) =>
+    post<BidReply[]>("/collect-replies", { approvals, sor_fixture: sorFixture }),
   level: (replies: BidReply[], scope: ScopePackages | null) => post<LevelledBid[]>("/level", { replies, scope }),
   recommend: (levelled: LevelledBid[], trade: string, rationaleFixture: string | null) =>
     post<Recommendation>("/recommend", { levelled, trade, demo_fixture: rationaleFixture }),

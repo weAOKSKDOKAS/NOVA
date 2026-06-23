@@ -170,6 +170,9 @@ export interface DemoCase extends DemoCaseSummary {
   rationale_fixture: string;
   // Per-work-section rationale fixtures (trade -> fixture); drives per-section recommend.
   rationale_by_trade: Record<string, string>;
+  // Approval-driven cases ship a SoR template bank instead of a fixed replies list: the
+  // wizard builds the leveling replies from the approved firms via /collect-replies.
+  sor_fixture?: string | null;
 }
 
 export interface Health {
