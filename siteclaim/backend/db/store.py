@@ -119,8 +119,13 @@ def _award_strings(conn: sqlite3.Connection, firm_id: str) -> list[str]:
     return out
 
 
+def _row_keys(row: sqlite3.Row) -> set[str]:
+    return set(row.keys())
+
+
 def _firm_from_row(conn: sqlite3.Connection, row: sqlite3.Row) -> FirmProfile:
     firm_id = row["firm_id"]
+    keys = _row_keys(row)
     return FirmProfile(
         firm_id=firm_id,
         name=row["name_en"],
@@ -130,6 +135,8 @@ def _firm_from_row(conn: sqlite3.Connection, row: sqlite3.Row) -> FirmProfile:
         public_flags=_public_flag_rows(conn, firm_id) + _closeout_flag_rows(conn, firm_id),
         closeout_summary=row["closeout_summary"] or "",
         award_history=_award_strings(conn, firm_id),
+        enquiry_email=(row["enquiry_email"] or "") if "enquiry_email" in keys else "",
+        description=(row["description"] or "") if "description" in keys else "",
     )
 
 
@@ -197,41 +204,92 @@ def coverage(conn: sqlite3.Connection) -> dict:
     trades: set[str] = set()
     for row in conn.execute("SELECT trades FROM firms WHERE provenance = ?", (_REAL,)):
         trades |= set(_json_list(row["trades"]))
+    flag_sources = [
+        row["source"]
+        for row in conn.execute(
+            "SELECT DISTINCT pf.source AS source FROM public_flags pf "
+            "JOIN firms f ON f.firm_id = pf.firm_id WHERE f.provenance = ? AND pf.source IS NOT NULL "
+            "AND pf.source != '' ORDER BY pf.source",
+            (_REAL,),
+        )
+    ]
     return {
         "total_firms": int(total),
         "flagged_firms": int(flagged),
         "flags_by_type": flags_by_type,
         "trades": sorted(trades),
+        "flag_sources": flag_sources,
+        "registers": len(flag_sources),
         "provenance": _REAL,
     }
 
 
-def real_firms(conn: sqlite3.Connection) -> list[dict]:
-    """Real-provenance registry firms only — never the illustrative demo firms —
-    each with its raw public flags (signal_type, label, date, source, reference) so
-    every row is verifiable against its cited government source on screen."""
+def _firm_dict(conn: sqlite3.Connection, row: sqlite3.Row) -> dict:
+    flags = conn.execute(
+        "SELECT signal_type, label, date, source, reference FROM public_flags "
+        "WHERE firm_id = ? ORDER BY signal_type",
+        (row["firm_id"],),
+    ).fetchall()
+    return {
+        "firm_id": row["firm_id"],
+        "name_en": row["name_en"],
+        "name_zh": row["name_zh"],
+        "registered_grade": row["registered_grade"] or "",
+        "value_band": row["value_band"] or "",
+        "trades": _json_list(row["trades"]),
+        "registered_trades": _json_list(row["registered_trades"]),
+        "description": row["description"] or "",
+        "enquiry_email": row["enquiry_email"] or "",
+        "br_no": row["br_no"] or "",
+        "reg_date": row["reg_date"] or "",
+        "expiry_date": row["expiry_date"] or "",
+        "public_flags": [dict(flag) for flag in flags],
+    }
+
+
+_FIRM_SORTS = {
+    "name": "name_en COLLATE NOCASE ASC",
+    "name_desc": "name_en COLLATE NOCASE DESC",
+}
+
+
+def paged_firms(
+    conn: sqlite3.Connection, *, limit: int = 25, offset: int = 0, q: str = "", sort: str = "name"
+) -> dict:
+    """A page of real-provenance registry firms, alphabetical by default. Server-side
+    only — never load the whole register into the client. ``q`` is a case-insensitive
+    name search. Returns ``{items, total, limit, offset}``; each item carries its
+    description, enquiry_email and registration dates."""
+    limit = max(1, min(int(limit), 100))
+    offset = max(0, int(offset))
+    order = _FIRM_SORTS.get(sort, _FIRM_SORTS["name"])
+    where = "provenance = ?"
+    params: list[object] = [_REAL]
+    needle = (q or "").strip()
+    if needle:
+        where += " AND name_en LIKE ? COLLATE NOCASE"
+        params.append(f"%{needle}%")
+    total = conn.execute(f"SELECT COUNT(*) AS n FROM firms WHERE {where}", params).fetchone()["n"]
     rows = conn.execute(
-        "SELECT firm_id, name_en, name_zh, registered_grade, value_band, trades "
-        "FROM firms WHERE provenance = ? ORDER BY name_en",
+        f"SELECT * FROM firms WHERE {where} ORDER BY {order} LIMIT ? OFFSET ?",
+        (*params, limit, offset),
+    ).fetchall()
+    return {
+        "items": [_firm_dict(conn, row) for row in rows],
+        "total": int(total),
+        "limit": limit,
+        "offset": offset,
+    }
+
+
+def real_firms(conn: sqlite3.Connection) -> list[dict]:
+    """All real-provenance registry firms (used by tests / internal callers). The API
+    serves :func:`paged_firms` instead — never load the full register in the client."""
+    rows = conn.execute(
+        "SELECT * FROM firms WHERE provenance = ? ORDER BY name_en COLLATE NOCASE",
         (_REAL,),
     ).fetchall()
-    firms: list[dict] = []
-    for row in rows:
-        flags = conn.execute(
-            "SELECT signal_type, label, date, source, reference FROM public_flags "
-            "WHERE firm_id = ? ORDER BY signal_type",
-            (row["firm_id"],),
-        ).fetchall()
-        firms.append({
-            "firm_id": row["firm_id"],
-            "name_en": row["name_en"],
-            "name_zh": row["name_zh"],
-            "registered_grade": row["registered_grade"] or "",
-            "value_band": row["value_band"] or "",
-            "trades": _json_list(row["trades"]),
-            "public_flags": [dict(flag) for flag in flags],
-        })
-    return firms
+    return [_firm_dict(conn, row) for row in rows]
 
 
 # ---------------------------------------------------------------------------

@@ -4,7 +4,7 @@ import type {
   DemoCase,
   DemoCaseSummary,
   DispatchSet,
-  Firm,
+  FirmsPage,
   Health,
   LevelledBid,
   Recommendation,
@@ -53,9 +53,19 @@ export const api = {
   base: BASE,
   health: () => get<Health>("/health"),
   coverage: () => get<Coverage>("/coverage"),
-  firms: () => get<Firm[]>("/firms"),
   demoCases: () => get<DemoCaseSummary[]>("/demo/cases"),
   demoCase: (id: string) => get<DemoCase>(`/demo/${id}`),
+
+  // Server-side paginated register. Never loads all ~1,366 firms at once.
+  firms: (params: { limit?: number; offset?: number; q?: string; sort?: string } = {}) => {
+    const qs = new URLSearchParams();
+    if (params.limit != null) qs.set("limit", String(params.limit));
+    if (params.offset != null) qs.set("offset", String(params.offset));
+    if (params.q) qs.set("q", params.q);
+    if (params.sort) qs.set("sort", params.sort);
+    const s = qs.toString();
+    return get<FirmsPage>("/firms" + (s ? `?${s}` : ""));
+  },
 
   // `scopeFixture` selects the per-scenario baked scope split in DEMO_MODE; omit it
   // to use the server's default (the building/fit-out scope).

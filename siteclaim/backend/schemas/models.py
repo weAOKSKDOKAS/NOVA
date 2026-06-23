@@ -156,6 +156,10 @@ class FirmProfile(BaseModel):
     public_flags: list[RiskFlag] = Field(default_factory=list)
     closeout_summary: str = ""
     award_history: list[str] = Field(default_factory=list)
+    # Register-fused fields (the real CIC register). enquiry_email is what Dispatch
+    # reads to draft the enquiry; description is the short factual blurb.
+    enquiry_email: str = ""
+    description: str = ""
 
 
 class Candidate(BaseModel):

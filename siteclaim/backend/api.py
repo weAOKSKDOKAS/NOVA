@@ -90,6 +90,12 @@ class PublicFlagOut(BaseModel):
     reference: str | None = None
 
 
+class RegisteredTradeOut(BaseModel):
+    code: str = ""
+    group: str = ""
+    specialty: str = ""
+
+
 class FirmOut(BaseModel):
     firm_id: str
     name_en: str
@@ -97,16 +103,36 @@ class FirmOut(BaseModel):
     registered_grade: str
     value_band: str
     trades: list[str]
+    registered_trades: list[RegisteredTradeOut] = Field(default_factory=list)
+    description: str = ""
+    enquiry_email: str = ""
+    br_no: str = ""
+    reg_date: str = ""
+    expiry_date: str = ""
     public_flags: list[PublicFlagOut]
 
 
-@app.get("/firms", response_model=list[FirmOut])
-def firms() -> list[dict]:
-    """The proprietary data asset: real-provenance Hong Kong registry firms only
-    (never the illustrative demo firms), each with its cited public flags."""
+class FirmsPage(BaseModel):
+    items: list[FirmOut]
+    total: int
+    limit: int
+    offset: int
+
+
+_FIRM_PAGE_SIZES = {10, 25, 50, 100}
+
+
+@app.get("/firms", response_model=FirmsPage)
+def firms(limit: int = 25, offset: int = 0, q: str = "", sort: str = "name") -> dict:
+    """The proprietary data asset: a server-paginated page of real-provenance Hong
+    Kong register firms (never the illustrative demo firms). ``limit`` is one of
+    10/25/50/100 (hard cap 100); ``q`` is a case-insensitive name search; default
+    sort is name ascending. Returns ``{items, total, limit, offset}``."""
+    if limit not in _FIRM_PAGE_SIZES:
+        limit = 25
     conn = store.get_connection()
     try:
-        return store.real_firms(conn)
+        return store.paged_firms(conn, limit=limit, offset=offset, q=q, sort=sort)
     finally:
         conn.close()
 

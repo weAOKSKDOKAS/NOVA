@@ -183,7 +183,15 @@ export interface PublicFlag {
   reference: string | null;
 }
 
-// A real-provenance registry firm (the Database page's data asset).
+// A registered CIC trade row (Code :: Specialty), structured for display.
+export interface RegisteredTrade {
+  code: string;
+  group: string;
+  specialty: string;
+}
+
+// A real-provenance registry firm (the Database page's data asset), fused from the
+// CIC register: a factual description, the real enquiry e-mail, registration dates.
 export interface Firm {
   firm_id: string;
   name_en: string;
@@ -191,7 +199,21 @@ export interface Firm {
   registered_grade: string;
   value_band: string;
   trades: string[];
+  registered_trades: RegisteredTrade[];
+  description: string;
+  enquiry_email: string;
+  br_no: string;
+  reg_date: string;
+  expiry_date: string;
   public_flags: PublicFlag[];
+}
+
+// One server-side page of the register.
+export interface FirmsPage {
+  items: Firm[];
+  total: number;
+  limit: number;
+  offset: number;
 }
 
 // Coverage of the real-provenance registry scrape only (the illustrative demo
@@ -201,6 +223,8 @@ export interface Coverage {
   flagged_firms: number;
   flags_by_type: Record<string, number>;
   trades: string[];
+  flag_sources: string[];
+  registers: number;
   provenance: string;
 }
 
