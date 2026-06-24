@@ -8,7 +8,7 @@ import type {
 
 const MONO = "'Spline Sans Mono',monospace";
 const DISPLAY = "'Bricolage Grotesque',sans-serif";
-const INK = "#0F1B2D", SOFT = "#46566b", FAINT = "#8a98ab", BLUE = "#1F6FEB";
+const INK = "#0F1B2D", SOFT = "#46566b", FAINT = "#8a98ab", BLUE = "#1F6FEB", TEAL = "#0FB5A6";
 const cardSx: React.CSSProperties = { background: "#fff", border: "1px solid rgba(15,27,45,0.07)", borderRadius: 16, boxShadow: "0 10px 30px -24px rgba(15,27,45,0.4)" };
 const primaryBtn = (on = true): React.CSSProperties => ({ background: on ? BLUE : "#aeb9c5", border: "none", color: "#fff", borderRadius: 11, padding: "11px 19px", fontSize: 14, fontWeight: 600, cursor: on ? "pointer" : "not-allowed", boxShadow: on ? "0 12px 26px -14px rgba(31,111,235,0.7)" : "none" });
 const ghostBtn: React.CSSProperties = { background: "#fff", border: "1px solid rgba(15,27,45,0.12)", color: INK, borderRadius: 11, padding: "11px 17px", fontSize: 14, fontWeight: 600, cursor: "pointer" };
@@ -42,6 +42,10 @@ export function PageSourcing({
   const [scope, setScope] = useState<ScopePackages | null>(null);
   const [shortlist, setShortlist] = useState<ShortlistSet | null>(null);
   const [approvals, setApprovals] = useState<Record<string, string[]>>({});
+  // Per-section flag: false while the section rides its auto top-2 default; flips true
+  // the first time the buyer adds/removes a firm in that section, after which the
+  // section carries only the explicit set the buyer has built (see toggleApprove).
+  const [touched, setTouched] = useState<Record<string, boolean>>({});
   const [dispatch, setDispatch] = useState<DispatchSet | null>(null);
   const [dispatchSent, setDispatchSent] = useState(false);
   const [phase, setPhase] = useState<"idle" | "sending" | "collecting">("idle");
@@ -85,18 +89,35 @@ export function PageSourcing({
     if (!scope) return;
     const res = await api.shortlist(scope);
     setShortlist(res);
-    // default-approve the top two clean firms per section (benchmark + 2 firms is the
-    // leveling cap), so each section is taken to bid with a real comparison by default.
-    const def: Record<string, string[]> = {};
-    for (const [t, cs] of Object.entries(res.per_trade)) {
-      const clean = cs.filter((c) => !c.recommended_against);
-      const pick = (clean.length ? clean : cs).slice(0, 2).map((c) => c.firm.firm_id);
-      if (pick.length) def[t] = pick;
-    }
-    setApprovals(def); advance(2);
+    // Each section defaults to the top two clean firms (benchmark + 2 is the leveling
+    // cap), shown pre-added. On a re-run we keep a section the buyer already edited
+    // (intersected with the firms still on the new shortlist) and only reset the rest.
+    setApprovals((cur) => {
+      const next: Record<string, string[]> = {};
+      for (const [t, cs] of Object.entries(res.per_trade)) {
+        const ids = new Set(cs.map((c) => c.firm.firm_id));
+        if (touched[t]) {
+          next[t] = (cur[t] ?? []).filter((id) => ids.has(id));
+        } else {
+          const clean = cs.filter((c) => !c.recommended_against);
+          next[t] = (clean.length ? clean : cs).slice(0, 2).map((c) => c.firm.firm_id);
+        }
+      }
+      return next;
+    });
+    advance(2);
   });
+  // A selection action, not a stage re-run: it toggles one firm's membership and never
+  // invalidates the leveled/recommend stages. Marking the section touched keeps the
+  // buyer's edits from being clobbered if the shortlist is re-run. The auto top-2 are
+  // shown pre-selected (never silent) so the buyer can see and change exactly what
+  // dispatches; the same approvals drive the dispatch checkboxes and the leveling.
   function toggleApprove(t: string, id: string) {
-    setApprovals((cur) => { const ids = cur[t] ?? []; return { ...cur, [t]: ids.includes(id) ? ids.filter((x) => x !== id) : [...ids, id] }; });
+    setTouched((cur) => (cur[t] ? cur : { ...cur, [t]: true }));
+    setApprovals((cur) => {
+      const ids = cur[t] ?? [];
+      return { ...cur, [t]: ids.includes(id) ? ids.filter((x) => x !== id) : [...ids, id] };
+    });
     setDispatch(null);
   }
   const prepareDispatch = () => run(async () => { if (!shortlist || !scope) return; setDispatch(await api.dispatch({ shortlist, approvals, scope, project_name: scope.project_name, send: false })); setDispatchSent(false); });
@@ -141,7 +162,7 @@ export function PageSourcing({
   function reset() {
     setStep(1); setMaxReached(1); setUploadedNames([]); setReplies([]); setSorFixture(null); setRationaleFixture(null);
     setRationaleByTrade({});
-    setScope(null); setShortlist(null); setApprovals({}); setDispatch(null); setDispatchSent(false); setPhase("idle"); setLevelled(null); setLevelStale(false); setRecommendations([]); setAwards({});
+    setScope(null); setShortlist(null); setApprovals({}); setTouched({}); setDispatch(null); setDispatchSent(false); setPhase("idle"); setLevelled(null); setLevelStale(false); setRecommendations([]); setAwards({});
   }
 
   const covTotal = coverage?.total_firms ?? 149, covFlagged = coverage?.flagged_firms ?? 47;
@@ -156,7 +177,7 @@ export function PageSourcing({
           {phase === "collecting" && <ProcessingOverlay kind="collecting" steps={collectingSteps(sorFixture ? Object.values(approvals).reduce((n, ids) => n + Math.min(ids.length, 2), 0) : new Set(replies.map((r) => r.firm_id)).size)} onDone={runLevelAfterCollect} />}
           {phase === "idle" && <>
           {step === 1 && <StepIngest {...{ demoMode, scope, loading, uploadedNames, runUpload, goShortlist }} />}
-          {step === 2 && shortlist && <StepShortlist {...{ shortlist, heroTrade, covTotal, covFlagged, loading, cite, onBack: () => goTo(1), onNext: () => advance(3), onLevel: startLevel }} />}
+          {step === 2 && shortlist && <StepShortlist {...{ shortlist, heroTrade, covTotal, covFlagged, loading, cite, approvals, toggleApprove, onBack: () => goTo(1), onNext: () => advance(3), onLevel: startLevel }} />}
           {step === 3 && shortlist && <StepDispatch {...{ shortlist, approvals, dispatch, dispatchSent, loading, toggleApprove, prepareDispatch, editBundle, confirmSend, onBack: () => goTo(2), onNext: startLevel }} />}
           {step === 4 && levelled && <StepLevel {...{ levelled, replies, heroTrade, levelStale, loading, editRate, recompute, onBack: () => goTo(3), onNext: goRecommend }} />}
           {step === 5 && recommendations.length > 0 && <StepRecommend {...{ recommendations, awards, heroTrade, barReveal, cite, setAward: (t: string, id: string) => setAwards((a) => ({ ...a, [t]: id })), onBack: () => goTo(4), onReset: reset }} />}
@@ -311,13 +332,35 @@ function citeButton(e: { source: string; reference: string | null; snippet: stri
   );
 }
 
-function StepShortlist({ shortlist, heroTrade, covTotal, covFlagged, loading, cite, onBack, onNext, onLevel }: {
-  shortlist: ShortlistSet; heroTrade: string; covTotal: number; covFlagged: number; loading: boolean; cite: Cite; onBack: () => void; onNext: () => void; onLevel: () => void;
+// Shared "add to dispatch" toggle used on the shortlist card and in the firm modal.
+// Quiet outline "Add to dispatch" when not selected; tinted-filled "Added" when in the
+// dispatch selection (teal, or a fatal-red caution when the firm is recommend-against).
+function DispatchToggle({ selected, flagged, onClick }: { selected: boolean; flagged: boolean; onClick: (e: React.MouseEvent) => void }) {
+  const accent = flagged ? "#E5484D" : TEAL;
+  const base: React.CSSProperties = { display: "inline-flex", alignItems: "center", gap: 6, borderRadius: 999, padding: "6px 13px", fontFamily: MONO, fontSize: 11.5, fontWeight: 600, letterSpacing: "0.02em", cursor: "pointer", whiteSpace: "nowrap" };
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      style={selected
+        ? { ...base, background: rgba(accent, 0.13), border: `1px solid ${rgba(accent, 0.5)}`, color: accent }
+        : { ...base, background: "#fff", border: `1px solid ${rgba(BLUE, 0.45)}`, color: BLUE }}
+    >
+      {selected ? (flagged ? "⚠ Added · override" : "✓ Added") : "+ Add to dispatch"}
+    </button>
+  );
+}
+
+function StepShortlist({ shortlist, heroTrade, covTotal, covFlagged, loading, cite, approvals, toggleApprove, onBack, onNext, onLevel }: {
+  shortlist: ShortlistSet; heroTrade: string; covTotal: number; covFlagged: number; loading: boolean; cite: Cite;
+  approvals: Record<string, string[]>; toggleApprove: (trade: string, firmId: string) => void;
+  onBack: () => void; onNext: () => void; onLevel: () => void;
 }) {
   const trades = Object.keys(shortlist.per_trade).sort((a, b) => (a === heroTrade ? -1 : b === heroTrade ? 1 : a.localeCompare(b)));
   const totalCandidates = Object.values(shortlist.per_trade).reduce((n, cs) => n + cs.length, 0);
-  const [selectedFirmId, setSelectedFirmId] = useState<string | null>(null);
+  const [selectedFirm, setSelectedFirm] = useState<{ id: string; trade: string } | null>(null);
   const [hoveredId, setHoveredId] = useState<string | null>(null);
+  const approvedIn = (trade: string, firmId: string) => (approvals[trade] ?? []).includes(firmId);
 
   // No firm in the discovery database does this tender's work sections (e.g. the
   // ground-investigation drainage scenario). Be honest rather than render a blank
@@ -350,7 +393,7 @@ function StepShortlist({ shortlist, heroTrade, covTotal, covFlagged, loading, ci
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
-      {selectedFirmId && <FirmModal firmId={selectedFirmId} onClose={() => setSelectedFirmId(null)} />}
+      {selectedFirm && <FirmModal firmId={selectedFirm.id} selected={approvedIn(selectedFirm.trade, selectedFirm.id)} flagged={(shortlist.per_trade[selectedFirm.trade] ?? []).find((c) => c.firm.firm_id === selectedFirm.id)?.recommended_against ?? false} onToggle={() => toggleApprove(selectedFirm.trade, selectedFirm.id)} onClose={() => setSelectedFirm(null)} />}
       <div>
         {kicker("Step 02 · Shortlist")}
         <h1 style={h1Sx}>Shortlist per trade — with cited evidence</h1>
@@ -384,18 +427,20 @@ function StepShortlist({ shortlist, heroTrade, covTotal, covFlagged, loading, ci
                 const isIllustrative = c.firm.firm_id.startsWith("F-");
                 const isHov = hoveredId === c.firm.firm_id;
                 const meta = [c.firm.registered_grade, c.firm.value_band ? formatBand(c.firm.value_band) : ""].filter(Boolean).join(" · ");
+                const selected = approvedIn(t, c.firm.firm_id);
+                const accent = against ? "#E5484D" : TEAL;
                 return (
                   <div
                     key={c.firm.firm_id}
-                    onClick={() => setSelectedFirmId(c.firm.firm_id)}
+                    onClick={() => setSelectedFirm({ id: c.firm.firm_id, trade: t })}
                     onMouseEnter={() => setHoveredId(c.firm.firm_id)}
                     onMouseLeave={() => setHoveredId(null)}
                     style={{
-                      border: `1px solid ${against ? rgba("#E5484D", 0.28) : isHov ? rgba(BLUE, 0.35) : "rgba(15,27,45,0.09)"}`,
+                      border: `1px solid ${selected ? rgba(accent, 0.5) : against ? rgba("#E5484D", 0.28) : isHov ? rgba(BLUE, 0.35) : "rgba(15,27,45,0.09)"}`,
                       borderRadius: 14, padding: "16px 18px", cursor: "pointer",
-                      background: against ? rgba("#E5484D", 0.035) : "#fff",
+                      background: selected ? rgba(accent, against ? 0.06 : 0.045) : against ? rgba("#E5484D", 0.035) : "#fff",
                       boxShadow: isHov ? `0 8px 24px -14px ${rgba(INK, 0.5)}` : "0 1px 2px rgba(15,27,45,0.03)",
-                      transition: "border-color 0.13s, box-shadow 0.13s",
+                      transition: "border-color 0.13s, box-shadow 0.13s, background 0.13s",
                     }}
                   >
                     <div style={{ display: "flex", alignItems: "flex-start", gap: 14 }}>
@@ -430,6 +475,10 @@ function StepShortlist({ shortlist, heroTrade, covTotal, covFlagged, loading, ci
                       </div>
                     )}
                     {warn.length > 0 && <div style={{ marginTop: 11 }}>{warn.map((fl, fi) => <FlagPanel key={fi} flag={fl} sev="warning" cite={cite} />)}</div>}
+                    <div style={{ display: "flex", alignItems: "center", justifyContent: "flex-end", gap: 10, marginTop: 13, paddingTop: 12, borderTop: "1px solid #f1f3f7" }}>
+                      <span style={{ fontSize: 11, color: FAINT }}>{selected ? "Selected for dispatch" : "Click card for full profile"}</span>
+                      <DispatchToggle selected={selected} flagged={against} onClick={(e) => { e.stopPropagation(); toggleApprove(t, c.firm.firm_id); }} />
+                    </div>
                   </div>
                 );
               })}
@@ -472,7 +521,7 @@ function FlagPanel({ flag, sev, cite }: { flag: { label: string; rule_ref: strin
 // ----------------------------------------------------------------------------
 const modalLabel: React.CSSProperties = { fontFamily: MONO, fontSize: 10.5, letterSpacing: "0.1em", textTransform: "uppercase", color: FAINT, fontWeight: 600, marginBottom: 10 };
 
-function FirmModal({ firmId, onClose }: { firmId: string; onClose: () => void }) {
+function FirmModal({ firmId, selected, flagged, onToggle, onClose }: { firmId: string; selected: boolean; flagged: boolean; onToggle: () => void; onClose: () => void }) {
   const [firm, setFirm] = useState<FirmProfileFull | null>(null);
   const [loading, setLoading] = useState(true);
   const [err, setErr] = useState<string | null>(null);
@@ -692,6 +741,12 @@ function FirmModal({ firmId, onClose }: { firmId: string; onClose: () => void })
             </section>
           </div>
         )}
+        {!loading && firm && (
+          <div style={{ position: "sticky", bottom: 0, display: "flex", alignItems: "center", justifyContent: "flex-end", gap: 12, padding: "14px 22px", borderTop: "1px solid #eef1f6", background: "#fff", borderRadius: "0 0 20px 20px" }}>
+            <span style={{ fontSize: 12, color: FAINT }}>{selected ? "Selected for dispatch" : "Interested?"}</span>
+            <DispatchToggle selected={selected} flagged={flagged} onClick={onToggle} />
+          </div>
+        )}
       </div>
     </>
   );
@@ -763,7 +818,6 @@ function StepDispatch({ shortlist, approvals, dispatch, dispatchSent, loading, t
   const drafting = !!dispatch && !dispatchSent;
   // n8n created the Gmail drafts (webhook configured); otherwise it's the mock outbox.
   const gmail = !drafting && !!dispatch?.bundles.some((b) => b.status === "drafted_gmail");
-  const TEAL = "#0FB5A6";
   const labelSx: React.CSSProperties = { display: "block", fontFamily: MONO, fontSize: 10, letterSpacing: "0.06em", textTransform: "uppercase", color: FAINT, marginBottom: 4 };
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
